@@ -207,3 +207,36 @@ export type PhysicalAssessment = {
   circumferences?: CircumferencesData;
   notasProfissional?: string;
 };
+
+// -------------------------------------------------------------
+// Autenticação, Perfis e Sincronização
+// -------------------------------------------------------------
+
+export type UserRole = 'trainer' | 'student';
+
+export type UserProfile = {
+  id: string;
+  email: string;
+  role: UserRole;
+  name: string;
+  trainerId?: string;
+  brandColor?: string;
+  logoUrl?: string;
+  phone?: string;
+  createdAt: string;
+};
+
+export type StudentInvite = {
+  id: string;
+  trainerId: string;
+  trainerName?: string;
+  studentEmail: string;
+  studentName?: string;
+  code: string;
+  status: 'pending' | 'accepted' | 'expired';
+  createdAt: string;
+  expiresAt?: string;
+};
+
+export type SyncStatus = 'synced' | 'pending' | 'syncing' | 'offline' | 'error';
+

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View } from 'react-native';
+import Svg, { Circle, Defs, G, Line, LinearGradient, Path, Stop, Text as SvgText } from 'react-native-svg';
 import { Body, Card, Chip, Label, Title } from './components';
 import { useTheme } from './theme';
 
@@ -42,7 +43,7 @@ export function EvolutionChart({ history }: { history: DataPoint[] }) {
   const maxVal = Math.max(...values);
   const range = maxVal - minVal || 1;
 
-  // Dimensões do SVG
+  // Dimensões da ViewBox
   const width = 580;
   const height = 180;
   const paddingX = 40;
@@ -73,21 +74,22 @@ export function EvolutionChart({ history }: { history: DataPoint[] }) {
         </View>
       </View>
 
-      {/* SVG Canvas Nativo Responsivo */}
+      {/* SVG Canvas Nativo Responsivo para iOS, Android e Web */}
       <View style={{ width: '100%', marginVertical: 8, overflow: 'hidden' }}>
-        <svg
+        <Svg
           viewBox={`0 0 ${width} ${height}`}
-          style={{ width: '100%', height: 'auto', maxHeight: 200, display: 'block' }}
+          width="100%"
+          height={180}
         >
-          <defs>
-            <linearGradient id="gradientArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={metricConfig.color} stopOpacity="0.25" />
-              <stop offset="100%" stopColor={metricConfig.color} stopOpacity="0.0" />
-            </linearGradient>
-          </defs>
+          <Defs>
+            <LinearGradient id="gradientArea" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0%" stopColor={metricConfig.color} stopOpacity="0.25" />
+              <Stop offset="100%" stopColor={metricConfig.color} stopOpacity="0.0" />
+            </LinearGradient>
+          </Defs>
 
           {/* Linhas de grade sutis */}
-          <line
+          <Line
             x1={paddingX}
             y1={paddingY}
             x2={width - paddingX}
@@ -96,7 +98,7 @@ export function EvolutionChart({ history }: { history: DataPoint[] }) {
             strokeDasharray="4 4"
             strokeWidth="1"
           />
-          <line
+          <Line
             x1={paddingX}
             y1={height - paddingY}
             x2={width - paddingX}
@@ -106,39 +108,37 @@ export function EvolutionChart({ history }: { history: DataPoint[] }) {
           />
 
           {/* Área preenchida com gradiente suave */}
-          <path d={areaD} fill="url(#gradientArea)" />
+          <Path d={areaD} fill="url(#gradientArea)" />
 
           {/* Linha principal da curva */}
-          <path d={pathD} fill="none" stroke={metricConfig.color} strokeWidth="3" strokeLinecap="round" />
+          <Path d={pathD} fill="none" stroke={metricConfig.color} strokeWidth="3" strokeLinecap="round" />
 
           {/* Pontos de dados com marcadores */}
           {points.map((p, idx) => (
-            <g key={idx}>
-              <circle cx={p.x} cy={p.y} r="5" fill={metricConfig.color} stroke="#FFFFFF" strokeWidth="2" />
-              <text
+            <G key={idx}>
+              <Circle cx={p.x} cy={p.y} r="5" fill={metricConfig.color} stroke="#FFFFFF" strokeWidth="2" />
+              <SvgText
                 x={p.x}
                 y={p.y - 10}
                 fill={t.text}
                 fontSize="11"
                 fontWeight="600"
                 textAnchor="middle"
-                fontFamily="sans-serif"
               >
                 {p.val}
-              </text>
-              <text
+              </SvgText>
+              <SvgText
                 x={p.x}
                 y={height - 8}
                 fill={t.muted}
                 fontSize="10"
                 textAnchor="middle"
-                fontFamily="sans-serif"
               >
                 {p.date}
-              </text>
-            </g>
+              </SvgText>
+            </G>
           ))}
-        </svg>
+        </Svg>
       </View>
 
       <Body muted style={{ fontSize: 13 } as any}>

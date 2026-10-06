@@ -1,11 +1,13 @@
 import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 import { trainer } from '../../src/data/seed';
+import { useAuth } from '../../src/state/AuthContext';
 import { Body, Button, Card, Label, Screen, Title } from '../../src/ui/components';
 import { useTheme } from '../../src/ui/theme';
 
 export default function Treinador() {
   const t = useTheme();
+  const { profile, signOut } = useAuth();
 
   return (
     <Screen>
@@ -45,9 +47,21 @@ export default function Treinador() {
         </Body>
       </Card>
 
-      <View style={{ marginTop: 16 }}>
-        <Button title="Trocar perfil (Voltar à Entrada)" variant="ghost" onPress={() => router.replace('/')} />
-      </View>
+      <Card>
+        <Label>Sua Conta de Aluno</Label>
+        <Title size={20}>{profile?.name ?? 'Samuel Ferreira'}</Title>
+        <Body muted>{profile?.email ?? 'samuel@aluno.com'}</Body>
+        <View style={{ marginTop: 8 }}>
+          <Button
+            title="Sair da Conta"
+            variant="ghost"
+            onPress={async () => {
+              await signOut();
+              router.replace('/');
+            }}
+          />
+        </View>
+      </Card>
     </Screen>
   );
 }

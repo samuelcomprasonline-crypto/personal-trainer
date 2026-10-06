@@ -3,10 +3,14 @@ import { View } from 'react-native';
 import { exerciseById, template, trainer } from '../../src/data/seed';
 import { nextSlot, shouldRest } from '../../src/domain/schedule';
 import { useAppState } from '../../src/state/AppState';
+import { useAuth } from '../../src/state/AuthContext';
 import { Body, Button, Card, Label, Screen, Title } from '../../src/ui/components';
+import { useTheme } from '../../src/ui/theme';
 
 export default function Hoje() {
-  const { logs, ready } = useAppState();
+  const t = useTheme();
+  const { logs, ready, syncStatus, forceSync } = useAppState();
+  const { profile } = useAuth();
 
   if (!ready) {
     return (
@@ -20,9 +24,11 @@ export default function Hoje() {
   if (!slot) {
     return (
       <Screen>
-        <Label>{trainer.name}</Label>
+        <Label>{profile?.name ? `Olá, ${profile.name}` : trainer.name}</Label>
         <Title>Bloco concluído.</Title>
-        <Body muted>Parabéns! Você completou todas as semanas deste bloco de periodização. Seu treinador está preparando o próximo plano.</Body>
+        <Body muted>
+          Parabéns! Você completou todas as semanas deste bloco de periodização. Seu treinador está preparando o próximo plano.
+        </Body>
         <Button title="Ver meu progresso" onPress={() => router.push('/progresso')} />
       </Screen>
     );
@@ -31,9 +37,29 @@ export default function Hoje() {
   const session = template.sessions.find((s) => s.id === slot.sessionId)!;
   const openWorkout = () => router.push('/treino');
 
+  const syncLabel = {
+    synced: '● Nuvem sincronizada',
+    syncing: '↻ Sincronizando...',
+    pending: '○ Pendente de envio',
+    offline: 'Modo local',
+    error: '⚠ Falha na conexão',
+  }[syncStatus];
+
   return (
     <Screen>
-      <Label>{trainer.name}</Label>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Label>{trainer.name}</Label>
+        <Body
+          muted
+          style={{
+            fontSize: 12,
+            color: syncStatus === 'synced' ? '#10B981' : syncStatus === 'pending' ? '#F59E0B' : t.muted,
+          } as any}
+        >
+          {syncLabel}
+        </Body>
+      </View>
+
       <Title>Hoje</Title>
 
       {shouldRest(logs, new Date()) && (

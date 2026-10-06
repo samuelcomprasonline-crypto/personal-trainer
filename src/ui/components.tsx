@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from './theme';
 
@@ -243,3 +243,54 @@ export function LoadStepper({
     </View>
   );
 }
+
+export function TextInputField({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  secureTextEntry,
+  keyboardType = 'default',
+  autoCapitalize = 'none',
+  error,
+}: {
+  label: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder?: string;
+  secureTextEntry?: boolean;
+  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  error?: string;
+}) {
+  const t = useTheme();
+  return (
+    <View style={{ gap: 6, width: '100%' }}>
+      <Label>{label}</Label>
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={t.muted}
+        secureTextEntry={secureTextEntry}
+        keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
+        style={{
+          backgroundColor: t.surface,
+          borderWidth: 1,
+          borderColor: error ? '#E11D48' : t.border,
+          borderRadius: 14,
+          paddingHorizontal: 16,
+          paddingVertical: 13,
+          fontSize: 16,
+          color: t.text,
+          fontFamily: t.fonts.body,
+        }}
+      />
+      {error ? (
+        <Text style={{ color: '#E11D48', fontSize: 13, fontFamily: t.fonts.body }}>{error}</Text>
+      ) : null}
+    </View>
+  );
+}
+

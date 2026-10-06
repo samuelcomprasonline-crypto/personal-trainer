@@ -5,18 +5,22 @@ import { assessmentHistory, otherStudents, samuelAssessment, template, trainer }
 import { snapshotFromLogs } from '../../src/domain/radar';
 import type { PhysicalAssessment } from '../../src/domain/types';
 import { useAppState } from '../../src/state/AppState';
+import { useAuth } from '../../src/state/AuthContext';
 import { AssessmentReport } from '../../src/ui/AssessmentReport';
 import { Body, Button, Card, Label, Screen, Title } from '../../src/ui/components';
 import { NewAssessmentModal } from '../../src/ui/NewAssessmentModal';
+import { NewInviteModal } from '../../src/ui/NewInviteModal';
 import { useTheme } from '../../src/ui/theme';
 
 export default function Alunos() {
   const t = useTheme();
   const { logs } = useAppState();
+  const { signOut, profile } = useAuth();
   const me = snapshotFromLogs('previa', 'Samuel Ferreira', logs, template.sessions.length, new Date(), {});
   const students = [me, ...otherStudents];
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [showNewModal, setShowNewModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [currentAssessment, setCurrentAssessment] = useState(samuelAssessment);
 
   const handleSaveAssessment = (newAss: PhysicalAssessment) => {
@@ -34,15 +38,20 @@ export default function Alunos() {
   return (
     <>
       <Screen>
-        <Label>{trainer.name} · Consultoria</Label>
+        <Label>{profile?.name ? `${profile.name} · Consultoria` : `${trainer.name} · Consultoria`}</Label>
         <Title>Gestão de Alunos</Title>
         <Body muted>
           Acompanhe o engajamento, periodização e laudos de avaliação física dos seus alunos.
         </Body>
 
-        <View style={{ marginVertical: 4 }}>
+        <View style={{ gap: 8, marginVertical: 4 }}>
+          <Button
+            title="+ Convidar Novo Aluno (Gerar Código)"
+            onPress={() => setShowInviteModal(true)}
+          />
           <Button
             title="+ Registrar Nova Avaliação Física"
+            variant="ghost"
             onPress={() => setShowNewModal(true)}
           />
         </View>
@@ -72,10 +81,23 @@ export default function Alunos() {
           ))}
         </View>
 
-        <View style={{ marginTop: 12 }}>
-          <Button title="Voltar para a tela de Entrada" variant="ghost" onPress={() => router.replace('/')} />
+        <View style={{ marginTop: 12, gap: 8 }}>
+          <Button
+            title="Encerrar sessão / Sair da conta"
+            variant="ghost"
+            onPress={async () => {
+              await signOut();
+              router.replace('/');
+            }}
+          />
         </View>
       </Screen>
+
+      {/* MODAL DE CONVITE DE NOVO ALUNO */}
+      <NewInviteModal
+        visible={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+      />
 
       {/* MODAL DE CADASTRO DE NOVA AVALIAÇÃO */}
       <NewAssessmentModal

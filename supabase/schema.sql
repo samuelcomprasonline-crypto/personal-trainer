@@ -219,3 +219,55 @@ create index if not exists idx_profiles_trainer on public.profiles(trainer_id);
 create index if not exists idx_assessments_student on public.physical_assessments(student_id, date desc);
 create index if not exists idx_session_logs_student on public.session_logs(student_id, completed_at desc);
 create index if not exists idx_set_logs_session on public.set_logs(session_log_id);
+
+-- 9. TABELA DE CONVITES DE ALUNOS
+create table if not exists public.invites (
+  id uuid default gen_random_uuid() primary key,
+  trainer_id uuid references public.profiles(id) on delete cascade not null,
+  student_email text not null,
+  student_name text,
+  code text not null unique,
+  status text not null default 'pending' check (status in ('pending', 'accepted', 'expired')),
+  expires_at timestamp with time zone,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.invites enable row level security;
+
+create policy "Treinador pode gerenciar seus convites"
+  on public.invites for all
+  using (trainer_id = auth.uid());
+
+create policy "Consulta de convites por código"
+  on public.invites for select
+  using (status = 'pending');
+
+create index if not exists idx_invites_code on public.invites(code);
+create index if not exists idx_invites_trainer on public.invites(trainer_id);
+
+-- 10. TRIGGER PARA CRIAR PROFILE AUTOMATICAMENTE AO REGISTRAR NO AUTH
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, email, role, name, trainer_id, brand_color)
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data->>'role', 'student'),
+    coalesce(new.raw_user_meta_data->>'name', split_part(new.email, '@', 1)),
+    case 
+      when new.raw_user_meta_data->>'trainer_id' is not null and new.raw_user_meta_data->>'trainer_id' <> '' 
+      then (new.raw_user_meta_data->>'trainer_id')::uuid 
+      else null 
+    end,
+    coalesce(new.raw_user_meta_data->>'brand_color', '#8C6A4F')
+  );
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
