@@ -7,6 +7,10 @@ export type Exercise = {
   primaryMuscle: string;
   equipment: string;
   loadIncrement: number;
+  videoUrl?: string; // Link direto do YouTube
+  youtubeId?: string; // ID do vídeo no YouTube (ex: "IODxDxX7oi4")
+  thumbnailUrl?: string;
+  instructions?: string;
 };
 
 export type TemplateItem = {
@@ -197,6 +201,14 @@ export type CircumferencesData = {
   panturrilhaCm?: number;
 };
 
+export type AssessmentPhotos = {
+  frenteUrl?: string;
+  costasUrl?: string;
+  perfilDireitoUrl?: string;
+  perfilEsquerdoUrl?: string;
+  data: string;
+};
+
 export type PhysicalAssessment = {
   id: string;
   studentId: string;
@@ -205,6 +217,7 @@ export type PhysicalAssessment = {
   bioimpedance?: BioimpedanceAssessment;
   skinfolds?: SkinfoldsData;
   circumferences?: CircumferencesData;
+  photos?: AssessmentPhotos;
   notasProfissional?: string;
 };
 

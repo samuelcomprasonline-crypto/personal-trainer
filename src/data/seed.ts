@@ -1,20 +1,141 @@
 import type { StudentSnapshot } from '../domain/radar';
 import type { Exercise, PhysicalAssessment, Template } from '../domain/types';
 
-export const trainer = { name: 'Studio Aurora', brandColor: '#8C6A4F' };
+export const trainer = { name: 'Studio Aurora', brandColor: '#C5A059' };
 
 export const exercises: Exercise[] = [
-  { id: 'leg-press', name: 'Leg Press 45º', movementPattern: 'squat', primaryMuscle: 'quads', equipment: 'machine', loadIncrement: 10 },
-  { id: 'hack', name: 'Hack Machine', movementPattern: 'squat', primaryMuscle: 'quads', equipment: 'machine', loadIncrement: 5 },
-  { id: 'goblet', name: 'Agachamento Goblet', movementPattern: 'squat', primaryMuscle: 'quads', equipment: 'dumbbell', loadIncrement: 2 },
-  { id: 'bulgaro', name: 'Agachamento Búlgaro', movementPattern: 'lunge', primaryMuscle: 'quads', equipment: 'dumbbell', loadIncrement: 2 },
-  { id: 'extensora', name: 'Cadeira Extensora', movementPattern: 'knee_extension', primaryMuscle: 'quads', equipment: 'machine', loadIncrement: 5 },
-  { id: 'supino', name: 'Supino Reto', movementPattern: 'horizontal_push', primaryMuscle: 'chest', equipment: 'barbell', loadIncrement: 2.5 },
-  { id: 'supino-halter', name: 'Supino com Halteres', movementPattern: 'horizontal_push', primaryMuscle: 'chest', equipment: 'dumbbell', loadIncrement: 2 },
-  { id: 'crucifixo', name: 'Crucifixo na Máquina', movementPattern: 'fly', primaryMuscle: 'chest', equipment: 'machine', loadIncrement: 5 },
-  { id: 'remada', name: 'Remada Baixa', movementPattern: 'horizontal_pull', primaryMuscle: 'back', equipment: 'cable', loadIncrement: 5 },
-  { id: 'remada-halter', name: 'Remada Unilateral', movementPattern: 'horizontal_pull', primaryMuscle: 'back', equipment: 'dumbbell', loadIncrement: 2 },
-  { id: 'puxada', name: 'Puxada Frontal', movementPattern: 'vertical_pull', primaryMuscle: 'back', equipment: 'cable', loadIncrement: 5 },
+  {
+    id: 'leg-press',
+    name: 'Leg Press 45º',
+    movementPattern: 'squat',
+    primaryMuscle: 'quads',
+    equipment: 'machine',
+    loadIncrement: 10,
+    youtubeId: 'IZxyjW7MPJQ',
+    videoUrl: 'https://www.youtube.com/watch?v=IZxyjW7MPJQ',
+    thumbnailUrl: 'https://img.youtube.com/vi/IZxyjW7MPJQ/hqdefault.jpg',
+    instructions: 'Pés na largura dos ombros, desça com amplitude máxima sem descolar a lombar do encosto. Empurre pelos calcanhares.',
+  },
+  {
+    id: 'hack',
+    name: 'Hack Machine',
+    movementPattern: 'squat',
+    primaryMuscle: 'quads',
+    equipment: 'machine',
+    loadIncrement: 5,
+    youtubeId: '0tn5K9NlCfo',
+    videoUrl: 'https://www.youtube.com/watch?v=0tn5K9NlCfo',
+    thumbnailUrl: 'https://img.youtube.com/vi/0tn5K9NlCfo/hqdefault.jpg',
+    instructions: 'Desça até formar ângulo de 90° nos joelhos, mantendo abdômen ativado e costas totalmente apoiadas.',
+  },
+  {
+    id: 'goblet',
+    name: 'Agachamento Goblet',
+    movementPattern: 'squat',
+    primaryMuscle: 'quads',
+    equipment: 'dumbbell',
+    loadIncrement: 2,
+    youtubeId: 'MeIiIdhvXT4',
+    videoUrl: 'https://www.youtube.com/watch?v=MeIiIdhvXT4',
+    thumbnailUrl: 'https://img.youtube.com/vi/MeIiIdhvXT4/hqdefault.jpg',
+    instructions: 'Segure o halter verticalmente colado ao esterno, cotovelos fechados, agache empurrando os joelhos para fora.',
+  },
+  {
+    id: 'bulgaro',
+    name: 'Agachamento Búlgaro',
+    movementPattern: 'lunge',
+    primaryMuscle: 'quads',
+    equipment: 'dumbbell',
+    loadIncrement: 2,
+    youtubeId: '2C-uNgKwPLE',
+    videoUrl: 'https://www.youtube.com/watch?v=2C-uNgKwPLE',
+    thumbnailUrl: 'https://img.youtube.com/vi/2C-uNgKwPLE/hqdefault.jpg',
+    instructions: 'Um pé elevado no banco atrás, desça o joelho de trás em direção ao chão mantendo o tronco levemente inclinado.',
+  },
+  {
+    id: 'extensora',
+    name: 'Cadeira Extensora',
+    movementPattern: 'knee_extension',
+    primaryMuscle: 'quads',
+    equipment: 'machine',
+    loadIncrement: 5,
+    youtubeId: 'YyvSfVjQeL0',
+    videoUrl: 'https://www.youtube.com/watch?v=YyvSfVjQeL0',
+    thumbnailUrl: 'https://img.youtube.com/vi/YyvSfVjQeL0/hqdefault.jpg',
+    instructions: 'Ajuste o rolo na altura dos tornozelos. Estenda até a contração máxima e segure 1 segundo no pico do movimento.',
+  },
+  {
+    id: 'supino',
+    name: 'Supino Reto',
+    movementPattern: 'horizontal_push',
+    primaryMuscle: 'chest',
+    equipment: 'barbell',
+    loadIncrement: 2.5,
+    youtubeId: 'rT7DgCr-3pg',
+    videoUrl: 'https://www.youtube.com/watch?v=rT7DgCr-3pg',
+    thumbnailUrl: 'https://img.youtube.com/vi/rT7DgCr-3pg/hqdefault.jpg',
+    instructions: 'Retração escapular firme no banco, desça a barra controlando até a linha do mamilo e suba com explosão controlada.',
+  },
+  {
+    id: 'supino-halter',
+    name: 'Supino com Halteres',
+    movementPattern: 'horizontal_push',
+    primaryMuscle: 'chest',
+    equipment: 'dumbbell',
+    loadIncrement: 2,
+    youtubeId: 'VmB1G1K7v94',
+    videoUrl: 'https://www.youtube.com/watch?v=VmB1G1K7v94',
+    thumbnailUrl: 'https://img.youtube.com/vi/VmB1G1K7v94/hqdefault.jpg',
+    instructions: 'Desça abrindo bem o peitoral sem forçar os ombros além da linha do tronco. Suba aproximando os halteres no topo.',
+  },
+  {
+    id: 'crucifixo',
+    name: 'Crucifixo na Máquina',
+    movementPattern: 'fly',
+    primaryMuscle: 'chest',
+    equipment: 'machine',
+    loadIncrement: 5,
+    youtubeId: 'FdayfZ8mKDs',
+    videoUrl: 'https://www.youtube.com/watch?v=FdayfZ8mKDs',
+    thumbnailUrl: 'https://img.youtube.com/vi/FdayfZ8mKDs/hqdefault.jpg',
+    instructions: 'Mantenha cotovelos levemente flexionados durante todo o arco. Concentre o esforço em juntar os bíceps no centro.',
+  },
+  {
+    id: 'remada',
+    name: 'Remada Baixa',
+    movementPattern: 'horizontal_pull',
+    primaryMuscle: 'back',
+    equipment: 'cable',
+    loadIncrement: 5,
+    youtubeId: 'GZbfZ033f74',
+    videoUrl: 'https://www.youtube.com/watch?v=GZbfZ033f74',
+    thumbnailUrl: 'https://img.youtube.com/vi/GZbfZ033f74/hqdefault.jpg',
+    instructions: 'Coluna ereta, ombros longe das orelhas. Puxe o triângulo contra o abdômen esmagando as escápulas atrás.',
+  },
+  {
+    id: 'remada-halter',
+    name: 'Remada Unilateral',
+    movementPattern: 'horizontal_pull',
+    primaryMuscle: 'back',
+    equipment: 'dumbbell',
+    loadIncrement: 2,
+    youtubeId: 'roCP6wCXPqo',
+    videoUrl: 'https://www.youtube.com/watch?v=roCP6wCXPqo',
+    thumbnailUrl: 'https://img.youtube.com/vi/roCP6wCXPqo/hqdefault.jpg',
+    instructions: 'Apoie um joelho e mão no banco. Puxe o peso trazendo o cotovelo rente à cintura em direção ao bolso da bermuda.',
+  },
+  {
+    id: 'puxada',
+    name: 'Puxada Frontal',
+    movementPattern: 'vertical_pull',
+    primaryMuscle: 'back',
+    equipment: 'cable',
+    loadIncrement: 5,
+    youtubeId: 'CAwf7n6Luuc',
+    videoUrl: 'https://www.youtube.com/watch?v=CAwf7n6Luuc',
+    thumbnailUrl: 'https://img.youtube.com/vi/CAwf7n6Luuc/hqdefault.jpg',
+    instructions: 'Pegada pronada aberta, incline levemente o tronco para trás. Puxe a barra até a altura do queixo, abrindo o peito.',
+  },
 ];
 
 export function exerciseById(id: string): Exercise {
@@ -23,19 +144,19 @@ export function exerciseById(id: string): Exercise {
   return found;
 }
 
-export const muscleLabel: Record<string, string> = { quads: 'Quadríceps', chest: 'Peito', back: 'Costas' };
+export const muscleLabel: Record<string, string> = { quads: 'Quadríceps', chest: 'Peitoral', back: 'Dorsal/Costas' };
 export const equipmentLabel: Record<string, string> = { machine: 'Máquina', dumbbell: 'Halteres', barbell: 'Barra', cable: 'Polia' };
 
 export const approvedAlternatives: Record<string, string[]> = { 'leg-press': ['hack', 'bulgaro'] };
 
 export const template: Template = {
   id: 'hipertrofia',
-  name: 'Hipertrofia — Bloco 1',
+  name: 'Hipertrofia & Definição — Bloco Pro',
   weeks: 4,
   sessions: [
     {
       id: 'A',
-      name: 'Treino A — Inferiores',
+      name: 'Treino A — Inferiores & Força',
       position: 1,
       items: [
         { id: 'A1', exerciseId: 'leg-press', sets: 3, repMin: 8, repMax: 12, restS: 90, weeklyIncrementKg: 10 },
@@ -44,7 +165,7 @@ export const template: Template = {
     },
     {
       id: 'B',
-      name: 'Treino B — Superiores',
+      name: 'Treino B — Superiores & Postura',
       position: 2,
       items: [
         { id: 'B1', exerciseId: 'supino', sets: 3, repMin: 6, repMax: 10, restS: 120, weeklyIncrementKg: 2.5 },
@@ -59,7 +180,7 @@ export const baseLoads: Record<string, number> = { A1: 120, A2: 40, B1: 50, B2: 
 
 export const studentEquipment = ['machine', 'dumbbell', 'barbell', 'cable'];
 
-// Alunos fictícios para o Radar mostrar cada tipo de alerta.
+// Alunos para o Radar
 export const otherStudents: StudentSnapshot[] = [
   { studentId: 'marina', name: 'Marina Costa', consistency: 0.38, recentRpes: [7, 8, 7], loadHistory: {}, pendingVideoIds: ['v1'] },
   {
@@ -74,7 +195,7 @@ export const otherStudents: StudentSnapshot[] = [
 ];
 
 // ========================================================================
-// AVALIAÇÃO FÍSICA REAL — BALANÇA UNIQUE HEALTH + DOBRAS CUTÂNEAS
+// AVALIAÇÃO FÍSICA REAL — BALANÇA UNIQUE HEALTH + DOBRAS CUTÂNEAS + FOTOS
 // ========================================================================
 
 export const samuelAssessment: PhysicalAssessment = {
@@ -82,6 +203,16 @@ export const samuelAssessment: PhysicalAssessment = {
   studentId: 'previa',
   trainerId: 'trainer-aurora',
   data: '2026-09-19T09:39:24.000Z',
+
+  // Fotos corporais em alta resolução
+  photos: {
+    frenteUrl: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800&auto=format&fit=crop&q=80',
+    costasUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=80',
+    perfilDireitoUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800&auto=format&fit=crop&q=80',
+    perfilEsquerdoUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&auto=format&fit=crop&q=80',
+    data: '19/09/2026',
+  },
+
   bioimpedance: {
     dataHora: '19/09/2026 09:39:24',
     pesoKg: 91.2,

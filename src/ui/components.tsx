@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from './theme';
 
 export function Screen({ children }: { children: ReactNode }) {
@@ -9,13 +10,14 @@ export function Screen({ children }: { children: ReactNode }) {
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top', 'left', 'right']}>
       <ScrollView
         contentContainerStyle={{
-          padding: 24,
-          paddingBottom: 48,
+          padding: 20,
+          paddingBottom: 60,
           gap: 16,
           maxWidth: 680,
           width: '100%',
           alignSelf: 'center',
         }}
+        showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         {children}
@@ -26,7 +28,7 @@ export function Screen({ children }: { children: ReactNode }) {
 
 export function Title({
   children,
-  size = 32,
+  size = 28,
   style,
 }: {
   children: ReactNode;
@@ -38,8 +40,8 @@ export function Title({
     <Text
       style={[
         {
-          fontFamily: t.fonts.title,
           fontSize: size,
+          fontWeight: '700',
           lineHeight: size * 1.18,
           color: t.text,
           letterSpacing: -0.5,
@@ -66,9 +68,8 @@ export function Body({
     <Text
       style={[
         {
-          fontFamily: t.fonts.body,
-          fontSize: 16,
-          lineHeight: 23,
+          fontSize: 15,
+          lineHeight: 22,
           color: muted ? t.muted : t.text,
         },
         style,
@@ -79,42 +80,59 @@ export function Body({
   );
 }
 
-export function Label({ children }: { children: ReactNode }) {
+export function Label({
+  children,
+  style,
+}: {
+  children: ReactNode;
+  style?: any;
+}) {
   const t = useTheme();
   return (
     <Text
-      style={{
-        fontFamily: t.fonts.bodyBold,
-        fontSize: 12,
-        letterSpacing: 1.5,
-        textTransform: 'uppercase',
-        color: t.muted,
-      }}
+      style={[
+        {
+          fontSize: 12,
+          fontWeight: '600',
+          letterSpacing: 1.2,
+          textTransform: 'uppercase',
+          color: t.muted,
+        },
+        style,
+      ]}
     >
       {children}
     </Text>
   );
 }
 
-export function Card({ children, onPress }: { children: ReactNode; onPress?: () => void }) {
+export function Card({
+  children,
+  onPress,
+  style,
+}: {
+  children: ReactNode;
+  onPress?: () => void;
+  style?: any;
+}) {
   const t = useTheme();
   const baseStyle = {
     backgroundColor: t.surface,
-    borderRadius: 20,
+    borderRadius: t.cardRadius,
     padding: 20,
-    gap: 10,
+    gap: 12,
     borderWidth: 1,
     borderColor: t.border,
     ...(Platform.OS === 'web'
       ? ({
           cursor: onPress ? 'pointer' : 'default',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.03)',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
           transition: 'all 0.2s ease',
         } as any)
       : {}),
   };
 
-  if (!onPress) return <View style={baseStyle}>{children}</View>;
+  if (!onPress) return <View style={[baseStyle, style]}>{children}</View>;
 
   return (
     <Pressable
@@ -122,8 +140,9 @@ export function Card({ children, onPress }: { children: ReactNode; onPress?: () 
       onPress={onPress}
       style={({ pressed }) => [
         baseStyle,
+        style,
         {
-          opacity: pressed ? 0.85 : 1,
+          opacity: pressed ? 0.88 : 1,
           transform: [{ scale: pressed ? 0.995 : 1 }],
         },
       ]}
@@ -138,43 +157,65 @@ export function Button({
   onPress,
   variant = 'primary',
   disabled,
+  icon,
 }: {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'ghost';
+  variant?: 'primary' | 'ghost' | 'neonOutline';
   disabled?: boolean;
+  icon?: string;
 }) {
   const t = useTheme();
-  const primary = variant === 'primary';
+  const isPrimary = variant === 'primary';
+  const isOutline = variant === 'neonOutline';
+
+  let bgColor = 'transparent';
+  let textColor = t.text;
+  let borderColor = t.border;
+
+  if (isPrimary) {
+    bgColor = t.accent;
+    textColor = t.accentText;
+    borderColor = t.accent;
+  } else if (isOutline) {
+    bgColor = t.accentSubtle;
+    textColor = t.accent;
+    borderColor = t.accent;
+  }
+
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
       disabled={disabled}
       style={({ pressed }) => ({
-        backgroundColor: primary ? t.accent : 'transparent',
-        borderWidth: primary ? 0 : 1,
-        borderColor: t.border,
+        backgroundColor: bgColor,
+        borderWidth: isPrimary ? 0 : 1,
+        borderColor: borderColor,
         borderRadius: 999,
-        paddingVertical: 15,
+        paddingVertical: 16,
         paddingHorizontal: 24,
         alignItems: 'center',
         justifyContent: 'center',
-        opacity: disabled ? 0.4 : pressed ? 0.85 : 1,
+        flexDirection: 'row',
+        gap: 8,
+        opacity: disabled ? 0.45 : pressed ? 0.88 : 1,
         ...(Platform.OS === 'web'
           ? ({
               cursor: disabled ? 'not-allowed' : 'pointer',
               userSelect: 'none',
               transition: 'all 0.15s ease',
+              boxShadow: isPrimary ? `0 4px 18px ${t.accentGlow}` : 'none',
             } as any)
           : {}),
       })}
     >
+      {icon ? <Text style={{ fontSize: 16 }}>{icon}</Text> : null}
       <Text
         style={{
-          fontFamily: t.fonts.bodyBold,
           fontSize: 16,
-          color: primary ? '#FFFFFF' : t.text,
+          fontWeight: '700',
+          color: textColor,
           letterSpacing: 0.2,
         }}
       >
@@ -188,10 +229,12 @@ export function Chip({
   label,
   selected,
   onPress,
+  icon,
 }: {
   label: string;
   selected?: boolean;
   onPress: () => void;
+  icon?: string;
 }) {
   const t = useTheme();
   return (
@@ -205,23 +248,95 @@ export function Chip({
         paddingVertical: 9,
         borderWidth: 1,
         borderColor: selected ? t.accent : t.border,
-        backgroundColor: selected ? t.accent : 'transparent',
+        backgroundColor: selected ? t.accent : t.surfaceElevated,
         opacity: pressed ? 0.8 : 1,
+        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        gap: 6,
         ...(Platform.OS === 'web' ? ({ cursor: 'pointer', userSelect: 'none' } as any) : {}),
       })}
     >
+      {icon ? <Text style={{ fontSize: 13 }}>{icon}</Text> : null}
       <Text
         style={{
-          fontFamily: t.fonts.bodyBold,
           fontSize: 14,
-          color: selected ? '#FFFFFF' : t.text,
+          fontWeight: selected ? '700' : '500',
+          color: selected ? t.accentText : t.text,
         }}
       >
         {label}
       </Text>
     </Pressable>
+  );
+}
+
+export function ArrowCircleButton({ onPress }: { onPress: () => void }) {
+  const t = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => ({
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: t.accent,
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: pressed ? 0.8 : 1,
+        ...(Platform.OS === 'web' ? ({ cursor: 'pointer' } as any) : {}),
+      })}
+    >
+      <Text style={{ color: t.accentText, fontSize: 16, fontWeight: 'bold' }}>→</Text>
+    </Pressable>
+  );
+}
+
+export function CircularProgress({
+  percentage,
+  size = 72,
+  strokeWidth = 7,
+  label = 'Progresso',
+}: {
+  percentage: number;
+  size?: number;
+  strokeWidth?: number;
+  label?: string;
+}) {
+  const t = useTheme();
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (circumference * Math.min(100, Math.max(0, percentage))) / 100;
+
+  return (
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <Svg width={size} height={size}>
+        {/* Círculo de fundo */}
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={t.border}
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        {/* Círculo de progresso em verde neon */}
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={t.accent}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          fill="none"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </Svg>
+      <View style={{ position: 'absolute', alignItems: 'center' }}>
+        <Text style={{ color: t.text, fontSize: 15, fontWeight: '800' }}>{Math.round(percentage)}%</Text>
+      </View>
+    </View>
   );
 }
 
@@ -238,7 +353,7 @@ export function LoadStepper({
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
       <Chip label="−" onPress={() => onChange(Math.max(0, current - step))} />
-      <Body>{value === null ? '— kg' : `${value} kg`}</Body>
+      <Body style={{ fontSize: 17, fontWeight: '700' } as any}>{value === null ? '— kg' : `${value} kg`}</Body>
       <Chip label="+" onPress={() => onChange(current + step)} />
     </View>
   );
@@ -276,21 +391,19 @@ export function TextInputField({
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         style={{
-          backgroundColor: t.surface,
+          backgroundColor: t.surfaceElevated,
           borderWidth: 1,
-          borderColor: error ? '#E11D48' : t.border,
+          borderColor: error ? t.fatColor : t.border,
           borderRadius: 14,
           paddingHorizontal: 16,
-          paddingVertical: 13,
+          paddingVertical: 14,
           fontSize: 16,
           color: t.text,
-          fontFamily: t.fonts.body,
         }}
       />
       {error ? (
-        <Text style={{ color: '#E11D48', fontSize: 13, fontFamily: t.fonts.body }}>{error}</Text>
+        <Text style={{ color: t.fatColor, fontSize: 13, fontWeight: '500' }}>{error}</Text>
       ) : null}
     </View>
   );
 }
-
