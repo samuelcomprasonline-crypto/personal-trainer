@@ -159,7 +159,7 @@ export function AssessmentComparison({
         {toastMsg && (
           <View
             style={{
-              backgroundColor: 'rgba(198, 244, 50, 0.15)',
+              backgroundColor: t.accentSubtle,
               padding: 10,
               borderRadius: radius.md,
               borderWidth: 1,

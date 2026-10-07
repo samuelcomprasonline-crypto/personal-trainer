@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Linking, Modal, Pressable, Text, View } from 'react-native';
+import { Linking, Modal, Pressable, Text, TextInput, View } from 'react-native';
 import { assessmentHistory, otherStudents, samuelAssessment, template, trainer } from '../../src/data/seed';
 import { getLatestAssessmentForStudent, saveOrUpdateAssessment } from '../../src/data/assessmentStore';
 import { buildBillingWhatsAppMessage } from '../../src/data/financialStore';
@@ -28,12 +28,14 @@ export default function Alunos() {
   const { logs } = useAppState();
   const { signOut, profile } = useAuth();
   const me = snapshotFromLogs('previa', 'Samuel Ferreira', logs, template.sessions.length, new Date(), {});
+  me.cpf = '382.491.820-14';
   me.monthlyPrice = 300;
   me.planType = 'Trimestral';
   me.dueDay = 10;
   me.paymentStatus = 'pago';
   me.assignedProgramName = 'Projeto 60 Dias Balestrin — Iniciante 1';
 
+  const [searchQuery, setSearchQuery] = useState('');
   const [hideDemo, setHideDemo] = useState(false);
   const [customStudents, setCustomStudents] = useState<StudentSnapshot[]>([]);
   const [selectedStudentName, setSelectedStudentName] = useState<string | null>(null);
@@ -93,6 +95,16 @@ export default function Alunos() {
     ? customStudents
     : [...customStudents, ...demoList.filter((d) => !customStudents.some((c) => c.name === d.name))];
 
+  const displayStudents = studentsList.filter((s) => {
+    if (!searchQuery.trim()) return true;
+    const term = searchQuery.toLowerCase().trim();
+    const rawTerm = term.replace(/\D/g, '');
+    const rawCpf = (s.cpf || '').replace(/\D/g, '');
+    const matchName = s.name.toLowerCase().includes(term);
+    const matchCpf = rawTerm.length > 0 ? rawCpf.includes(rawTerm) : false;
+    return matchName || matchCpf;
+  });
+
   const activeStudent = studentsList.find((s) => s.name === selectedStudentName) || studentsList[0];
 
   const showToast = (msg: string) => {
@@ -142,23 +154,23 @@ export default function Alunos() {
     <>
       <Screen>
         <Label>{profile?.name ? `${profile.name} · Consultoria` : `${trainer.name} · Consultoria`}</Label>
-        <Title>Gestão de Alunos & Prontuários</Title>
-        <Body muted>
+        <Title size={20}>Gestão de Alunos & Prontuários</Title>
+        <Body muted style={{ fontSize: 12.5 } as any}>
           Acompanhe mensalidades, envie periodizações do banco de treinos e prescreva protocolos nutricionais.
         </Body>
 
         {toastMessage && (
           <View
             style={{
-              backgroundColor: 'rgba(198, 244, 50, 0.15)',
-              padding: 12,
-              borderRadius: 14,
+              backgroundColor: t.accentSubtle,
+              padding: 10,
+              borderRadius: 8,
               borderWidth: 1,
               borderColor: t.accent,
               marginVertical: 4,
             }}
           >
-            <Body style={{ color: t.accent, fontWeight: '700' } as any}>✓ {toastMessage}</Body>
+            <Body style={{ color: t.accent, fontWeight: '700', fontSize: 12.5 } as any}>✓ {toastMessage}</Body>
           </View>
         )}
 
@@ -174,16 +186,59 @@ export default function Alunos() {
           />
         </View>
 
+        {/* BARRA DE PESQUISA DE ALUNOS POR NOME E CPF */}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: t.surface,
+            borderRadius: 8,
+            paddingHorizontal: 10,
+            paddingVertical: 7,
+            borderWidth: 1,
+            borderColor: searchQuery ? t.accent : t.border,
+            gap: 8,
+            marginTop: 4,
+          }}
+        >
+          <Text style={{ fontSize: 14 }}>🔍</Text>
+          <TextInput
+            placeholder="Buscar aluno por nome completo ou CPF..."
+            placeholderTextColor="#64748B"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            style={{
+              flex: 1,
+              color: '#FFFFFF',
+              fontSize: 12.5,
+              paddingVertical: 2,
+            }}
+          />
+          {searchQuery.length > 0 && (
+            <Pressable
+              onPress={() => setSearchQuery('')}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+                borderRadius: 4,
+              }}
+            >
+              <Text style={{ color: '#94A3B8', fontSize: 10, fontWeight: '700' }}>✕ LIMPAR</Text>
+            </Pressable>
+          )}
+        </View>
+
         {/* BARRA DE CONTROLE DO MODO LIMPO / PRODUÇÃO */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, marginBottom: 6, flexWrap: 'wrap', gap: 6 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: hideDemo ? t.accent : '#F59E0B' }} />
-            <Body style={{ fontSize: 13, fontWeight: '700', color: hideDemo ? t.accent : '#F59E0B' } as any}>
+            <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: hideDemo ? t.accent : '#F59E0B' }} />
+            <Body style={{ fontSize: 11.5, fontWeight: '700', color: hideDemo ? t.accent : '#F59E0B' } as any}>
               {hideDemo ? 'Modo Produção (Sistema Limpo)' : 'Exibindo Alunos de Teste (Demo)'}
             </Body>
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View style={{ flexDirection: 'row', gap: 6 }}>
             <Pressable
               onPress={async () => {
                 const next = !hideDemo;
@@ -192,15 +247,15 @@ export default function Alunos() {
                 showToast(next ? 'Alunos demo ocultados. Sistema limpo!' : 'Alunos demo restaurados para testes.');
               }}
               style={{
-                paddingHorizontal: 10,
-                paddingVertical: 5,
-                borderRadius: 8,
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 6,
                 backgroundColor: t.surfaceElevated,
                 borderWidth: 1,
                 borderColor: t.border,
               }}
             >
-              <Body style={{ fontSize: 12, fontWeight: '600' } as any}>
+              <Body style={{ fontSize: 11, fontWeight: '600' } as any}>
                 {hideDemo ? '👁️ Ver Alunos Demo' : '🧹 Ocultar Alunos Demo'}
               </Body>
             </Pressable>
@@ -213,15 +268,15 @@ export default function Alunos() {
                   showToast('Lista de alunos personalizados zerada!');
                 }}
                 style={{
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  borderRadius: 8,
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  borderRadius: 6,
                   backgroundColor: 'rgba(239, 68, 68, 0.1)',
                   borderWidth: 1,
                   borderColor: 'rgba(239, 68, 68, 0.3)',
                 }}
               >
-                <Body style={{ fontSize: 12, fontWeight: '600', color: '#EF4444' } as any}>
+                <Body style={{ fontSize: 11, fontWeight: '600', color: '#EF4444' } as any}>
                   Zerar Alunos
                 </Body>
               </Pressable>
@@ -230,59 +285,57 @@ export default function Alunos() {
         </View>
 
         {/* LISTA DE ALUNOS OU EMPTY STATE LIMPO */}
-        {studentsList.length === 0 ? (
-          <Card style={{ alignItems: 'center', paddingVertical: 32, gap: 12, borderWidth: 1, borderColor: t.border }}>
-            <View
-              style={{
-                width: 60,
-                height: 60,
-                borderRadius: 30,
-                backgroundColor: `${t.accent}15`,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderWidth: 1,
-                borderColor: `${t.accent}40`,
-              }}
-            >
-              <Text style={{ fontSize: 26 }}>⚡</Text>
-            </View>
-            <Title size={20} style={{ textAlign: 'center' }}>Sistema Limpo e Pronto para Cadastros</Title>
-            <Body muted style={{ textAlign: 'center', maxWidth: 380 }}>
-              Nenhum aluno cadastrado ainda. Comece cadastrando os primeiros alunos reais da consultoria para acompanhamento de treinos, prontuários 360° e cobranças.
+        {displayStudents.length === 0 ? (
+          <Card style={{ alignItems: 'center', paddingVertical: 24, gap: 8, borderWidth: 1, borderColor: t.border }}>
+            <Text style={{ fontSize: 22 }}>🔍</Text>
+            <Title size={16} style={{ textAlign: 'center' }}>
+              {searchQuery ? `Nenhum aluno encontrado para "${searchQuery}"` : 'Sistema Limpo e Pronto para Cadastros'}
+            </Title>
+            <Body muted style={{ textAlign: 'center', maxWidth: 380, fontSize: 12 }}>
+              {searchQuery
+                ? 'Verifique se o nome ou CPF digitado está correto.'
+                : 'Nenhum aluno cadastrado ainda. Comece cadastrando os primeiros alunos reais da consultoria.'}
             </Body>
-            <View style={{ gap: 8, width: '100%', maxWidth: 320, marginTop: 8 }}>
+            {searchQuery ? (
               <Button
-                title="+ Cadastrar Primeiro Aluno Real ⚡"
-                onPress={() => setShowInviteModal(true)}
-              />
-              <Button
-                title="Carregar Dados de Demonstração (Testes)"
+                title="Limpar Busca"
                 variant="ghost"
-                onPress={async () => {
-                  setHideDemo(false);
-                  await AsyncStorage.setItem(STORAGE_HIDE_DEMO, 'false');
-                }}
+                onPress={() => setSearchQuery('')}
               />
-            </View>
+            ) : (
+              <View style={{ gap: 8, width: '100%', maxWidth: 300, marginTop: 4 }}>
+                <Button
+                  title="+ Cadastrar Primeiro Aluno Real ⚡"
+                  onPress={() => setShowInviteModal(true)}
+                />
+              </View>
+            )}
           </Card>
         ) : (
-          <View style={{ gap: 12 }}>
-            {studentsList.map((s) => {
+          <View style={{ gap: 8 }}>
+            {displayStudents.map((s) => {
               const isPaid = s.paymentStatus === 'pago';
               return (
-                <Card key={s.studentId} onPress={() => setSelectedStudentName(s.name)}>
+                <Card key={s.studentId} onPress={() => setSelectedStudentName(s.name)} style={{ padding: 12, gap: 6 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Title size={20}>{s.name}</Title>
+                    <View>
+                      <Title size={16}>{s.name}</Title>
+                      <Text style={{ color: '#94A3B8', fontSize: 11, marginTop: 2 }}>
+                        🪪 CPF: <Text style={{ color: t.accent, fontWeight: '600' }}>{s.cpf || '382.491.820-14'}</Text>
+                      </Text>
+                    </View>
                     <View
                       style={{
-                        backgroundColor: `${t.accent}15`,
-                        paddingHorizontal: 10,
-                        paddingVertical: 4,
-                        borderRadius: 999,
+                        backgroundColor: t.accentSubtle,
+                        paddingHorizontal: 8,
+                        paddingVertical: 3,
+                        borderRadius: 6,
+                        borderWidth: 1,
+                        borderColor: t.accentGlow,
                       }}
                     >
-                      <Body muted style={{ color: t.accent, fontSize: 13, fontWeight: '600' } as any}>
-                        Abrir Prontuário 360° →
+                      <Body muted style={{ color: t.accent, fontSize: 11, fontWeight: '600' } as any}>
+                        Abrir Prontuário →
                       </Body>
                     </View>
                   </View>
@@ -293,37 +346,39 @@ export default function Alunos() {
                       flexDirection: 'row',
                       flexWrap: 'wrap',
                       alignItems: 'center',
-                      gap: 8,
-                      marginTop: 8,
-                      paddingTop: 8,
+                      gap: 6,
+                      marginTop: 4,
+                      paddingTop: 6,
                       borderTopWidth: 1,
                       borderColor: t.border,
                     }}
                   >
                     <View
                       style={{
-                        backgroundColor: isPaid ? 'rgba(198, 244, 50, 0.15)' : 'rgba(234, 179, 8, 0.15)',
-                        paddingHorizontal: 8,
-                        paddingVertical: 3,
-                        borderRadius: 6,
+                        backgroundColor: isPaid ? t.accentSubtle : 'rgba(234, 179, 8, 0.15)',
+                        paddingHorizontal: 7,
+                        paddingVertical: 2,
+                        borderRadius: 4,
+                        borderWidth: 1,
+                        borderColor: isPaid ? t.accentGlow : 'rgba(234, 179, 8, 0.3)',
                       }}
                     >
                       <Body
                         style={{
                           color: isPaid ? t.accent : '#EAB308',
-                          fontSize: 11,
-                          fontWeight: '800',
+                          fontSize: 10,
+                          fontWeight: '700',
                         } as any}
                       >
                         {isPaid ? 'MENSALIDADE PAGA ✓' : 'PAGAMENTO PENDENTE ⚠️'}
                       </Body>
                     </View>
 
-                    <Body style={{ fontSize: 12, fontWeight: '700' } as any}>
+                    <Body style={{ fontSize: 11.5, fontWeight: '600' } as any}>
                       R$ {s.monthlyPrice || 250},00 ({s.planType || 'Mensal'})
                     </Body>
 
-                    <Body muted style={{ fontSize: 12 } as any}>
+                    <Body muted style={{ fontSize: 11 } as any}>
                       • Vencimento: todo dia {s.dueDay || 10}
                     </Body>
 
@@ -433,15 +488,15 @@ export default function Alunos() {
           {toastMessage && (
             <View
               style={{
-                backgroundColor: 'rgba(198, 244, 50, 0.15)',
-                padding: 12,
-                borderRadius: 14,
+                backgroundColor: t.accentSubtle,
+                padding: 10,
+                borderRadius: 8,
                 borderWidth: 1,
                 borderColor: t.accent,
                 marginBottom: 8,
               }}
             >
-              <Body style={{ color: t.accent, fontWeight: '700' } as any}>✓ {toastMessage}</Body>
+              <Body style={{ color: t.accent, fontWeight: '700', fontSize: 12.5 } as any}>✓ {toastMessage}</Body>
             </View>
           )}
 
@@ -570,17 +625,19 @@ export default function Alunos() {
                     <Body muted>Situação do Pagamento:</Body>
                     <View
                       style={{
-                        backgroundColor: activeStudent?.paymentStatus === 'pago' ? 'rgba(198, 244, 50, 0.2)' : 'rgba(234, 179, 8, 0.2)',
+                        backgroundColor: activeStudent?.paymentStatus === 'pago' ? t.accentSubtle : 'rgba(234, 179, 8, 0.2)',
                         paddingHorizontal: 8,
                         paddingVertical: 3,
                         borderRadius: 6,
+                        borderWidth: 1,
+                        borderColor: activeStudent?.paymentStatus === 'pago' ? t.accentGlow : 'rgba(234, 179, 8, 0.3)',
                       }}
                     >
                       <Body
                         style={{
                           color: activeStudent?.paymentStatus === 'pago' ? t.accent : '#EAB308',
-                          fontSize: 12,
-                          fontWeight: '800',
+                          fontSize: 11,
+                          fontWeight: '700',
                         } as any}
                       >
                         {activeStudent?.paymentStatus === 'pago' ? 'EM DIA (PAGO) ✓' : 'PENDENTE DE PAGAMENTO ⚠️'}

@@ -28,11 +28,30 @@ type SplitWorkout = {
   items: CustomExerciseItem[];
 };
 
+export type StudentItem = {
+  name: string;
+  cpf: string;
+  goal: string;
+  weight: string;
+  tag: string;
+};
+
+const INITIAL_STUDENTS: StudentItem[] = [
+  { name: 'Samuel Ferreira', cpf: '382.491.820-14', goal: 'Hipertrofia & Força', weight: '78.5 kg', tag: 'VIP' },
+  { name: 'Alex', cpf: '219.840.512-88', goal: 'Definição & Densidade', weight: '74.0 kg', tag: 'Atleta' },
+  { name: 'Beatriz Lima', cpf: '492.103.847-55', goal: 'Emagrecimento & Tônus', weight: '62.0 kg', tag: 'Iniciante' },
+  { name: 'Carlos Mendes', cpf: '105.738.920-33', goal: 'Força Máxima', weight: '85.2 kg', tag: 'Intermediário' },
+  { name: 'Marina Costa', cpf: '518.294.731-09', goal: 'Hipertrofia Glúteos', weight: '58.4 kg', tag: 'VIP' },
+  { name: 'Rafael Lima', cpf: '742.610.385-40', goal: 'Ganho de Massa', weight: '81.0 kg', tag: 'Intermediário' },
+  { name: 'Julia Prado', cpf: '631.905.827-21', goal: 'Definição & Tônus', weight: '54.2 kg', tag: 'Iniciante' },
+];
+
 const STORAGE_CUSTOM_STUDENTS = '@personal_trainer_custom_students';
 
 export default function PrescreverDietaScreen() {
   const t = useTheme();
   const [selectedStudent, setSelectedStudent] = useState('Samuel Ferreira');
+  const [studentSearchQuery, setStudentSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'treino' | 'dieta'>('treino');
   const [workoutMode, setWorkoutMode] = useState<'individual' | 'protocolos'>('individual');
   const [showNewProgramModal, setShowNewProgramModal] = useState(false);
@@ -40,12 +59,7 @@ export default function PrescreverDietaScreen() {
   const [assignedProgram, setAssignedProgram] = useState<string>('Treino Personalizado Exclusivo');
 
   // Lista de alunos carregada dinamicamente
-  const [studentList, setStudentList] = useState([
-    { name: 'Samuel Ferreira', goal: 'Hipertrofia & Força', weight: '78.5 kg', tag: 'VIP' },
-    { name: 'Alex', goal: 'Definição & Densidade', weight: '74.0 kg', tag: 'Atleta' },
-    { name: 'Beatriz Lima', goal: 'Emagrecimento & Tônus', weight: '62.0 kg', tag: 'Iniciante' },
-    { name: 'Carlos Mendes', goal: 'Força Máxima', weight: '85.2 kg', tag: 'Intermediário' },
-  ]);
+  const [studentList, setStudentList] = useState<StudentItem[]>(INITIAL_STUDENTS);
 
   // Carrega alunos personalizados cadastrados pelo personal
   useEffect(() => {
@@ -57,12 +71,13 @@ export default function PrescreverDietaScreen() {
           if (Array.isArray(parsed) && parsed.length > 0) {
             setStudentList((prev) => {
               const existing = new Set(prev.map((s) => s.name));
-              const additions = parsed
+              const additions: StudentItem[] = parsed
                 .filter((p: any) => !existing.has(p.name))
-                .map((p: any) => ({
+                .map((p: any, idx: number) => ({
                   name: p.name,
-                  goal: 'Hipertrofia',
-                  weight: '75.0 kg',
+                  cpf: p.cpf || `000.${String(idx + 100).padStart(3, '0')}.999-00`,
+                  goal: p.goal || 'Hipertrofia',
+                  weight: p.weight || '75.0 kg',
                   tag: 'Novo Aluno',
                 }));
               return [...prev, ...additions];
@@ -323,84 +338,215 @@ export default function PrescreverDietaScreen() {
 
   const methodOptions = ['Normal', 'Drop-Set', 'Rest-Pause', 'Ponto Zero', 'Bi-Set', 'GVT'];
 
+  const filteredStudents = studentList.filter((st) => {
+    if (!studentSearchQuery.trim()) return true;
+    const term = studentSearchQuery.toLowerCase().trim();
+    const rawTerm = term.replace(/\D/g, '');
+    const rawCpf = st.cpf.replace(/\D/g, '');
+    const matchName = st.name.toLowerCase().includes(term);
+    const matchCpf = rawTerm.length > 0 ? rawCpf.includes(rawTerm) : false;
+    return matchName || matchCpf;
+  });
+
+  const activeStudentData = studentList.find((s) => s.name === selectedStudent) || studentList[0];
+
   return (
     <Screen>
       {/* 1. CABEÇALHO DA PRESCRIÇÃO */}
-      <View style={{ gap: 4 }}>
-        <Label style={{ color: t.accent }}>{trainer.name} • Prescrição 360° Personalizada</Label>
-        <Title size={28}>Central de Prescrição do Aluno</Title>
-        <Body muted style={{ fontSize: 13 } as any}>
-          Escolha o aluno cadastrado, monte treinos por exercícios individuais com variações avançadas ou selecione protocolos periodizados.
+      <View style={{ gap: 2 }}>
+        <Label style={{ color: t.accent }}>{trainer.name} • Prescrição 360°</Label>
+        <Title size={20}>Central de Prescrição do Aluno</Title>
+        <Body muted style={{ fontSize: 12.5 } as any}>
+          Direcione protocolos individualizados ou periodizados por nome completo e CPF do aluno.
         </Body>
       </View>
 
-      {/* 2. SELETOR DE ALUNO CADASTRADO (OBRIGATÓRIO) */}
-      <Card style={{ backgroundColor: '#141824', borderColor: 'rgba(198, 244, 50, 0.25)', borderWidth: 1 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* 2. SELETOR DE ALUNO COM BARRA DE PESQUISA POR NOME COMPLETO E CPF */}
+      <Card style={{ backgroundColor: t.surface, borderColor: t.border, borderWidth: 1, gap: 10 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Text style={{ fontSize: 18 }}>👤</Text>
-            <Label style={{ color: t.accent }}>1. ESCOLHA O ALUNO CADASTRADO PARA RECEBER O TREINO</Label>
+            <Text style={{ fontSize: 16 }}>👤</Text>
+            <Label style={{ color: t.accent }}>1. DESTINATÁRIO DO PROTOCOLO (SELEÇÃO DO ALUNO)</Label>
           </View>
-          <View style={{ backgroundColor: 'rgba(198, 244, 50, 0.15)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
-            <Text style={{ color: t.accent, fontSize: 11, fontWeight: '800' }}>
+          <View style={{ backgroundColor: t.accentSubtle, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 4, borderWidth: 1, borderColor: t.accentGlow }}>
+            <Text style={{ color: t.accent, fontSize: 10, fontWeight: '700' }}>
               SELECIONADO: {selectedStudent.toUpperCase()}
             </Text>
           </View>
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginTop: 10 }}>
-          {studentList.map((st) => {
-            const isSelected = selectedStudent === st.name;
-            return (
-              <Pressable
-                key={st.name}
-                onPress={() => setSelectedStudent(st.name)}
-                style={({ pressed }) => ({
-                  backgroundColor: isSelected ? 'rgba(198, 244, 50, 0.18)' : '#0E121B',
-                  borderWidth: 1.5,
-                  borderColor: isSelected ? t.accent : 'rgba(255, 255, 255, 0.08)',
-                  paddingHorizontal: 16,
-                  paddingVertical: 12,
-                  borderRadius: 14,
-                  gap: 3,
-                  minWidth: 150,
-                  opacity: pressed ? 0.8 : 1,
-                })}
-              >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text style={{ color: isSelected ? t.accent : '#FFFFFF', fontSize: 14, fontWeight: '800' }}>
-                    {st.name}
+        {/* BARRA DE PESQUISA POR NOME COMPLETO OU CPF */}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: t.bgElevated,
+            borderRadius: 8,
+            paddingHorizontal: 10,
+            paddingVertical: 6,
+            borderWidth: 1,
+            borderColor: studentSearchQuery ? t.accent : t.border,
+            gap: 8,
+          }}
+        >
+          <Text style={{ fontSize: 14 }}>🔍</Text>
+          <TextInput
+            placeholder="Buscar aluno por nome completo ou CPF (ex: 382.491 ou Samuel)..."
+            placeholderTextColor="#64748B"
+            value={studentSearchQuery}
+            onChangeText={setStudentSearchQuery}
+            style={{
+              flex: 1,
+              color: '#FFFFFF',
+              fontSize: 12.5,
+              paddingVertical: 2,
+            }}
+          />
+          {studentSearchQuery.length > 0 && (
+            <Pressable
+              onPress={() => setStudentSearchQuery('')}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+                borderRadius: 4,
+              }}
+            >
+              <Text style={{ color: '#94A3B8', fontSize: 10, fontWeight: '700' }}>✕ LIMPAR</Text>
+            </Pressable>
+          )}
+        </View>
+
+        {/* FEEDBACK DE BUSCA */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={{ color: '#64748B', fontSize: 10.5 }}>
+            {studentSearchQuery
+              ? `Filtrando: ${filteredStudents.length} aluno(s) encontrado(s)`
+              : `Total de ${studentList.length} alunos cadastrados`}
+          </Text>
+          {activeStudentData && (
+            <Text style={{ color: t.accent, fontSize: 10.5, fontWeight: '600' }}>
+              🪪 CPF Alvo: {activeStudentData.cpf}
+            </Text>
+          )}
+        </View>
+
+        {/* LISTA DE ALUNOS DISPONÍVEIS */}
+        {filteredStudents.length === 0 ? (
+          <View
+            style={{
+              padding: 16,
+              alignItems: 'center',
+              backgroundColor: t.bgElevated,
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.05)',
+              gap: 4,
+            }}
+          >
+            <Text style={{ color: '#94A3B8', fontSize: 12 }}>
+              Nenhum aluno encontrado para "{studentSearchQuery}".
+            </Text>
+            <Text style={{ color: '#64748B', fontSize: 11 }}>
+              Verifique a grafia do nome ou os dígitos do CPF.
+            </Text>
+            <Pressable
+              onPress={() => setStudentSearchQuery('')}
+              style={{
+                marginTop: 6,
+                backgroundColor: t.accentSubtle,
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+                borderRadius: 6,
+                borderWidth: 1,
+                borderColor: t.accentGlow,
+              }}
+            >
+              <Text style={{ color: t.accent, fontSize: 11, fontWeight: '600' }}>Ver todos os alunos</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginTop: 4 }}>
+            {filteredStudents.map((st) => {
+              const isSelected = selectedStudent === st.name;
+              return (
+                <Pressable
+                  key={st.name}
+                  onPress={() => setSelectedStudent(st.name)}
+                  style={({ pressed }) => ({
+                    backgroundColor: isSelected ? t.accentSubtle : t.bgElevated,
+                    borderWidth: 1,
+                    borderColor: isSelected ? t.accent : t.border,
+                    paddingHorizontal: 12,
+                    paddingVertical: 9,
+                    borderRadius: 8,
+                    gap: 3,
+                    minWidth: 160,
+                    opacity: pressed ? 0.8 : 1,
+                  })}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ color: isSelected ? t.accent : '#FFFFFF', fontSize: 13, fontWeight: '700' }}>
+                      {st.name}
+                    </Text>
+                    {isSelected && (
+                      <View style={{ backgroundColor: t.accent, paddingHorizontal: 4, paddingVertical: 1, borderRadius: 3 }}>
+                        <Text style={{ color: '#FFFFFF', fontSize: 8, fontWeight: '800' }}>ATIVO</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={{ color: isSelected ? '#E2E8F0' : '#94A3B8', fontSize: 10.5, fontWeight: '500' }}>
+                    🪪 CPF: {st.cpf}
                   </Text>
-                  <Text style={{ fontSize: 10, color: isSelected ? t.accent : '#8E9AA8' }}>
-                    {isSelected ? '● ATIVO' : ''}
+                  <Text style={{ color: '#64748B', fontSize: 10 }}>
+                    {st.goal} • {st.weight}
                   </Text>
-                </View>
-                <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
-                  {st.goal} • {st.weight}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        )}
+
+        {/* BADGE DE CONFIRMAÇÃO DIRETA DO ALUNO SELECIONADO */}
+        {activeStudentData && (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: t.surfaceElevated,
+              paddingHorizontal: 10,
+              paddingVertical: 6,
+              borderRadius: 6,
+              gap: 8,
+              borderLeftWidth: 3,
+              borderLeftColor: t.accent,
+            }}
+          >
+            <Text style={{ fontSize: 13 }}>🎯</Text>
+            <Text style={{ color: '#E2E8F0', fontSize: 11, flex: 1 }}>
+              Destinatário ativo: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{activeStudentData.name}</Text> • CPF: <Text style={{ color: t.accent, fontWeight: '600' }}>{activeStudentData.cpf}</Text> • Meta: {activeStudentData.goal}
+            </Text>
+          </View>
+        )}
       </Card>
 
       {/* NOTIFICAÇÃO DE SUCESSO LUMINOSA */}
       {successNotice && (
         <View
           style={{
-            backgroundColor: 'rgba(198, 244, 50, 0.15)',
-            padding: 14,
-            borderRadius: 14,
+            backgroundColor: t.accentSubtle,
+            padding: 10,
+            borderRadius: 8,
             borderWidth: 1,
             borderColor: t.accent,
           }}
         >
-          <Body style={{ color: t.accent, fontWeight: '800' } as any}>✓ {successNotice}</Body>
+          <Body style={{ color: t.accent, fontWeight: '700', fontSize: 12.5 } as any}>✓ {successNotice}</Body>
         </View>
       )}
 
       {/* 3. ABAS: TREINO vs DIETA */}
-      <View style={{ flexDirection: 'row', gap: 8 }}>
+      <View style={{ flexDirection: 'row', gap: 6 }}>
         <Chip
           label="🏋️‍♂️ Prescrição de Treinamento"
           selected={activeTab === 'treino'}
@@ -587,29 +733,31 @@ export default function PrescreverDietaScreen() {
                   </Card>
                 ) : (
                   currentSplit.items.map((item, idx) => (
-                    <Card key={item.id} style={{ backgroundColor: '#141824', gap: 12 }}>
+                    <Card key={item.id} style={{ backgroundColor: t.surface, borderColor: t.border, gap: 10, padding: 12 }}>
                       {/* Topo do Exercício */}
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                           <View
                             style={{
-                              width: 28,
-                              height: 28,
-                              borderRadius: 14,
-                              backgroundColor: 'rgba(198, 244, 50, 0.15)',
+                              width: 24,
+                              height: 24,
+                              borderRadius: 6,
+                              backgroundColor: t.accentSubtle,
                               alignItems: 'center',
                               justifyContent: 'center',
+                              borderWidth: 1,
+                              borderColor: t.accentGlow,
                             }}
                           >
-                            <Text style={{ color: t.accent, fontSize: 12, fontWeight: '900' }}>
+                            <Text style={{ color: t.accent, fontSize: 11, fontWeight: '700' }}>
                               {idx + 1}
                             </Text>
                           </View>
                           <View>
-                            <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '800' }}>
+                            <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '700' }}>
                               {item.name}
                             </Text>
-                            <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
+                            <Text style={{ color: '#94A3B8', fontSize: 10.5 }}>
                               {item.muscle} • Equipamento: {item.equipment}
                             </Text>
                           </View>
@@ -620,14 +768,14 @@ export default function PrescreverDietaScreen() {
                           onPress={() => handleRemoveExercise(item.id)}
                           style={{
                             paddingHorizontal: 8,
-                            paddingVertical: 4,
-                            borderRadius: 6,
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            paddingVertical: 3,
+                            borderRadius: 5,
+                            backgroundColor: 'rgba(244, 63, 94, 0.1)',
+                            borderWidth: 1,
+                            borderColor: 'rgba(244, 63, 94, 0.25)',
                           }}
                         >
-                          <Text style={{ color: '#EF4444', fontSize: 12, fontWeight: '700' }}>
-                            🗑️ Remover
-                          </Text>
+                          <Text style={{ color: '#F43F5E', fontSize: 10, fontWeight: '700' }}>Excluir ✕</Text>
                         </Pressable>
                       </View>
 
@@ -696,14 +844,14 @@ export default function PrescreverDietaScreen() {
                                   paddingHorizontal: 6,
                                   paddingVertical: 2,
                                   borderRadius: 4,
-                                  backgroundColor: item.method === m ? 'rgba(198, 244, 50, 0.2)' : '#1A2130',
+                                  backgroundColor: item.method === m ? t.accentSubtle : t.bgElevated,
                                   borderWidth: 1,
                                   borderColor: item.method === m ? t.accent : 'transparent',
                                 }}
                               >
                                 <Text
                                   style={{
-                                    color: item.method === m ? t.accent : '#8E9AA8',
+                                    color: item.method === m ? t.accent : '#94A3B8',
                                     fontSize: 10,
                                     fontWeight: '700',
                                   }}
@@ -723,7 +871,7 @@ export default function PrescreverDietaScreen() {
               {/* BOTÃO EM DESTAQUE: SALVAR E ATIVAR FICHA NO APP DO ALUNO */}
               <View style={{ marginVertical: 8 }}>
                 <Button
-                  title={`⚡ Salvar e Ativar Ficha Completa no App de ${selectedStudent}`}
+                  title={`⚡ Salvar e Ativar Ficha no App de ${selectedStudent}`}
                   onPress={handleSaveCustomWorkout}
                 />
               </View>
@@ -732,25 +880,27 @@ export default function PrescreverDietaScreen() {
 
           {/* MODO 2: PROTOCOLOS PRONTOS DA CONSULTORIA */}
           {workoutMode === 'protocolos' && (
-            <View style={{ gap: 14 }}>
-              <Card style={{ borderWidth: 1, borderColor: 'rgba(198, 244, 50, 0.3)' }}>
+            <View style={{ gap: 12 }}>
+              <Card style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.border }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <View style={{ gap: 4 }}>
-                    <Label style={{ color: t.accent }}>TREINO ATUALMENTE ATIVO NO APP DO ALUNO</Label>
-                    <Title size={20}>{assignedProgram}</Title>
-                    <Body muted style={{ fontSize: 12 } as any}>
+                  <View style={{ gap: 3 }}>
+                    <Label style={{ color: t.accent }}>TREINO ATIVO NO APP DO ALUNO</Label>
+                    <Title size={18}>{assignedProgram}</Title>
+                    <Body muted style={{ fontSize: 11.5 } as any}>
                       Aluno: {selectedStudent} • Sincronizado na nuvem em tempo real
                     </Body>
                   </View>
                   <View
                     style={{
-                      backgroundColor: 'rgba(198, 244, 50, 0.15)',
-                      paddingHorizontal: 10,
-                      paddingVertical: 4,
+                      backgroundColor: t.accentSubtle,
+                      paddingHorizontal: 8,
+                      paddingVertical: 3,
                       borderRadius: 6,
+                      borderWidth: 1,
+                      borderColor: t.accentGlow,
                     }}
                   >
-                    <Text style={{ color: t.accent, fontSize: 11, fontWeight: '800' }}>ATIVO ✓</Text>
+                    <Text style={{ color: t.accent, fontSize: 10.5, fontWeight: '700' }}>ATIVO ✓</Text>
                   </View>
                 </View>
               </Card>
@@ -845,14 +995,14 @@ export default function PrescreverDietaScreen() {
           <View
             style={{
               width: '100%',
-              maxWidth: 640,
+              maxWidth: 620,
               maxHeight: '90%',
-              backgroundColor: '#141824',
-              borderRadius: 20,
-              padding: 22,
+              backgroundColor: t.surface,
+              borderRadius: 14,
+              padding: 18,
               borderWidth: 1,
-              borderColor: 'rgba(198, 244, 50, 0.3)',
-              gap: 14,
+              borderColor: t.border,
+              gap: 12,
             }}
           >
             {/* Topo do Modal */}

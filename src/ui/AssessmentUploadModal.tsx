@@ -312,12 +312,12 @@ const styles = StyleSheet.create({
   },
   dropzone: {
     borderWidth: 2,
-    borderColor: 'rgba(198, 244, 50, 0.3)',
+    borderColor: 'rgba(16, 185, 129, 0.3)',
     borderStyle: 'dashed',
     borderRadius: radius.xl,
     padding: spacing.xl,
     alignItems: 'center',
-    backgroundColor: 'rgba(198, 244, 50, 0.02)',
+    backgroundColor: 'rgba(16, 185, 129, 0.02)',
     marginVertical: spacing.sm,
   },
   dropzoneIcon: {
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   confBadge: {
-    backgroundColor: 'rgba(198, 244, 50, 0.15)',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: radius.pill,

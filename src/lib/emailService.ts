@@ -84,21 +84,21 @@ export function buildInviteEmailHtml(params: {
         <table width="100%" max-width="560" border="0" cellspacing="0" cellpadding="0" style="max-width: 560px; background-color: #121820; border-radius: 20px; overflow: hidden; border: 1px solid #1E293B;">
           <!-- HEADER -->
           <tr>
-            <td style="padding: 30px; text-align: center; background: linear-gradient(180deg, rgba(198, 244, 50, 0.12) 0%, rgba(18, 24, 32, 0) 100%);">
-              <div style="display: inline-block; padding: 8px 16px; background-color: rgba(198, 244, 50, 0.15); border: 1px solid #C6F432; border-radius: 999px; margin-bottom: 12px;">
-                <span style="color: #C6F432; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">⚡ PERSONAL TRAINER</span>
+            <td style="padding: 24px; text-align: center; background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, rgba(17, 23, 34, 0) 100%);">
+              <div style="display: inline-block; padding: 6px 14px; background-color: rgba(16, 185, 129, 0.12); border: 1px solid #10B981; border-radius: 999px; margin-bottom: 12px;">
+                <span style="color: #10B981; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">⚡ PERSONAL TRAINER</span>
               </div>
-              <h1 style="color: #FFFFFF; font-size: 26px; margin: 0 0 8px 0; font-weight: 800;">Acesso Liberado à Consultoria!</h1>
-              <p style="color: #94A3B8; font-size: 15px; margin: 0; line-height: 22px;">Olá <strong>${nome}</strong>, seu cadastro e periodização já estão prontos no aplicativo.</p>
+              <h1 style="color: #FFFFFF; font-size: 22px; margin: 0 0 8px 0; font-weight: 700;">Acesso Liberado à Consultoria!</h1>
+              <p style="color: #94A3B8; font-size: 14px; margin: 0; line-height: 20px;">Olá <strong>${nome}</strong>, seu cadastro e periodização já estão prontos no aplicativo.</p>
             </td>
           </tr>
 
           <!-- CÓDIGO DE ATIVAÇÃO EM DESTAQUE -->
           <tr>
-            <td style="padding: 0 30px 20px 30px; text-align: center;">
-              <div style="background-color: #0A0E13; border: 2px dashed #C6F432; border-radius: 16px; padding: 24px 16px;">
-                <p style="color: #94A3B8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 6px 0;">Seu Código Exclusivo de Ativação</p>
-                <div style="font-size: 38px; font-weight: 900; color: #C6F432; letter-spacing: 4px; font-family: monospace;">${params.code}</div>
+            <td style="padding: 0 24px 20px 24px; text-align: center;">
+              <div style="background-color: #080C10; border: 2px dashed #10B981; border-radius: 12px; padding: 20px 16px;">
+                <p style="color: #94A3B8; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 6px 0;">Seu Código Exclusivo de Ativação</p>
+                <div style="font-size: 34px; font-weight: 800; color: #10B981; letter-spacing: 4px; font-family: monospace;">${params.code}</div>
                 <p style="color: #64748B; font-size: 11px; margin: 8px 0 0 0;">Insira este código na tela inicial do app para conectar sua conta.</p>
               </div>
             </td>
@@ -106,25 +106,25 @@ export function buildInviteEmailHtml(params: {
 
           <!-- RESUMO DO CONTRATO E TREINO -->
           <tr>
-            <td style="padding: 10px 30px 30px 30px;">
-              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #1A222C; border-radius: 12px; padding: 16px;">
+            <td style="padding: 10px 24px 24px 24px;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #151D2A; border-radius: 10px; padding: 14px;">
                 <tr>
                   <td style="padding: 6px 0; color: #94A3B8; font-size: 13px;">🏋️ Treino Atribuído:</td>
-                  <td style="padding: 6px 0; color: #FFFFFF; font-weight: 700; font-size: 13px; text-align: right;">${params.workoutProgram}</td>
+                  <td style="padding: 6px 0; color: #FFFFFF; font-weight: 600; font-size: 13px; text-align: right;">${params.workoutProgram}</td>
                 </tr>
                 <tr>
                   <td style="padding: 6px 0; color: #94A3B8; font-size: 13px;">💳 Plano & Mensalidade:</td>
-                  <td style="padding: 6px 0; color: #FFFFFF; font-weight: 700; font-size: 13px; text-align: right;">${params.planType} · R$ ${params.monthlyPrice},00/mês</td>
+                  <td style="padding: 6px 0; color: #FFFFFF; font-weight: 600; font-size: 13px; text-align: right;">${params.planType} · R$ ${params.monthlyPrice},00/mês</td>
                 </tr>
                 <tr>
                   <td style="padding: 6px 0; color: #94A3B8; font-size: 13px;">🗓 Dia de Vencimento:</td>
-                  <td style="padding: 6px 0; color: #FFFFFF; font-weight: 700; font-size: 13px; text-align: right;">Todo dia ${params.dueDay}</td>
+                  <td style="padding: 6px 0; color: #FFFFFF; font-weight: 600; font-size: 13px; text-align: right;">Todo dia ${params.dueDay}</td>
                 </tr>
               </table>
 
               <!-- DICAS DE ACESSO -->
-              <div style="margin-top: 24px; padding: 14px; background-color: rgba(255, 255, 255, 0.03); border-radius: 10px; border-left: 3px solid #C6F432;">
-                <p style="color: #FFFFFF; font-size: 13px; font-weight: 700; margin: 0 0 4px 0;">Como acessar seu treino:</p>
+              <div style="margin-top: 20px; padding: 12px; background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; border-left: 3px solid #10B981;">
+                <p style="color: #FFFFFF; font-size: 13px; font-weight: 600; margin: 0 0 4px 0;">Como acessar seu treino:</p>
                 <p style="color: #94A3B8; font-size: 12px; margin: 0; line-height: 18px;">
                   1. Abra o app <strong>Personal Trainer</strong>.<br>
                   2. Clique em <strong>Sou Aluno</strong> e selecione <strong>Ativar com Código</strong>.<br>

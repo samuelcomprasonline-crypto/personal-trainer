@@ -639,12 +639,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   mealVitaminsBox: {
-    backgroundColor: 'rgba(198, 244, 50, 0.08)',
+    backgroundColor: 'rgba(16, 185, 129, 0.08)',
     borderRadius: radius.sm,
     padding: spacing.sm,
     marginBottom: spacing.sm,
     borderWidth: 1,
-    borderColor: 'rgba(198, 244, 50, 0.2)',
+    borderColor: 'rgba(16, 185, 129, 0.2)',
   },
   mealVitaminsLabel: {
     color: colors.primary,

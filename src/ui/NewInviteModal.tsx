@@ -24,6 +24,7 @@ export function NewInviteModal({
   const t = useTheme();
   const { createInvite } = useAuth();
   const [studentName, setStudentName] = useState('');
+  const [studentCpf, setStudentCpf] = useState('');
   const [studentEmail, setStudentEmail] = useState('');
   const [monthlyPrice, setMonthlyPrice] = useState('250');
   const [planType, setPlanType] = useState<'Mensal' | 'Trimestral' | 'Semestral' | 'Anual'>('Mensal');
@@ -125,6 +126,7 @@ export function NewInviteModal({
         onStudentAdded({
           studentId: `student-${Date.now()}`,
           name: studentName.trim() || 'Novo Aluno',
+          cpf: studentCpf.trim() || undefined,
           consistency: 1.0,
           recentRpes: [],
           loadHistory: {},
@@ -144,6 +146,7 @@ export function NewInviteModal({
 
   const handleReset = () => {
     setStudentName('');
+    setStudentCpf('');
     setStudentEmail('');
     setMonthlyPrice('250');
     setPlanType('Mensal');
@@ -201,8 +204,8 @@ export function NewInviteModal({
             {autoEmailResult?.success ? (
               <View
                 style={{
-                  backgroundColor: 'rgba(198, 244, 50, 0.15)',
-                  padding: 14,
+                  backgroundColor: t.accentSubtle,
+                  padding: 12,
                   borderRadius: radius.md,
                   borderWidth: 1,
                   borderColor: t.accent,
@@ -330,6 +333,14 @@ export function NewInviteModal({
                 }}
                 placeholder="Ex: Carlos Eduardo Silveira"
                 autoCapitalize="words"
+              />
+
+              <TextInputField
+                label="CPF do Aluno (opcional)"
+                value={studentCpf}
+                onChangeText={setStudentCpf}
+                placeholder="Ex: 123.456.789-00"
+                keyboardType="numeric"
               />
 
               <TextInputField

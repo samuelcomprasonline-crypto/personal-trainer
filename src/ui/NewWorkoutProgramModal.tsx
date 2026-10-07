@@ -168,8 +168,8 @@ export function NewWorkoutProgramModal({
                 <Label style={{ color: t.accent }}>Importador Rápido em Texto Livre (Opcional)</Label>
               </View>
               {parsedItemsCount !== null && (
-                <View style={{ backgroundColor: 'rgba(198, 244, 50, 0.15)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
-                  <Text style={{ color: '#C6F432', fontSize: 10, fontWeight: '800' }}>
+                <View style={{ backgroundColor: t.accentSubtle, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
+                  <Text style={{ color: t.accent, fontSize: 10, fontWeight: '800' }}>
                     {parsedItemsCount} EXERCÍCIOS LIDOS
                   </Text>
                 </View>

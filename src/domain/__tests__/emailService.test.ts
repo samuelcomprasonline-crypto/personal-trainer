@@ -22,7 +22,7 @@ describe('emailService & Envio Automático de Convites', () => {
     expect(html).toContain('TREINO-88331');
     expect(html).toContain('Projeto 60 Dias Balestrin');
     expect(html).toContain('Trimestral');
-    expect(html).toContain('#C6F432');
+    expect(html).toContain('#10B981');
   });
 
   it('deve indicar que precisa de configuração se nenhuma API Key for passada', async () => {

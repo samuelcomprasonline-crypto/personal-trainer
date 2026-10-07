@@ -122,7 +122,7 @@ export function AssessmentPhotoGallery({
       {uploadSuccessToast && (
         <View
           style={{
-            backgroundColor: 'rgba(198, 244, 50, 0.15)',
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
             padding: 10,
             borderRadius: radius.md,
             borderWidth: 1,
@@ -398,12 +398,12 @@ const styles = StyleSheet.create({
   },
   photoDropzone: {
     borderWidth: 2,
-    borderColor: 'rgba(198, 244, 50, 0.3)',
+    borderColor: 'rgba(16, 185, 129, 0.3)',
     borderStyle: 'dashed',
     borderRadius: radius.xl,
     padding: spacing.xl,
     alignItems: 'center',
-    backgroundColor: 'rgba(198, 244, 50, 0.02)',
+    backgroundColor: 'rgba(16, 185, 129, 0.02)',
   },
   dropzoneTitle: {
     color: colors.text,

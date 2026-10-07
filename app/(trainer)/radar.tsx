@@ -46,9 +46,9 @@ export default function Radar() {
       {/* 2. BARRA DE CARDS KPI SUPERIOR (4 COLUNAS EM DEGRADÊ) */}
       <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 12 }}>
         <View style={{ flex: 1 }}>
-          <Card style={{ backgroundColor: '#141824', borderWidth: 1, borderColor: 'rgba(198, 244, 50, 0.25)' }}>
+          <Card style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.accentGlow }}>
             <Label style={{ color: t.accent }}>ALERTAS ATIVOS</Label>
-            <Title size={24} style={{ color: t.accent, marginTop: 2 }}>
+            <Title size={20} style={{ color: t.accent, marginTop: 2 }}>
               {items.length} Casos
             </Title>
             <Body muted style={{ fontSize: 11 } as any}>Triagem de urgência hoje</Body>
@@ -56,9 +56,9 @@ export default function Radar() {
         </View>
 
         <View style={{ flex: 1 }}>
-          <Card style={{ backgroundColor: '#141824', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.08)' }}>
+          <Card style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.border }}>
             <Label>ALUNOS ATIVOS</Label>
-            <Title size={24} style={{ color: '#FFFFFF', marginTop: 2 }}>
+            <Title size={20} style={{ color: '#FFFFFF', marginTop: 2 }}>
               4 Alunos
             </Title>
             <Body muted style={{ fontSize: 11 } as any}>Base da consultoria</Body>
@@ -66,9 +66,9 @@ export default function Radar() {
         </View>
 
         <View style={{ flex: 1 }}>
-          <Card style={{ backgroundColor: '#141824', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.08)' }}>
+          <Card style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.border }}>
             <Label>FATURAMENTO MÊS</Label>
-            <Title size={24} style={{ color: '#C6F432', marginTop: 2 }}>
+            <Title size={20} style={{ color: t.accent, marginTop: 2 }}>
               R$ 1.000,00
             </Title>
             <Body muted style={{ fontSize: 11 } as any}>100% mensalidades pagas</Body>
@@ -76,9 +76,9 @@ export default function Radar() {
         </View>
 
         <View style={{ flex: 1 }}>
-          <Card style={{ backgroundColor: '#141824', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.08)' }}>
+          <Card style={{ backgroundColor: t.surface, borderWidth: 1, borderColor: t.border }}>
             <Label>RETENÇÃO MÉDIA</Label>
-            <Title size={24} style={{ color: '#00F0FF', marginTop: 2 }}>
+            <Title size={20} style={{ color: '#0EA5E9', marginTop: 2 }}>
               94%
             </Title>
             <Body muted style={{ fontSize: 11 } as any}>Engajamento nos treinos</Body>
@@ -93,11 +93,11 @@ export default function Radar() {
           {/* Card de Destaque: Prescrição Ágil com 1 Clique */}
           <View
             style={{
-              backgroundColor: '#141824',
-              borderRadius: 18,
-              padding: 18,
+              backgroundColor: t.surface,
+              borderRadius: 14,
+              padding: 16,
               borderWidth: 1,
-              borderColor: 'rgba(198, 244, 50, 0.3)',
+              borderColor: t.accentGlow,
               gap: 12,
             }}
           >
@@ -244,13 +244,15 @@ export default function Radar() {
                   </View>
                   <View
                     style={{
-                      backgroundColor: 'rgba(198, 244, 50, 0.15)',
-                      paddingHorizontal: 8,
-                      paddingVertical: 3,
-                      borderRadius: 6,
+                      backgroundColor: t.accentSubtle,
+                      paddingHorizontal: 7,
+                      paddingVertical: 2,
+                      borderRadius: 4,
+                      borderWidth: 1,
+                      borderColor: t.accentGlow,
                     }}
                   >
-                    <Text style={{ color: t.accent, fontSize: 10, fontWeight: '800' }}>
+                    <Text style={{ color: t.accent, fontSize: 9.5, fontWeight: '700' }}>
                       {st.tag}
                     </Text>
                   </View>
@@ -262,17 +264,17 @@ export default function Radar() {
           {/* Card: Fluxo Financeiro & Mensalidades */}
           <View
             style={{
-              backgroundColor: '#141824',
-              borderRadius: 18,
-              padding: 18,
+              backgroundColor: t.surface,
+              borderRadius: 14,
+              padding: 16,
               borderWidth: 1,
-              borderColor: 'rgba(255, 255, 255, 0.08)',
-              gap: 12,
+              borderColor: t.border,
+              gap: 10,
             }}
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View>
-                <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '800' }}>
+                <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '700' }}>
                   Financeiro & Cobrança Pix
                 </Text>
                 <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
@@ -287,12 +289,12 @@ export default function Radar() {
               </Pressable>
             </View>
 
-            <View style={{ backgroundColor: '#0E121B', padding: 12, borderRadius: 12, gap: 4 }}>
-              <Text style={{ color: '#8E9AA8', fontSize: 11 }}>Previsão de Recebimento este Mês:</Text>
-              <Text style={{ color: '#C6F432', fontSize: 20, fontWeight: '900' }}>
+            <View style={{ backgroundColor: t.bgElevated, padding: 10, borderRadius: 10, gap: 3 }}>
+              <Text style={{ color: '#8E9AA8', fontSize: 10.5 }}>Previsão de Recebimento este Mês:</Text>
+              <Text style={{ color: t.accent, fontSize: 18, fontWeight: '800' }}>
                 R$ 1.000,00
               </Text>
-              <Text style={{ color: '#8E9AA8', fontSize: 10 }}>
+              <Text style={{ color: '#64748B', fontSize: 10 }}>
                 4 mensalidades ativas • 0 inadimplentes
               </Text>
             </View>

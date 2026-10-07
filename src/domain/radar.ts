@@ -8,6 +8,7 @@ export type RadarItem = { kind: RadarKind; studentId: string; refId?: string; la
 export type StudentSnapshot = {
   studentId: string;
   name: string;
+  cpf?: string; // CPF formatado (ex: "382.491.820-14")
   consistency: number;
   recentRpes: number[]; // mais antigo → mais recente
   loadHistory: Record<string, { exerciseName: string; loads: number[] }>; // mais antigo → mais recente

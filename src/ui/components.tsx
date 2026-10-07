@@ -20,10 +20,10 @@ export function Screen({
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top', 'left', 'right']}>
       <ScrollView
         contentContainerStyle={{
-          padding: isDesktop ? (hideNav ? 40 : 32) : 18,
-          paddingBottom: 80,
-          gap: 18,
-          maxWidth: isDesktop ? (hideNav ? 560 : 1320) : 640,
+          padding: isDesktop ? (hideNav ? 32 : 22) : 14,
+          paddingBottom: 70,
+          gap: 14,
+          maxWidth: isDesktop ? (hideNav ? 520 : 1240) : 600,
           width: '100%',
           alignSelf: 'center',
           justifyContent: hideNav ? 'center' : 'flex-start',
@@ -45,7 +45,7 @@ export function Screen({
 
 export function Title({
   children,
-  size = 28,
+  size = 21,
   style,
 }: {
   children: ReactNode;
@@ -59,9 +59,9 @@ export function Title({
         {
           fontSize: size,
           fontWeight: '700',
-          lineHeight: size * 1.18,
+          lineHeight: size * 1.2,
           color: t.text,
-          letterSpacing: -0.5,
+          letterSpacing: -0.3,
         },
         style,
       ]}
@@ -85,8 +85,8 @@ export function Body({
     <Text
       style={[
         {
-          fontSize: 15,
-          lineHeight: 22,
+          fontSize: 13.5,
+          lineHeight: 20,
           color: muted ? t.muted : t.text,
         },
         style,
@@ -109,9 +109,9 @@ export function Label({
     <Text
       style={[
         {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '600',
-          letterSpacing: 1.2,
+          letterSpacing: 0.9,
           textTransform: 'uppercase',
           color: t.muted,
         },
@@ -136,15 +136,15 @@ export function Card({
   const baseStyle = {
     backgroundColor: t.surface,
     borderRadius: t.cardRadius,
-    padding: 20,
-    gap: 12,
+    padding: 14,
+    gap: 10,
     borderWidth: 1,
     borderColor: t.border,
     ...(Platform.OS === 'web'
       ? ({
           cursor: onPress ? 'pointer' : 'default',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
-          transition: 'all 0.2s ease',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.18)',
+          transition: 'all 0.18s ease',
         } as any)
       : {}),
   };
@@ -192,7 +192,7 @@ export function Button({
 
   if (isPrimary) {
     bgColor = t.accent;
-    textColor = t.accentText;
+    textColor = '#FFFFFF';
     borderColor = t.accent;
   } else if (isOutline) {
     bgColor = t.accentSubtle;
@@ -209,29 +209,29 @@ export function Button({
         backgroundColor: bgColor,
         borderWidth: isPrimary ? 0 : 1,
         borderColor: borderColor,
-        borderRadius: 999,
-        paddingVertical: 16,
-        paddingHorizontal: 24,
+        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 16,
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
-        gap: 8,
+        gap: 6,
         opacity: disabled ? 0.45 : pressed ? 0.88 : 1,
         ...(Platform.OS === 'web'
           ? ({
               cursor: disabled ? 'not-allowed' : 'pointer',
               userSelect: 'none',
               transition: 'all 0.15s ease',
-              boxShadow: isPrimary ? `0 4px 18px ${t.accentGlow}` : 'none',
+              boxShadow: isPrimary ? `0 2px 12px ${t.accentGlow}` : 'none',
             } as any)
           : {}),
       })}
     >
-      {icon ? <Text style={{ fontSize: 16 }}>{icon}</Text> : null}
+      {icon ? <Text style={{ fontSize: 14 }}>{icon}</Text> : null}
       <Text
         style={{
-          fontSize: 16,
-          fontWeight: '700',
+          fontSize: 13.5,
+          fontWeight: '600',
           color: textColor,
           letterSpacing: 0.2,
         }}
@@ -260,25 +260,25 @@ export function Chip({
       accessibilityState={{ selected }}
       onPress={onPress}
       style={({ pressed }) => ({
-        borderRadius: 999,
-        paddingHorizontal: 16,
-        paddingVertical: 9,
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
         borderWidth: 1,
         borderColor: selected ? t.accent : t.border,
         backgroundColor: selected ? t.accent : t.surfaceElevated,
         opacity: pressed ? 0.8 : 1,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 5,
         ...(Platform.OS === 'web' ? ({ cursor: 'pointer', userSelect: 'none' } as any) : {}),
       })}
     >
-      {icon ? <Text style={{ fontSize: 13 }}>{icon}</Text> : null}
+      {icon ? <Text style={{ fontSize: 12 }}>{icon}</Text> : null}
       <Text
         style={{
-          fontSize: 14,
-          fontWeight: selected ? '700' : '500',
-          color: selected ? t.accentText : t.text,
+          fontSize: 12.5,
+          fontWeight: selected ? '600' : '400',
+          color: selected ? '#FFFFFF' : t.text,
         }}
       >
         {label}

@@ -83,10 +83,10 @@ export default function Hoje() {
   const squatImg = require('../../assets/exercise_squat.jpg');
   const pullupImg = require('../../assets/exercise_pullup.jpg');
 
-  // Cores do tema Obsidian & Cyber Lime
-  const cardBg = '#141824';
+  // Cores do tema Titanium & Emerald Cirúrgico
+  const cardBg = '#0E141E';
   const cardBorder = 'rgba(255, 255, 255, 0.07)';
-  const neonLime = '#C6F432';
+  const neonLime = '#10B981';
 
   return (
     <Screen>
@@ -453,7 +453,7 @@ export default function Hoje() {
           </View>
 
           {swapSuccessNotice && (
-            <View style={{ backgroundColor: 'rgba(198, 244, 50, 0.15)', borderWidth: 1, borderColor: neonLime, borderRadius: 10, padding: 10 }}>
+            <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', borderWidth: 1, borderColor: neonLime, borderRadius: 10, padding: 10 }}>
               <Text style={{ color: neonLime, fontSize: 12, fontWeight: '700' }}>
                 ✓ {swapSuccessNotice}
               </Text>
@@ -472,9 +472,9 @@ export default function Hoje() {
                   paddingVertical: 10,
                   paddingHorizontal: 12,
                   borderRadius: 12,
-                  backgroundColor: item.done ? 'rgba(198, 244, 50, 0.04)' : '#10141F',
+                  backgroundColor: item.done ? 'rgba(16, 185, 129, 0.04)' : '#10141F',
                   borderWidth: 1,
-                  borderColor: item.done ? 'rgba(198, 244, 50, 0.2)' : 'rgba(255, 255, 255, 0.03)',
+                  borderColor: item.done ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.03)',
                 }}
               >
                 <Pressable
@@ -602,9 +602,9 @@ export default function Hoje() {
                       width: 36,
                       height: 36,
                       borderRadius: 10,
-                      backgroundColor: 'rgba(198, 244, 50, 0.1)',
+                      backgroundColor: 'rgba(16, 185, 129, 0.1)',
                       borderWidth: 1,
-                      borderColor: 'rgba(198, 244, 50, 0.25)',
+                      borderColor: 'rgba(16, 185, 129, 0.25)',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
@@ -838,7 +838,7 @@ export default function Hoje() {
               borderRadius: 20,
               padding: 24,
               borderWidth: 1,
-              borderColor: 'rgba(198, 244, 50, 0.25)',
+              borderColor: 'rgba(16, 185, 129, 0.25)',
               shadowColor: neonLime,
               shadowOpacity: 0.2,
               shadowRadius: 20,
@@ -896,7 +896,7 @@ export default function Hoje() {
                           borderRadius: 14,
                           padding: 14,
                           borderWidth: 1,
-                          borderColor: isApproved ? 'rgba(198, 244, 50, 0.3)' : 'rgba(255, 255, 255, 0.08)',
+                          borderColor: isApproved ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255, 255, 255, 0.08)',
                           flexDirection: 'row',
                           justifyContent: 'space-between',
                           alignItems: 'center',
@@ -911,7 +911,7 @@ export default function Hoje() {
                             {isApproved && (
                               <View
                                 style={{
-                                  backgroundColor: 'rgba(198, 244, 50, 0.15)',
+                                  backgroundColor: 'rgba(16, 185, 129, 0.15)',
                                   paddingHorizontal: 6,
                                   paddingVertical: 2,
                                   borderRadius: 4,

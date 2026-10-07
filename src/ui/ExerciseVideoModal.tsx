@@ -213,12 +213,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   pillBadge: {
-    backgroundColor: 'rgba(198, 244, 50, 0.12)',
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: 'rgba(198, 244, 50, 0.3)',
+    borderColor: 'rgba(16, 185, 129, 0.3)',
   },
   pillBadgeText: {
     color: colors.primary,

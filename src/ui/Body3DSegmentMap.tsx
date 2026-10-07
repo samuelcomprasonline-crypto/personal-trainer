@@ -66,7 +66,7 @@ export function Body3DSegmentMap({
 
   const themeColors = {
     cyan: '#00F0FF',
-    neonLime: '#C6F432',
+    neonLime: '#10B981',
     coralRed: '#FF4D6D',
     amber: '#FFB703',
     purple: '#A855F7',
@@ -311,9 +311,9 @@ export function Body3DSegmentMap({
         {/* RESUMO DO OBJETIVO E DIETA ATUAL */}
         <View
           style={{
-            backgroundColor: 'rgba(198, 244, 50, 0.05)',
+            backgroundColor: 'rgba(16, 185, 129, 0.05)',
             borderWidth: 1,
-            borderColor: 'rgba(198, 244, 50, 0.2)',
+            borderColor: 'rgba(16, 185, 129, 0.2)',
             borderRadius: 14,
             padding: 14,
             flexDirection: 'row',
@@ -740,7 +740,7 @@ export function Body3DSegmentMap({
                 key={point.id}
                 onPress={() => setSelectedFocusId(point.id)}
                 style={({ pressed }) => ({
-                  backgroundColor: isSelected ? 'rgba(198, 244, 50, 0.08)' : '#121722',
+                  backgroundColor: isSelected ? 'rgba(16, 185, 129, 0.08)' : '#121722',
                   borderRadius: 14,
                   padding: 14,
                   borderWidth: 1,

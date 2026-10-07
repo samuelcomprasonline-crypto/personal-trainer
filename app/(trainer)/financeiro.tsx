@@ -172,7 +172,7 @@ export default function Financeiro() {
       {toastMessage && (
         <View
           style={{
-            backgroundColor: 'rgba(198, 244, 50, 0.15)',
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
             padding: 12,
             borderRadius: radius.md,
             borderWidth: 1,
@@ -360,7 +360,7 @@ export default function Financeiro() {
                         <Pressable
                           onPress={() => handleToggleStatus(tx.id, tx.status)}
                           style={({ pressed }) => ({
-                            backgroundColor: isPaid ? 'rgba(198, 244, 50, 0.15)' : 'rgba(234, 179, 8, 0.15)',
+                            backgroundColor: isPaid ? 'rgba(16, 185, 129, 0.15)' : 'rgba(234, 179, 8, 0.15)',
                             paddingHorizontal: 8,
                             paddingVertical: 3,
                             borderRadius: 6,

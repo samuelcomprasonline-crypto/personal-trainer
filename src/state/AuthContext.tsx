@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: data.role as UserRole,
           name: data.name,
           trainerId: data.trainer_id ?? undefined,
-          brandColor: data.brand_color ?? '#C6F432',
+          brandColor: data.brand_color ?? '#10B981',
           logoUrl: data.logo_url ?? undefined,
           phone: data.phone ?? undefined,
           createdAt: data.created_at,
@@ -136,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role: (meta.role || 'trainer') as UserRole,
         name: meta.name || (email.split('@')[0]),
         trainerId: meta.trainer_id,
-        brandColor: '#C6F432',
+        brandColor: '#10B981',
         createdAt: new Date().toISOString(),
       };
       setProfile(fallbackProf);
@@ -218,7 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role: params.role,
         name: params.name.trim(),
         trainerId: linkedTrainerId ?? undefined,
-        brandColor: '#C6F432',
+        brandColor: '#10B981',
         createdAt: new Date().toISOString(),
       };
       setProfile(newProf);
@@ -274,7 +274,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role,
       name: role === 'trainer' ? 'Aurora Personal' : 'Samuel Ferreira',
       trainerId: role === 'student' ? 'demo-trainer' : undefined,
-      brandColor: '#C6F432',
+      brandColor: '#10B981',
       createdAt: new Date().toISOString(),
     };
     setUser({ id: demoProf.id, email: demoProf.email });

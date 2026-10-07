@@ -37,8 +37,8 @@ export default function Entrada() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const neonLime = '#C6F432';
-  const cardBg = '#141824';
+  const neonLime = '#10B981';
+  const cardBg = '#0E141E';
   const cardBorder = 'rgba(255, 255, 255, 0.08)';
 
   const handleLogin = async () => {
@@ -355,7 +355,7 @@ export default function Entrada() {
                 onPress={() => setRole('student')}
                 style={{
                   flex: 1,
-                  backgroundColor: role === 'student' ? 'rgba(198, 244, 50, 0.1)' : '#0F131D',
+                  backgroundColor: role === 'student' ? 'rgba(16, 185, 129, 0.1)' : '#0F131D',
                   borderRadius: 12,
                   padding: 12,
                   borderWidth: 1,
@@ -386,7 +386,7 @@ export default function Entrada() {
           )}
 
           {successMessage && (
-            <View style={{ backgroundColor: 'rgba(198, 244, 50, 0.15)', borderWidth: 1, borderColor: neonLime, borderRadius: 10, padding: 10 }}>
+            <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', borderWidth: 1, borderColor: neonLime, borderRadius: 10, padding: 10 }}>
               <Text style={{ color: neonLime, fontSize: 12, fontWeight: '700' }}>
                 ✓ {successMessage}
               </Text>
@@ -496,7 +496,7 @@ export default function Entrada() {
             <Pressable
               onPress={() => handleQuickDemo('student')}
               style={({ pressed }) => ({
-                backgroundColor: 'rgba(198, 244, 50, 0.08)',
+                backgroundColor: 'rgba(16, 185, 129, 0.08)',
                 borderWidth: 1,
                 borderColor: neonLime,
                 borderRadius: 12,

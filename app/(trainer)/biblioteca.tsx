@@ -50,7 +50,7 @@ export default function Biblioteca() {
         {/* CABEÇALHO */}
         <View style={{ gap: 4, marginTop: 4 }}>
           <Label style={{ color: t.accent }}>{trainer.name} • Sistema de Prescrição</Label>
-          <Title size={28}>Central de Treinamento</Title>
+          <Title size={22}>Central de Treinamento</Title>
           <Body muted style={{ fontSize: 13 } as any}>
             Acesse o banco de programas periodizados, métodos avançados de intensidade e biomecânica em vídeo.
           </Body>
@@ -59,9 +59,9 @@ export default function Biblioteca() {
         {appliedProgramNotice && (
           <View
             style={{
-              backgroundColor: 'rgba(198, 244, 50, 0.15)',
-              padding: 12,
-              borderRadius: 14,
+              backgroundColor: t.accentSubtle,
+              padding: 10,
+              borderRadius: 10,
               borderWidth: 1,
               borderColor: t.accent,
             }}

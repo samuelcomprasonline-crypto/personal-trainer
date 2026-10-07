@@ -58,34 +58,34 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
       {/* 1. SIDEBAR LATERAL ESQUERDA FIXA */}
       <View
         style={{
-          width: 275,
-          backgroundColor: '#0C1017',
+          width: 250,
+          backgroundColor: '#0A0E15',
           borderRightWidth: 1,
           borderRightColor: t.border,
-          padding: 20,
+          padding: 16,
           justifyContent: 'space-between',
         }}
       >
         {/* Topo da Sidebar: Marca do Estúdio */}
-        <View style={{ gap: 20 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <View style={{ gap: 16 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <View
               style={{
-                width: 44,
-                height: 44,
-                borderRadius: 14,
+                width: 36,
+                height: 36,
+                borderRadius: 10,
                 backgroundColor: t.accent,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ fontSize: 22 }}>🏋️</Text>
+              <Text style={{ fontSize: 18 }}>🏋️</Text>
             </View>
             <View>
-              <Text style={{ color: '#FFFFFF', fontSize: 17, fontWeight: '800', letterSpacing: -0.3 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '700', letterSpacing: -0.3 }}>
                 AURORA STUDIO
               </Text>
-              <Text style={{ color: t.accent, fontSize: 10, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+              <Text style={{ color: t.accent, fontSize: 9.5, fontWeight: '700', letterSpacing: 0.6, textTransform: 'uppercase' }}>
                 {isTrainer ? 'Painel do Treinador' : 'Portal do Aluno'}
               </Text>
             </View>
@@ -94,28 +94,28 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
           {/* Cartão de Identificação de Perfil (Fixo, sem alternância) */}
           <View
             style={{
-              backgroundColor: isTrainer ? 'rgba(0, 240, 255, 0.08)' : 'rgba(168, 85, 247, 0.08)',
-              borderRadius: 12,
-              padding: 12,
+              backgroundColor: isTrainer ? 'rgba(16, 185, 129, 0.08)' : 'rgba(168, 85, 247, 0.08)',
+              borderRadius: 10,
+              padding: 10,
               borderWidth: 1,
-              borderColor: isTrainer ? 'rgba(0, 240, 255, 0.25)' : 'rgba(168, 85, 247, 0.25)',
-              gap: 4,
+              borderColor: isTrainer ? 'rgba(16, 185, 129, 0.25)' : 'rgba(168, 85, 247, 0.25)',
+              gap: 3,
             }}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <View
                 style={{
-                  width: 8,
-                  height: 8,
+                  width: 7,
+                  height: 7,
                   borderRadius: 4,
-                  backgroundColor: isTrainer ? '#00F0FF' : '#A855F7',
+                  backgroundColor: isTrainer ? t.accent : '#A855F7',
                 }}
               />
               <Text
                 style={{
-                  color: isTrainer ? '#00F0FF' : '#A855F7',
-                  fontSize: 10,
-                  fontWeight: '800',
+                  color: isTrainer ? t.accent : '#A855F7',
+                  fontSize: 9.5,
+                  fontWeight: '700',
                   letterSpacing: 0.5,
                   textTransform: 'uppercase',
                 }}
@@ -123,7 +123,7 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
                 {isTrainer ? 'Treinador Responsável' : 'Aluno VIP Exclusivo'}
               </Text>
             </View>
-            <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '800' }} numberOfLines={1}>
+            <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }} numberOfLines={1}>
               {profile?.name ?? (isTrainer ? 'Aurora Personal' : 'Samuel Ferreira')}
             </Text>
             <Text style={{ color: t.muted, fontSize: 11 }} numberOfLines={1}>
@@ -132,16 +132,16 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
           </View>
 
           {/* Links de Navegação Exclusivos */}
-          <View style={{ gap: 4 }}>
+          <View style={{ gap: 3 }}>
             <Text
               style={{
                 color: t.muted,
-                fontSize: 10,
-                fontWeight: '800',
-                letterSpacing: 1.2,
+                fontSize: 9.5,
+                fontWeight: '700',
+                letterSpacing: 1.0,
                 textTransform: 'uppercase',
-                marginBottom: 6,
-                paddingHorizontal: 10,
+                marginBottom: 4,
+                paddingHorizontal: 8,
               }}
             >
               {isTrainer ? 'Menu do Personal' : 'Menu do Aluno'}
@@ -156,21 +156,21 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
                       flexDirection: 'row',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      paddingVertical: 11,
-                      paddingHorizontal: 14,
-                      borderRadius: 12,
-                      backgroundColor: isActive ? 'rgba(198, 244, 50, 0.1)' : pressed ? t.surfaceElevated : 'transparent',
+                      paddingVertical: 9,
+                      paddingHorizontal: 12,
+                      borderRadius: 9,
+                      backgroundColor: isActive ? t.accentSubtle : pressed ? t.surfaceElevated : 'transparent',
                       borderWidth: 1,
-                      borderColor: isActive ? 'rgba(198, 244, 50, 0.3)' : 'transparent',
+                      borderColor: isActive ? t.accentGlow : 'transparent',
                     })}
                   >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                      <Text style={{ fontSize: 17 }}>{item.icon}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                      <Text style={{ fontSize: 15 }}>{item.icon}</Text>
                       <Text
                         style={{
                           color: isActive ? t.accent : '#D1D5DB',
-                          fontSize: 13,
-                          fontWeight: isActive ? '700' : '500',
+                          fontSize: 12.5,
+                          fontWeight: isActive ? '600' : '400',
                         }}
                       >
                         {item.label}
@@ -181,12 +181,12 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
                       <View
                         style={{
                           backgroundColor: isActive ? t.accent : t.surfaceCard,
-                          paddingHorizontal: 7,
+                          paddingHorizontal: 6,
                           paddingVertical: 2,
-                          borderRadius: 6,
+                          borderRadius: 5,
                         }}
                       >
-                        <Text style={{ color: isActive ? t.accentText : t.muted, fontSize: 9, fontWeight: 'bold' }}>
+                        <Text style={{ color: isActive ? '#FFFFFF' : t.muted, fontSize: 8.5, fontWeight: 'bold' }}>
                           {item.badge}
                         </Text>
                       </View>

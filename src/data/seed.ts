@@ -1,7 +1,7 @@
 import type { StudentSnapshot } from '../domain/radar';
 import type { Exercise, PhysicalAssessment, Template } from '../domain/types';
 
-export const trainer = { name: 'Personal Trainer', brandColor: '#C6F432' };
+export const trainer = { name: 'Personal Trainer', brandColor: '#10B981' };
 
 // Catálogo de Exercícios com vídeos biomecânicos neutros e de alta definição (sem logos ou marcas comerciais)
 export const exercises: Exercise[] = [
@@ -904,6 +904,7 @@ export const otherStudents: StudentSnapshot[] = [
   {
     studentId: 'marina',
     name: 'Marina Costa',
+    cpf: '518.294.731-09',
     consistency: 0.85,
     recentRpes: [7, 8, 7],
     loadHistory: {},
@@ -917,6 +918,7 @@ export const otherStudents: StudentSnapshot[] = [
   {
     studentId: 'rafael',
     name: 'Rafael Lima',
+    cpf: '742.610.385-40',
     consistency: 0.92,
     recentRpes: [8, 9, 8],
     loadHistory: { 'leg-press': { exerciseName: 'Leg Press - Pés Paralelos', loads: [80, 90, 100, 110] } },
@@ -930,6 +932,7 @@ export const otherStudents: StudentSnapshot[] = [
   {
     studentId: 'julia',
     name: 'Julia Prado',
+    cpf: '631.905.827-21',
     consistency: 0.78,
     recentRpes: [6, 7, 7],
     loadHistory: {},
