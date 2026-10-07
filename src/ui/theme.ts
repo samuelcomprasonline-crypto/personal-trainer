@@ -25,7 +25,7 @@ export const gymTheme = {
   muscleColor: '#10B981',    // Destaque anatômico esmeralda
   fatColor: '#F43F5E',       // Rose / Coral cirúrgico
   waterColor: '#0EA5E9',     // Ciano água
-  cardRadius: 14,            // Minimalista e compacto
+  cardRadius: 18,            // Elegante e equilibrado
   fonts,
 };
 

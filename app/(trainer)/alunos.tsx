@@ -150,6 +150,244 @@ export default function Alunos() {
     showToast(`Status financeiro atualizado!`);
   };
 
+  if (selectedStudentName !== null) {
+    return (
+      <>
+        <Screen>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => setSelectedStudentName(null)}
+              style={({ pressed }) => ({
+                paddingVertical: 8,
+                paddingHorizontal: 14,
+                backgroundColor: t.surfaceElevated,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: t.border,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+                opacity: pressed ? 0.8 : 1,
+              })}
+            >
+              <Text style={{ color: t.accent, fontWeight: '700', fontSize: 13 }}>← Voltar para lista de alunos</Text>
+            </Pressable>
+
+            <View
+              style={{
+                backgroundColor: `${t.accent}20`,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 999,
+                borderWidth: 1,
+                borderColor: `${t.accent}40`,
+              }}
+            >
+              <Body style={{ color: t.accent, fontSize: 12.5, fontWeight: '700' } as any}>
+                Prontuário Ativo: {selectedStudentName}
+              </Body>
+            </View>
+          </View>
+
+          {toastMessage && (
+            <View
+              style={{
+                backgroundColor: t.accentSubtle,
+                padding: 10,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: t.accent,
+                marginBottom: 8,
+              }}
+            >
+              <Body style={{ color: t.accent, fontWeight: '700', fontSize: 12.5 } as any}>✓ {toastMessage}</Body>
+            </View>
+          )}
+
+          {/* ABAS DO PRONTUÁRIO */}
+          <View style={{ flexDirection: 'row', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
+            <Chip
+              label="Laudo Clínico & 3D"
+              selected={studentTab === 'laudo'}
+              onPress={() => setStudentTab('laudo')}
+            />
+            <Chip
+              label="Periodização & Ficha"
+              selected={studentTab === 'treino'}
+              onPress={() => setStudentTab('treino')}
+            />
+            <Chip
+              label="Financeiro & Contrato 💳"
+              selected={studentTab === 'financeiro'}
+              onPress={() => setStudentTab('financeiro')}
+            />
+            <Chip
+              label="Prescrição Nutricional"
+              selected={studentTab === 'nutricao'}
+              onPress={() => setStudentTab('nutricao')}
+            />
+            <Chip
+              label="Biofeedback"
+              selected={studentTab === 'recuperacao'}
+              onPress={() => setStudentTab('recuperacao')}
+            />
+          </View>
+
+          {/* ABA 1: LAUDO CLÍNICO & COMPARTIVO CONECTADO AO ALUNO */}
+          {studentTab === 'laudo' && (
+            <AssessmentReport
+              key={selectedStudentName}
+              studentName={selectedStudentName ?? 'Samuel Ferreira'}
+              studentId={activeStudent?.studentId}
+              assessment={getLatestAssessmentForStudent(selectedStudentName ?? 'Samuel Ferreira')}
+              onAssessmentChange={(updated) => {
+                saveOrUpdateAssessment(updated);
+                showToast(`Avaliação de ${selectedStudentName} sincronizada!`);
+              }}
+            />
+          )}
+
+          {/* ABA 2: APLICAR PROGRAMAS DO BANCO DE DADOS AO ALUNO */}
+          {studentTab === 'treino' && (
+            <View style={{ gap: 14 }}>
+              <Card>
+                <Label style={{ color: t.accent }}>PROGRAMA ATIVO DO ALUNO</Label>
+                <Title size={22}>{activeStudent?.assignedProgramName || 'Projeto 60 Dias Balestrin'}</Title>
+                <Body muted style={{ fontSize: 13, marginTop: 4 } as any}>
+                  Este é o treino que o aluno visualiza e executa hoje no aplicativo dele. Escolha qualquer treino abaixo para alterar instantaneamente.
+                </Body>
+              </Card>
+
+              <Label style={{ marginTop: 4 }}>Treinos e Protocolos no Banco de Dados:</Label>
+              {workoutProgramsCatalog.map((prog) => {
+                const isCurrent = prog.name === activeStudent?.assignedProgramName;
+                return (
+                  <Card key={prog.id}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Title size={18}>{prog.name}</Title>
+                      {isCurrent ? (
+                        <View style={{ backgroundColor: `${t.accent}20`, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 }}>
+                          <Body style={{ color: t.accent, fontSize: 11, fontWeight: '800' } as any}>ATIVO NO APP DO ALUNO</Body>
+                        </View>
+                      ) : null}
+                    </View>
+
+                    <Body muted style={{ fontSize: 13, marginTop: 4 } as any}>
+                      {prog.description}
+                    </Body>
+
+                    <View style={{ flexDirection: 'row', gap: 12, marginVertical: 8 }}>
+                      <Body style={{ fontSize: 12, color: t.muted } as any}>
+                        • {prog.frequencyDaysPerWeek}x na semana • {prog.durationWeeks} semanas • {prog.sessions.length} divisões
+                      </Body>
+                    </View>
+
+                    {!isCurrent && (
+                      <Button
+                        title={`Enviar / Aplicar este Treino a ${selectedStudentName} ✓`}
+                        onPress={() => handleApplyProgramToStudent(prog)}
+                      />
+                    )}
+                  </Card>
+                );
+              })}
+            </View>
+          )}
+
+          {/* ABA FINANCEIRA & CONTRATO */}
+          {studentTab === 'financeiro' && selectedStudentName && (
+            <View style={{ gap: 14 }}>
+              <Card>
+                <Label style={{ color: t.accent }}>CONTRATO DA CONSULTORIA</Label>
+                <Title size={24}>{activeStudent?.name}</Title>
+
+                <View
+                  style={{
+                    backgroundColor: t.surfaceElevated,
+                    padding: 16,
+                    borderRadius: 14,
+                    marginTop: 10,
+                    gap: 10,
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Body muted>Valor Mensal da Consultoria:</Body>
+                    <Title size={20} style={{ color: t.accent }}>R$ {activeStudent?.monthlyPrice || 250},00</Title>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Body muted>Modalidade do Plano:</Body>
+                    <Body style={{ fontWeight: '700' } as any}>{activeStudent?.planType || 'Mensal'}</Body>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Body muted>Dia de Vencimento:</Body>
+                    <Body style={{ fontWeight: '700' } as any}>Todo dia {activeStudent?.dueDay || 10}</Body>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Body muted>Situação do Pagamento:</Body>
+                    <View
+                      style={{
+                        backgroundColor: activeStudent?.paymentStatus === 'pago' ? t.accentSubtle : 'rgba(234, 179, 8, 0.2)',
+                        paddingHorizontal: 8,
+                        paddingVertical: 3,
+                        borderRadius: 6,
+                        borderWidth: 1,
+                        borderColor: activeStudent?.paymentStatus === 'pago' ? t.accentGlow : 'rgba(234, 179, 8, 0.3)',
+                      }}
+                    >
+                      <Body
+                        style={{
+                          color: activeStudent?.paymentStatus === 'pago' ? t.accent : '#EAB308',
+                          fontSize: 11,
+                          fontWeight: '700',
+                        } as any}
+                      >
+                        {activeStudent?.paymentStatus === 'pago' ? 'EM DIA (PAGO) ✓' : 'PENDENTE DE PAGAMENTO ⚠️'}
+                      </Body>
+                    </View>
+                  </View>
+                </View>
+
+                <View style={{ marginTop: 14 }}>
+                  <Button
+                    title={activeStudent?.paymentStatus === 'pago' ? 'Marcar como Pendente' : 'Registrar Pagamento Recebido ✓'}
+                    variant={activeStudent?.paymentStatus === 'pago' ? 'ghost' : 'primary'}
+                    onPress={() => handleTogglePaymentStatus(activeStudent.name)}
+                  />
+                </View>
+              </Card>
+            </View>
+          )}
+
+          {/* ABA 3: PRESCRIÇÃO NUTRICIONAL & DIETAS */}
+          {studentTab === 'nutricao' && (
+            <NutritionModule isTrainer />
+          )}
+
+          {/* ABA 4: BIOFEEDBACK & WEARABLES */}
+          {studentTab === 'recuperacao' && (
+            <RecoveryModule />
+          )}
+
+          <View style={{ marginTop: 24, marginBottom: 16 }}>
+            <Button title="← Voltar para lista de alunos" variant="ghost" onPress={() => setSelectedStudentName(null)} />
+          </View>
+        </Screen>
+
+        {/* MODAL DE CADASTRO DE NOVA AVALIAÇÃO */}
+        <NewAssessmentModal
+          visible={showNewModal}
+          studentName={selectedStudentName || 'Samuel Ferreira'}
+          onClose={() => setShowNewModal(false)}
+          onSave={handleSaveAssessment}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       <Screen>
@@ -454,224 +692,6 @@ export default function Alunos() {
         onClose={() => setShowNewModal(false)}
         onSave={handleSaveAssessment}
       />
-
-      {/* MODAL DO PRONTUÁRIO COMPLETO DO ALUNO */}
-      <Modal
-        visible={selectedStudentName !== null}
-        animationType="slide"
-        onRequestClose={() => setSelectedStudentName(null)}
-      >
-        <Screen hideNav>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => setSelectedStudentName(null)}
-              style={{ paddingVertical: 6 }}
-            >
-              <Body muted>← Voltar para lista de alunos</Body>
-            </Pressable>
-
-            <View
-              style={{
-                backgroundColor: `${t.accent}20`,
-                paddingHorizontal: 10,
-                paddingVertical: 4,
-                borderRadius: 999,
-              }}
-            >
-              <Body style={{ color: t.accent, fontSize: 11, fontWeight: '700' } as any}>
-                Aluno: {selectedStudentName}
-              </Body>
-            </View>
-          </View>
-
-          {toastMessage && (
-            <View
-              style={{
-                backgroundColor: t.accentSubtle,
-                padding: 10,
-                borderRadius: 8,
-                borderWidth: 1,
-                borderColor: t.accent,
-                marginBottom: 8,
-              }}
-            >
-              <Body style={{ color: t.accent, fontWeight: '700', fontSize: 12.5 } as any}>✓ {toastMessage}</Body>
-            </View>
-          )}
-
-          {/* ABAS DO PRONTUÁRIO */}
-          <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
-            <Chip
-              label="Laudo Clínico & 3D"
-              selected={studentTab === 'laudo'}
-              onPress={() => setStudentTab('laudo')}
-            />
-            <Chip
-              label="Periodização & Ficha"
-              selected={studentTab === 'treino'}
-              onPress={() => setStudentTab('treino')}
-            />
-            <Chip
-              label="Financeiro & Contrato 💳"
-              selected={studentTab === 'financeiro'}
-              onPress={() => setStudentTab('financeiro')}
-            />
-            <Chip
-              label="Prescrição Nutricional"
-              selected={studentTab === 'nutricao'}
-              onPress={() => setStudentTab('nutricao')}
-            />
-            <Chip
-              label="Biofeedback"
-              selected={studentTab === 'recuperacao'}
-              onPress={() => setStudentTab('recuperacao')}
-            />
-          </View>
-
-          {/* ABA 1: LAUDO CLÍNICO & COMPARTIVO CONECTADO AO ALUNO */}
-          {studentTab === 'laudo' && (
-            <AssessmentReport
-              key={selectedStudentName}
-              studentName={selectedStudentName ?? 'Samuel Ferreira'}
-              studentId={activeStudent?.studentId}
-              assessment={getLatestAssessmentForStudent(selectedStudentName ?? 'Samuel Ferreira')}
-              onAssessmentChange={(updated) => {
-                saveOrUpdateAssessment(updated);
-                showToast(`Avaliação de ${selectedStudentName} sincronizada!`);
-              }}
-            />
-          )}
-
-          {/* ABA 2: APLICAR PROGRAMAS DO BANCO DE DADOS AO ALUNO */}
-          {studentTab === 'treino' && (
-            <View style={{ gap: 14 }}>
-              <Card>
-                <Label style={{ color: t.accent }}>PROGRAMA ATIVO DO ALUNO</Label>
-                <Title size={22}>{activeStudent?.assignedProgramName || 'Projeto 60 Dias Balestrin'}</Title>
-                <Body muted style={{ fontSize: 13, marginTop: 4 } as any}>
-                  Este é o treino que o aluno visualiza e executa hoje no aplicativo dele. Escolha qualquer treino abaixo para alterar instantaneamente.
-                </Body>
-              </Card>
-
-              <Label style={{ marginTop: 4 }}>Treinos e Protocolos no Banco de Dados:</Label>
-              {workoutProgramsCatalog.map((prog) => {
-                const isCurrent = prog.name === activeStudent?.assignedProgramName;
-                return (
-                  <Card key={prog.id}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Title size={18}>{prog.name}</Title>
-                      {isCurrent ? (
-                        <View style={{ backgroundColor: `${t.accent}20`, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 }}>
-                          <Body style={{ color: t.accent, fontSize: 11, fontWeight: '800' } as any}>ATIVO NO APP DO ALUNO</Body>
-                        </View>
-                      ) : null}
-                    </View>
-
-                    <Body muted style={{ fontSize: 13, marginTop: 4 } as any}>
-                      {prog.description}
-                    </Body>
-
-                    <View style={{ flexDirection: 'row', gap: 12, marginVertical: 8 }}>
-                      <Body style={{ fontSize: 12, color: t.muted } as any}>
-                        • {prog.frequencyDaysPerWeek}x na semana • {prog.durationWeeks} semanas • {prog.sessions.length} divisões
-                      </Body>
-                    </View>
-
-                    {!isCurrent && (
-                      <Button
-                        title={`Enviar / Aplicar este Treino a ${selectedStudentName} ✓`}
-                        onPress={() => handleApplyProgramToStudent(prog)}
-                      />
-                    )}
-                  </Card>
-                );
-              })}
-            </View>
-          )}
-
-          {/* ABA FINANCEIRA & CONTRATO */}
-          {studentTab === 'financeiro' && selectedStudentName && (
-            <View style={{ gap: 14 }}>
-              <Card>
-                <Label style={{ color: t.accent }}>CONTRATO DA CONSULTORIA</Label>
-                <Title size={24}>{activeStudent?.name}</Title>
-
-                <View
-                  style={{
-                    backgroundColor: t.surfaceElevated,
-                    padding: 16,
-                    borderRadius: 14,
-                    marginTop: 10,
-                    gap: 10,
-                  }}
-                >
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Body muted>Valor Mensal da Consultoria:</Body>
-                    <Title size={20} style={{ color: t.accent }}>R$ {activeStudent?.monthlyPrice || 250},00</Title>
-                  </View>
-
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Body muted>Modalidade do Plano:</Body>
-                    <Body style={{ fontWeight: '700' } as any}>{activeStudent?.planType || 'Mensal'}</Body>
-                  </View>
-
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Body muted>Dia de Vencimento:</Body>
-                    <Body style={{ fontWeight: '700' } as any}>Todo dia {activeStudent?.dueDay || 10}</Body>
-                  </View>
-
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Body muted>Situação do Pagamento:</Body>
-                    <View
-                      style={{
-                        backgroundColor: activeStudent?.paymentStatus === 'pago' ? t.accentSubtle : 'rgba(234, 179, 8, 0.2)',
-                        paddingHorizontal: 8,
-                        paddingVertical: 3,
-                        borderRadius: 6,
-                        borderWidth: 1,
-                        borderColor: activeStudent?.paymentStatus === 'pago' ? t.accentGlow : 'rgba(234, 179, 8, 0.3)',
-                      }}
-                    >
-                      <Body
-                        style={{
-                          color: activeStudent?.paymentStatus === 'pago' ? t.accent : '#EAB308',
-                          fontSize: 11,
-                          fontWeight: '700',
-                        } as any}
-                      >
-                        {activeStudent?.paymentStatus === 'pago' ? 'EM DIA (PAGO) ✓' : 'PENDENTE DE PAGAMENTO ⚠️'}
-                      </Body>
-                    </View>
-                  </View>
-                </View>
-
-                <View style={{ marginTop: 14 }}>
-                  <Button
-                    title={activeStudent?.paymentStatus === 'pago' ? 'Marcar como Pendente' : 'Registrar Pagamento Recebido ✓'}
-                    variant={activeStudent?.paymentStatus === 'pago' ? 'ghost' : 'primary'}
-                    onPress={() => handleTogglePaymentStatus(activeStudent.name)}
-                  />
-                </View>
-              </Card>
-            </View>
-          )}
-
-          {/* ABA 3: PRESCRIÇÃO NUTRICIONAL & DIETAS */}
-          {studentTab === 'nutricao' && (
-            <NutritionModule isTrainer />
-          )}
-
-          {/* ABA 4: BIOFEEDBACK & WEARABLES */}
-          {studentTab === 'recuperacao' && (
-            <RecoveryModule />
-          )}
-
-          <View style={{ marginTop: 24, marginBottom: 16 }}>
-            <Button title="Fechar Prontuário" variant="ghost" onPress={() => setSelectedStudentName(null)} />
-          </View>
-        </Screen>
-      </Modal>
     </>
   );
 }

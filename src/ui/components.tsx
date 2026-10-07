@@ -20,10 +20,10 @@ export function Screen({
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top', 'left', 'right']}>
       <ScrollView
         contentContainerStyle={{
-          padding: isDesktop ? (hideNav ? 32 : 22) : 14,
-          paddingBottom: 70,
-          gap: 14,
-          maxWidth: isDesktop ? (hideNav ? 520 : 1240) : 600,
+          padding: isDesktop ? (hideNav ? 40 : 32) : 18,
+          paddingBottom: 80,
+          gap: 18,
+          maxWidth: isDesktop ? (hideNav ? 560 : 1320) : 640,
           width: '100%',
           alignSelf: 'center',
           justifyContent: hideNav ? 'center' : 'flex-start',
@@ -45,7 +45,7 @@ export function Screen({
 
 export function Title({
   children,
-  size = 21,
+  size = 26,
   style,
 }: {
   children: ReactNode;
@@ -61,7 +61,7 @@ export function Title({
           fontWeight: '700',
           lineHeight: size * 1.2,
           color: t.text,
-          letterSpacing: -0.3,
+          letterSpacing: -0.4,
         },
         style,
       ]}
@@ -85,8 +85,8 @@ export function Body({
     <Text
       style={[
         {
-          fontSize: 13.5,
-          lineHeight: 20,
+          fontSize: 15,
+          lineHeight: 22,
           color: muted ? t.muted : t.text,
         },
         style,
@@ -109,9 +109,9 @@ export function Label({
     <Text
       style={[
         {
-          fontSize: 11,
+          fontSize: 11.5,
           fontWeight: '600',
-          letterSpacing: 0.9,
+          letterSpacing: 1.0,
           textTransform: 'uppercase',
           color: t.muted,
         },
@@ -136,8 +136,8 @@ export function Card({
   const baseStyle = {
     backgroundColor: t.surface,
     borderRadius: t.cardRadius,
-    padding: 14,
-    gap: 10,
+    padding: 18,
+    gap: 12,
     borderWidth: 1,
     borderColor: t.border,
     ...(Platform.OS === 'web'
