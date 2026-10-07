@@ -1,6 +1,5 @@
 import { router } from 'expo-router';
-import { useEffect } from 'react';
-import { Image, ImageBackground, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { trainer } from '../src/data/seed';
 import { useAuth } from '../src/state/AuthContext';
 import { ArrowCircleButton, Body, Button, Card, Label, Screen, Title } from '../src/ui/components';
@@ -8,30 +7,21 @@ import { useTheme } from '../src/ui/theme';
 
 export default function Entrada() {
   const t = useTheme();
-  const { user, profile, enterDemoMode, signOut } = useAuth();
+  const { enterDemoMode, signOut, profile, user } = useAuth();
 
-  useEffect(() => {
-    if (user && profile) {
-      if (profile.role === 'trainer') {
-        router.replace('/radar');
-      } else {
-        router.replace('/hoje');
-      }
-    }
-  }, [user, profile]);
+  const handleEnterAsStudent = () => {
+    enterDemoMode('student');
+    router.replace('/hoje');
+  };
 
-  const handleStart = () => {
-    if (user && profile) {
-      router.replace(profile.role === 'trainer' ? '/radar' : '/hoje');
-    } else {
-      enterDemoMode('student');
-      router.replace('/hoje');
-    }
+  const handleEnterAsTrainer = () => {
+    enterDemoMode('trainer');
+    router.replace('/radar');
   };
 
   return (
     <Screen>
-      {/* 1. CABEÇALHO SUPERIOR (IDÊNTICO À FOTO 1) */}
+      {/* 1. CABEÇALHO SUPERIOR MINIMALISTA */}
       <View
         style={{
           flexDirection: 'row',
@@ -44,86 +34,71 @@ export default function Entrada() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <View
             style={{
-              width: 38,
-              height: 38,
+              width: 40,
+              height: 40,
               borderRadius: 12,
               backgroundColor: t.accent,
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Text style={{ fontSize: 20 }}>🏋️</Text>
+            <Text style={{ fontSize: 22 }}>🏋️</Text>
           </View>
           <View>
-            <Title size={20} style={{ letterSpacing: -0.2 }}>
+            <Title size={20} style={{ letterSpacing: -0.3 }}>
               {trainer.name}
             </Title>
-            <Label style={{ fontSize: 10, color: t.accent }}>Consultoria de Elite</Label>
+            <Label style={{ fontSize: 10, color: t.accent }}>Projeto 60 Dias • Consultoria</Label>
           </View>
         </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          {/* Sino de Notificação */}
+        {/* Seletor Rápido de Acesso */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Pressable
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: t.surfaceElevated,
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative',
+            onPress={handleEnterAsTrainer}
+            style={({ pressed }) => ({
+              backgroundColor: 'rgba(198, 244, 50, 0.12)',
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 999,
               borderWidth: 1,
-              borderColor: t.border,
-            }}
+              borderColor: t.accent,
+              opacity: pressed ? 0.8 : 1,
+            })}
           >
-            <Text style={{ fontSize: 16 }}>🔔</Text>
-            <View
-              style={{
-                position: 'absolute',
-                top: 8,
-                right: 8,
-                width: 8,
-                height: 8,
-                borderRadius: 4,
-                backgroundColor: t.accent,
-              }}
-            />
+            <Text style={{ color: t.accent, fontSize: 11, fontWeight: '800' }}>
+              ⚡ Sou o Treinador
+            </Text>
           </Pressable>
 
-          {/* Avatar */}
           <Pressable
-            onPress={() => (user ? signOut() : router.push('/login'))}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              overflow: 'hidden',
-              borderWidth: 2,
-              borderColor: t.accent,
-            }}
+            onPress={() => router.push('/login')}
+            style={({ pressed }) => ({
+              backgroundColor: t.surfaceElevated,
+              paddingHorizontal: 10,
+              paddingVertical: 6,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor: t.border,
+              opacity: pressed ? 0.8 : 1,
+            })}
           >
-            <Image
-              source={{
-                uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
-              }}
-              style={{ width: '100%', height: '100%' }}
-            />
+            <Text style={{ color: t.muted, fontSize: 11, fontWeight: '700' }}>Login</Text>
           </Pressable>
         </View>
       </View>
 
-      {/* 2. HERO BANNER PRINCIPAL (IDÊNTICO À FOTO 1) */}
+      {/* 2. HERO BANNER MINIMALISTA COM ACESSO DUPLO CLARO */}
       <View
         style={{
           borderRadius: 24,
           overflow: 'hidden',
-          backgroundColor: '#0F141C',
+          backgroundColor: '#0E131B',
           borderWidth: 1,
           borderColor: t.border,
-          marginTop: 4,
+          marginTop: 6,
           position: 'relative',
-          minHeight: 220,
+          padding: 24,
         }}
       >
         <Image
@@ -134,76 +109,74 @@ export default function Entrada() {
             position: 'absolute',
             right: -20,
             bottom: 0,
-            width: 250,
+            width: 240,
             height: 220,
             resizeMode: 'cover',
-            opacity: 0.75,
+            opacity: 0.55,
           }}
         />
 
-        <View style={{ padding: 22, maxWidth: '72%', gap: 8 }}>
+        <View style={{ maxWidth: '78%', gap: 8 }}>
           <Label style={{ color: t.muted, fontSize: 11, letterSpacing: 1.5 }}>
-            SUA SAÚDE. NOSSA PRIORIDADE.
+            CONSULTORIA & PRESCRIÇÃO OFICIAL
           </Label>
 
-          <View>
-            <Title size={28} style={{ color: '#FFFFFF', fontWeight: '800' }}>
-              Mais Forte.{'\n'}Mais Saudável.{'\n'}
-              <Text style={{ color: t.accent }}>Você.</Text>
-            </Title>
-          </View>
+          <Title size={28} style={{ color: '#FFFFFF', fontWeight: '800' }}>
+            Mais Forte.{'\n'}Mais Saudável.{'\n'}
+            <Text style={{ color: t.accent }}>Você.</Text>
+          </Title>
 
           <Body muted style={{ fontSize: 13, lineHeight: 18 } as any}>
-            Periodização de alto nível, biomecânica em vídeo e laudos corporais 3D.
+            Treinos calibrados pelo método Júlio Balestrin, biomecânica em vídeo 16:9 e dietas automáticas por gramas.
           </Body>
 
-          <View style={{ marginTop: 8, alignSelf: 'flex-start' }}>
+          {/* DUPLO ACESSO: ALUNO OU TREINADOR COM 1 CLIQUE */}
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
             <Button
-              title="Começar Agora →"
-              onPress={handleStart}
+              title="Entrar como Aluno 👤"
+              onPress={handleEnterAsStudent}
+            />
+            <Button
+              title="Acessar como Treinador ⚡"
+              variant="neonOutline"
+              onPress={handleEnterAsTrainer}
             />
           </View>
         </View>
       </View>
 
-      {/* 3. GRADE DE 4 AÇÕES RÁPIDAS (EXATAMENTE COMO NA FOTO 1) */}
+      {/* 3. GRADE DE 4 AÇÕES RÁPIDAS (COM DIETA SEPARADA DE TREINO) */}
       <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
         {[
           {
             icon: '🏋️‍♂️',
             title: 'Treinos',
-            subtitle: 'Fichas do dia',
-            action: () => {
-              enterDemoMode('student');
-              router.push('/hoje');
-            },
+            subtitle: 'Balestrin 60 Dias',
+            action: handleEnterAsStudent,
           },
           {
             icon: '🥗',
-            title: 'Metas & Dieta',
-            subtitle: 'Composição',
+            title: 'Dieta & Macros',
+            subtitle: 'Grama a grama',
             action: () => {
               enterDemoMode('student');
-              router.push('/progresso');
+              router.push('/dieta');
             },
           },
           {
             icon: '📈',
-            title: 'Progresso',
-            subtitle: 'Laudos & 3D',
+            title: 'Avaliação & 3D',
+            subtitle: 'Laudos e balança',
             action: () => {
               enterDemoMode('student');
               router.push('/progresso');
             },
           },
           {
-            icon: '⭐',
-            title: 'Personal',
-            subtitle: 'Canal Direto',
-            action: () => {
-              enterDemoMode('student');
-              router.push('/treinador');
-            },
+            icon: '⚡',
+            title: 'Radar Personal',
+            subtitle: 'Painel Treinador',
+            action: handleEnterAsTrainer,
           },
         ].map((item, index) => (
           <Pressable
@@ -224,9 +197,9 @@ export default function Entrada() {
           >
             <View
               style={{
-                width: 36,
-                height: 36,
-                borderRadius: 18,
+                width: 38,
+                height: 38,
+                borderRadius: 19,
                 backgroundColor: t.surfaceElevated,
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -245,23 +218,20 @@ export default function Entrada() {
         ))}
       </View>
 
-      {/* 4. SEÇÃO "PLANO DE HOJE" (TODAY'S PLAN) COM FOTOS E BOTÃO VERDE */}
+      {/* 4. PLANO CALIBRADO DO PDF DO JÚLIO BALESTRIN */}
       <View style={{ gap: 12 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Title size={20}>Plano de Hoje</Title>
-          <Pressable onPress={handleStart}>
+          <Title size={20}>Plano Pré-Calibrado Oficial</Title>
+          <Pressable onPress={handleEnterAsStudent}>
             <Body style={{ color: t.accent, fontSize: 13, fontWeight: '600' } as any}>
-              Ver Todos →
+              Abrir Ficha Completa →
             </Body>
           </Pressable>
         </View>
 
-        {/* Card de Treino do Dia */}
+        {/* Card do Treino DIA 1 — Pernas */}
         <Card
-          onPress={() => {
-            enterDemoMode('student');
-            router.push('/hoje');
-          }}
+          onPress={handleEnterAsStudent}
           style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14 }}
         >
           <Image
@@ -271,27 +241,22 @@ export default function Entrada() {
             style={{ width: 68, height: 68, borderRadius: 16 }}
           />
           <View style={{ flex: 1, gap: 2 }}>
-            <Title size={17}>Treino A — Inferiores & Força</Title>
+            <Title size={17}>DIA 1 — Pernas (Iniciante 1)</Title>
             <Body muted style={{ fontSize: 13 } as any}>
-              45 min • Carga Moderada / Intensa
+              Aquecimento 140 BPMs • 12 exercícios • 4x15
             </Body>
             <Body style={{ color: t.accent, fontSize: 12, fontWeight: '600' } as any}>
-              ● Leg Press 45º + Cadeira Extensora
+              ● Cadeira Adutora, Abdutora, Pélvica, Leg Press & Extensora
             </Body>
           </View>
-          <ArrowCircleButton
-            onPress={() => {
-              enterDemoMode('student');
-              router.push('/treino');
-            }}
-          />
+          <ArrowCircleButton onPress={handleEnterAsStudent} />
         </Card>
 
-        {/* Card de Avaliação Física 3D & Laudo */}
+        {/* Card da Dieta Dedicada */}
         <Card
           onPress={() => {
             enterDemoMode('student');
-            router.push('/progresso');
+            router.push('/dieta');
           }}
           style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14 }}
         >
@@ -302,88 +267,22 @@ export default function Entrada() {
             style={{ width: 68, height: 68, borderRadius: 16 }}
           />
           <View style={{ flex: 1, gap: 2 }}>
-            <Title size={17}>Avaliação Física & Fotos 3D</Title>
+            <Title size={17}>Plano Nutricional & Dieta</Title>
             <Body muted style={{ fontSize: 13 } as any}>
-              Bioimpedância clínica de 4 compartimentos
+              2.450 kcal • 185g Prot • 260g Carb • 65g Gord
             </Body>
             <Body style={{ color: t.accent, fontSize: 12, fontWeight: '600' } as any}>
-              ● 41.3 kg Músculo • 21.2% Gordura
+              ● Cálculo automático de macros por gramas + Vitaminas
             </Body>
           </View>
           <ArrowCircleButton
             onPress={() => {
               enterDemoMode('student');
-              router.push('/progresso');
+              router.push('/dieta');
             }}
           />
         </Card>
       </View>
-
-      {/* 5. CARD MOTIVACIONAL COM DEGRADE VERDE NEON (FOTO 1 RODAPÉ) */}
-      <View
-        style={{
-          borderRadius: 20,
-          backgroundColor: '#121720',
-          borderWidth: 1,
-          borderColor: `${t.accent}40`,
-          padding: 18,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          overflow: 'hidden',
-        }}
-      >
-        <View style={{ gap: 4, maxWidth: '75%' }}>
-          <Title size={17} style={{ color: '#FFFFFF' }}>
-            Pequenos passos. Grandes mudanças.
-          </Title>
-          <Body muted style={{ fontSize: 13 } as any}>
-            Mantenha a consistência sem pular treinos.
-          </Body>
-        </View>
-
-        <View
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: 24,
-            backgroundColor: `${t.accent}20`,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderWidth: 1,
-            borderColor: t.accent,
-          }}
-        >
-          <Text style={{ fontSize: 22 }}>🏃</Text>
-        </View>
-      </View>
-
-      {/* 6. ACESSO RÁPIDO DO TREINADOR E CONTAS */}
-      <Card>
-        <Label>Área Profissional</Label>
-        <Body muted style={{ fontSize: 14 } as any}>
-          Você é o personal trainer? Acesse o painel com Radar de alunos, prescrição e envio de convites.
-        </Body>
-        <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
-          <View style={{ flex: 1 }}>
-            <Button
-              title="Entrar como Treinador"
-              variant="neonOutline"
-              onPress={() => {
-                enterDemoMode('trainer');
-                router.replace('/radar');
-              }}
-            />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Button
-              title="Fazer Login"
-              variant="ghost"
-              onPress={() => router.push('/login')}
-            />
-          </View>
-        </View>
-      </Card>
     </Screen>
   );
 }

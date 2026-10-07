@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { Image, Linking, Modal, Platform, Pressable, View } from 'react-native';
+import React, { useState } from 'react';
+import { Image, Linking, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Exercise } from '../domain/types';
-import { Body, Button, Card, Label, Title } from './components';
-import { useTheme } from './theme';
+import { colors, radius, spacing, typography } from './theme';
 
 export function ExerciseVideoModal({
   exercise,
@@ -13,7 +12,6 @@ export function ExerciseVideoModal({
   visible: boolean;
   onClose: () => void;
 }) {
-  const t = useTheme();
   const [isPlaying, setIsPlaying] = useState(false);
 
   if (!exercise) return null;
@@ -30,117 +28,321 @@ export function ExerciseVideoModal({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={handleClose}>
-      <View style={{ flex: 1, backgroundColor: t.bg, padding: 20 }}>
-        {/* Cabeçalho */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 30, marginBottom: 16 }}>
-          <Pressable onPress={handleClose} style={{ padding: 8 }}>
-            <Body muted style={{ fontSize: 16 } as any}>← Voltar ao treino</Body>
-          </Pressable>
-          <View
-            style={{
-              backgroundColor: '#FF000020',
-              paddingHorizontal: 12,
-              paddingVertical: 4,
-              borderRadius: 999,
-              borderWidth: 1,
-              borderColor: '#FF000040',
-            }}
-          >
-            <Body style={{ color: '#FF0000', fontSize: 12, fontWeight: 'bold' } as any}>
-              ● YouTube Oficial
-            </Body>
-          </View>
-        </View>
+    <Modal
+      visible={visible}
+      animationType="fade"
+      transparent
+      onRequestClose={handleClose}
+    >
+      <View style={styles.overlay}>
+        {/* Backdrop clicável para fechar */}
+        <Pressable style={styles.backdrop} onPress={handleClose} />
 
-        <View style={{ gap: 4, marginBottom: 16 }}>
-          <Label>Tutorial de Execução Biomecânica</Label>
-          <Title size={28}>{exercise.name}</Title>
-          <Body muted style={{ fontSize: 14 } as any}>
-            Aprenda a cadência, ângulo e contração corretos para máxima hipertrofia com segurança articular.
-          </Body>
-        </View>
-
-        {/* Player de Vídeo / Prévia YouTube */}
-        <View
-          style={{
-            width: '100%',
-            height: 250,
-            borderRadius: 22,
-            overflow: 'hidden',
-            backgroundColor: '#000000',
-            position: 'relative',
-            borderWidth: 1,
-            borderColor: t.border,
-          }}
-        >
-          {isPlaying && Platform.OS === 'web' && exercise.youtubeId ? (
-            <iframe
-              src={`https://www.youtube.com/embed/${exercise.youtubeId}?autoplay=1&rel=0`}
-              style={{ width: '100%', height: '100%', border: 'none' }}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          ) : (
-            <Pressable
-              onPress={() => {
-                if (Platform.OS === 'web') {
-                  setIsPlaying(true);
-                } else {
-                  handleOpenYouTubeApp();
-                }
-              }}
-              style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-            >
-              {exercise.thumbnailUrl ? (
-                <Image
-                  source={{ uri: exercise.thumbnailUrl }}
-                  style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
-                />
-              ) : null}
-
-              {/* Botão Play Luminoso Central */}
-              <View
-                style={{
-                  position: 'absolute',
-                  width: 68,
-                  height: 68,
-                  borderRadius: 34,
-                  backgroundColor: 'rgba(0,0,0,0.75)',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderWidth: 2,
-                  borderColor: '#FFFFFF',
-                }}
-              >
-                <Title size={26} style={{ color: '#FFFFFF', marginLeft: 4 }}>▶</Title>
+        {/* Quadro Proporcional e Minimalista */}
+        <View style={styles.modalCard}>
+          {/* Topo Minimalista */}
+          <View style={styles.header}>
+            <View style={{ flex: 1, paddingRight: spacing.sm }}>
+              <View style={styles.badgeRow}>
+                <View style={styles.pillBadge}>
+                  <Text style={styles.pillBadgeText}>BIOMECÂNICA EM ALTA DEFINIÇÃO</Text>
+                </View>
               </View>
+              <Text style={styles.title} numberOfLines={1}>
+                {exercise.name}
+              </Text>
+            </View>
+
+            <Pressable
+              onPress={handleClose}
+              style={({ pressed }) => [
+                styles.closeButton,
+                pressed && { opacity: 0.7 },
+              ]}
+              accessibilityLabel="Fechar vídeo"
+            >
+              <Text style={styles.closeIcon}>✕</Text>
             </Pressable>
-          )}
-        </View>
+          </View>
 
-        {/* Informações Técnicas e Instruções */}
-        <Card style={{ marginTop: 16 } as any}>
-          <Label>Orientações do Treinador</Label>
-          <Body style={{ fontSize: 15, lineHeight: 22 } as any}>
-            {exercise.instructions ??
-              'Mantenha a postura alinhada, respire na fase excêntrica e solte o ar na fase concêntrica. Evite trancos articulares.'}
-          </Body>
-        </Card>
+          {/* Quadro de Vídeo Estritamente Proporcional 16:9 (Sem barras laterais) */}
+          <View style={styles.videoFrame}>
+            {isPlaying && Platform.OS === 'web' && exercise.youtubeId ? (
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${exercise.youtubeId}?autoplay=1&rel=0&modestbranding=1&controls=1&showinfo=0`}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                  display: 'block',
+                }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <Pressable
+                onPress={() => {
+                  if (Platform.OS === 'web') {
+                    setIsPlaying(true);
+                  } else {
+                    handleOpenYouTubeApp();
+                  }
+                }}
+                style={styles.thumbnailContainer}
+              >
+                {exercise.thumbnailUrl ? (
+                  <Image
+                    source={{ uri: exercise.thumbnailUrl }}
+                    style={styles.thumbnailImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={[styles.thumbnailImage, { backgroundColor: '#141A23' }]} />
+                )}
 
-        {/* Ação para abrir aplicativo externo */}
-        <View style={{ marginTop: 16, gap: 10 }}>
-          <Button
-            title="Assistir no Aplicativo do YouTube ↗"
-            onPress={handleOpenYouTubeApp}
-          />
-          <Button
-            title="Concluir e Voltar às Séries"
-            variant="ghost"
-            onPress={handleClose}
-          />
+                {/* Camada sutil de gradiente escuro */}
+                <View style={styles.thumbnailOverlay} />
+
+                {/* Botão Play Minimalista Estilo Vidro */}
+                <View style={styles.playButtonGlow}>
+                  <Text style={styles.playIcon}>▶</Text>
+                </View>
+
+                <View style={styles.durationPill}>
+                  <Text style={styles.durationText}>Ver Execução HD</Text>
+                </View>
+              </Pressable>
+            )}
+          </View>
+
+          {/* Informações Técnicas e Instruções */}
+          <View style={styles.instructionsBox}>
+            <Text style={styles.instructionsLabel}>PADRÃO DE MOVIMENTO & POSTURA</Text>
+            <Text style={styles.instructionsText}>
+              {exercise.instructions ??
+                'Mantenha a escápula estabilizada, cadência controlada na descida (2 a 3 segundos) e máxima contração no pico do movimento.'}
+            </Text>
+          </View>
+
+          {/* Rodapé de Ações Minimalista */}
+          <View style={styles.footerRow}>
+            <Pressable
+              onPress={handleOpenYouTubeApp}
+              style={({ pressed }) => [
+                styles.btnSecondary,
+                pressed && { opacity: 0.8 },
+              ]}
+            >
+              <Text style={styles.btnSecondaryText}>Abrir no YouTube ↗</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={handleClose}
+              style={({ pressed }) => [
+                styles.btnPrimary,
+                pressed && { opacity: 0.85 },
+              ]}
+            >
+              <Text style={styles.btnPrimaryText}>Voltar ao Treino</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(5, 8, 12, 0.88)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.md,
+  },
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 680,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xxl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.6,
+    shadowRadius: 32,
+    elevation: 20,
+    zIndex: 10,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: spacing.md,
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  pillBadge: {
+    backgroundColor: 'rgba(198, 244, 50, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(198, 244, 50, 0.3)',
+  },
+  pillBadgeText: {
+    color: colors.primary,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+  },
+  title: {
+    color: colors.text,
+    fontSize: typography.h2,
+    fontWeight: '800',
+    letterSpacing: -0.3,
+  },
+  closeButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.surfaceHighlight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  closeIcon: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  // Quadro estritamente 16:9 proporcional
+  videoFrame: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    backgroundColor: '#000000',
+    borderWidth: 1,
+    borderColor: colors.border,
+    position: 'relative',
+  },
+  thumbnailContainer: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  thumbnailImage: {
+    width: '100%',
+    height: '100%',
+  },
+  thumbnailOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+  },
+  playButtonGlow: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: 'rgba(10, 14, 19, 0.85)',
+    borderWidth: 2,
+    borderColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  playIcon: {
+    color: colors.primary,
+    fontSize: 22,
+    marginLeft: 3,
+  },
+  durationPill: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    backgroundColor: 'rgba(10, 14, 19, 0.85)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  durationText: {
+    color: colors.text,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  instructionsBox: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginTop: spacing.md,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.primary,
+  },
+  instructionsLabel: {
+    color: colors.primary,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  instructionsText: {
+    color: colors.textSecondary,
+    fontSize: typography.small,
+    lineHeight: 19,
+  },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  btnSecondary: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 10,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceHighlight,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  btnSecondaryText: {
+    color: colors.textSecondary,
+    fontSize: typography.small,
+    fontWeight: '700',
+  },
+  btnPrimary: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 10,
+    borderRadius: radius.md,
+    backgroundColor: colors.primary,
+  },
+  btnPrimaryText: {
+    color: colors.black,
+    fontSize: typography.small,
+    fontWeight: '800',
+  },
+});

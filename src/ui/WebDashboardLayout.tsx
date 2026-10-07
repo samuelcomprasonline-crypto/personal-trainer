@@ -11,26 +11,39 @@ type NavItem = {
   icon: string;
   route: string;
   badge?: string;
+  forRole?: 'all' | 'trainer' | 'student';
 };
 
 export function WebDashboardLayout({ children }: { children: ReactNode }) {
   const t = useTheme();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
-  const { profile, signOut } = useAuth();
+  const { profile, enterDemoMode, signOut } = useAuth();
   const { syncStatus } = useAppState();
   const pathname = usePathname();
 
-  // Itens de navegação profissionais para Desktop (padrão Trainerize / Future / Wellness Project)
+  const isTrainer = profile?.role === 'trainer';
+
+  // Itens de navegação profissionais para Desktop com Dieta e Treino estritamente separados
   const navItems: NavItem[] = [
-    { label: 'Hoje & Painel', icon: '⚡', route: '/hoje' },
-    { label: 'Treino do Dia', icon: '🏋️‍♂️', route: '/treino' },
-    { label: 'Progresso & 3D', icon: '📈', route: '/progresso' },
+    { label: 'Hoje & Treino', icon: '🏋️‍♂️', route: '/hoje' },
+    { label: 'Dieta & Macros', icon: '🥗', route: '/dieta' },
+    { label: 'Avaliação & 3D', icon: '📈', route: '/progresso' },
     { label: 'Seu Treinador', icon: '👤', route: '/treinador' },
     { label: 'Radar do Personal', icon: '📡', route: '/radar', badge: 'PRO' },
-    { label: 'Gestão de Alunos', icon: '👥', route: '/alunos' },
-    { label: 'Biblioteca de Treinos', icon: '📚', route: '/biblioteca' },
+    { label: 'Gestão de Alunos', icon: '👥', route: '/alunos', badge: 'PRO' },
+    { label: 'Banco de Treinos', icon: '📚', route: '/biblioteca', badge: 'PRO' },
   ];
+
+  const handleToggleRole = () => {
+    if (isTrainer) {
+      enterDemoMode('student');
+      router.replace('/hoje');
+    } else {
+      enterDemoMode('trainer');
+      router.replace('/radar');
+    }
+  };
 
   if (!isDesktop) {
     // No celular, renderiza apenas o conteúdo original
@@ -52,7 +65,7 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
         }}
       >
         {/* Topo da Sidebar: Marca do Estúdio */}
-        <View style={{ gap: 24 }}>
+        <View style={{ gap: 20 }}>
           <Pressable
             onPress={() => router.replace('/')}
             style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}
@@ -70,56 +83,66 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
               <Text style={{ fontSize: 22 }}>🏋️</Text>
             </View>
             <View>
-              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800', letterSpacing: -0.3 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 17, fontWeight: '800', letterSpacing: -0.3 }}>
                 {trainer.name}
               </Text>
-              <Text style={{ color: t.accent, fontSize: 11, fontWeight: '700', textTransform: 'uppercase' }}>
+              <Text style={{ color: t.accent, fontSize: 10, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
                 Elite Coaching OS
               </Text>
             </View>
           </Pressable>
 
-          {/* Status do Sistema / Sincronização */}
-          <View
-            style={{
+          {/* Seletor Instantâneo de Perfil (Aluno vs Treinador) */}
+          <Pressable
+            onPress={handleToggleRole}
+            style={({ pressed }) => ({
+              backgroundColor: isTrainer ? 'rgba(198, 244, 50, 0.15)' : t.surfaceElevated,
+              borderRadius: 12,
+              padding: 10,
+              borderWidth: 1,
+              borderColor: isTrainer ? t.accent : t.border,
               flexDirection: 'row',
               alignItems: 'center',
-              gap: 8,
-              backgroundColor: t.surface,
-              paddingVertical: 8,
-              paddingHorizontal: 12,
-              borderRadius: 12,
-              borderWidth: 1,
-              borderColor: t.border,
-            }}
+              justifyContent: 'space-between',
+              opacity: pressed ? 0.85 : 1,
+            })}
           >
+            <View style={{ gap: 2 }}>
+              <Text style={{ color: t.muted, fontSize: 10, fontWeight: '700', textTransform: 'uppercase' }}>
+                MODO ATIVO
+              </Text>
+              <Text style={{ color: isTrainer ? t.accent : '#FFFFFF', fontSize: 13, fontWeight: '800' }}>
+                {isTrainer ? '⚡ Painel Treinador' : '👤 Visão Aluno'}
+              </Text>
+            </View>
             <View
               style={{
-                width: 8,
-                height: 8,
-                borderRadius: 4,
-                backgroundColor: syncStatus === 'synced' ? t.accent : '#F59E0B',
+                backgroundColor: isTrainer ? t.accent : t.surfaceCard,
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 6,
               }}
-            />
-            <Text style={{ color: t.muted, fontSize: 12, fontWeight: '600' }}>
-              {syncStatus === 'synced' ? 'Nuvem Conectada' : 'Modo Offline'}
-            </Text>
-          </View>
+            >
+              <Text style={{ color: isTrainer ? t.accentText : t.muted, fontSize: 10, fontWeight: '800' }}>
+                Trocar ⇄
+              </Text>
+            </View>
+          </Pressable>
 
           {/* Links de Navegação */}
           <View style={{ gap: 4 }}>
             <Text
               style={{
                 color: t.muted,
-                fontSize: 11,
-                fontWeight: '700',
+                fontSize: 10,
+                fontWeight: '800',
                 letterSpacing: 1.2,
                 textTransform: 'uppercase',
                 marginBottom: 6,
                 paddingHorizontal: 10,
               }}
             >
-              Navegação Integrada
+              Módulos do Sistema
             </Text>
 
             {navItems.map((item, index) => {
@@ -132,20 +155,20 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    paddingVertical: 11,
-                    paddingHorizontal: 14,
-                    borderRadius: 12,
+                    paddingVertical: 10,
+                    paddingHorizontal: 12,
+                    borderRadius: 10,
                     backgroundColor: isActive ? `${t.accent}18` : pressed ? t.surfaceElevated : 'transparent',
                     borderLeftWidth: isActive ? 3 : 0,
                     borderLeftColor: t.accent,
                   })}
                 >
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                     <Text style={{ fontSize: 16 }}>{item.icon}</Text>
                     <Text
                       style={{
                         color: isActive ? t.accent : t.text,
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: isActive ? '700' : '500',
                       }}
                     >
@@ -156,13 +179,13 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
                   {item.badge ? (
                     <View
                       style={{
-                        backgroundColor: t.accent,
+                        backgroundColor: isActive ? t.accent : t.surfaceCard,
                         paddingHorizontal: 6,
                         paddingVertical: 2,
                         borderRadius: 6,
                       }}
                     >
-                      <Text style={{ color: t.accentText, fontSize: 9, fontWeight: 'bold' }}>
+                      <Text style={{ color: isActive ? t.accentText : t.muted, fontSize: 9, fontWeight: 'bold' }}>
                         {item.badge}
                       </Text>
                     </View>
@@ -179,22 +202,24 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
             borderTopWidth: 1,
             borderTopColor: t.border,
             paddingTop: 16,
-            gap: 12,
+            gap: 10,
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <Image
               source={{
-                uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+                uri: isTrainer
+                  ? 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&auto=format&fit=crop&q=80'
+                  : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
               }}
-              style={{ width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: t.accent }}
+              style={{ width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: t.accent }}
             />
             <View style={{ flex: 1 }}>
               <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: 'bold' }} numberOfLines={1}>
-                {profile?.name ?? 'Samuel Ferreira'}
+                {isTrainer ? trainer.name : profile?.name ?? 'Samuel Ferreira'}
               </Text>
-              <Text style={{ color: t.muted, fontSize: 11 }}>
-                {profile?.role === 'trainer' ? 'Treinador / Admin' : 'Aluno VIP'}
+              <Text style={{ color: isTrainer ? t.accent : t.muted, fontSize: 11, fontWeight: '600' }}>
+                {isTrainer ? 'Treinador Titular' : 'Aluno VIP'}
               </Text>
             </View>
           </View>
@@ -203,17 +228,17 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
             onPress={() => signOut()}
             style={{
               backgroundColor: t.surfaceElevated,
-              paddingVertical: 8,
-              borderRadius: 10,
+              paddingVertical: 7,
+              borderRadius: 8,
               alignItems: 'center',
             }}
           >
-            <Text style={{ color: t.muted, fontSize: 12, fontWeight: '600' }}>Encerrar Sessão</Text>
+            <Text style={{ color: t.muted, fontSize: 11, fontWeight: '600' }}>Encerrar Sessão</Text>
           </Pressable>
         </View>
       </View>
 
-      {/* 2. ÁREA CENTRAL EXPANSIVA DE CONTEÚDO (LARGURA AMPLA DO DESKTOP) */}
+      {/* 2. ÁREA CENTRAL EXPANSIVA DE CONTEÚDO */}
       <View style={{ flex: 1, backgroundColor: t.bg }}>
         {children}
       </View>
