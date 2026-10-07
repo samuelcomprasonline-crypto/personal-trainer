@@ -103,6 +103,8 @@ function MetricBar({
   );
 }
 
+import { AssessmentUploadModal } from './AssessmentUploadModal';
+
 export function AssessmentReport({
   studentName = 'Samuel Ferreira',
   assessment = samuelAssessment,
@@ -112,10 +114,33 @@ export function AssessmentReport({
 }) {
   const t = useTheme();
   const [tab, setTab] = useState<TabView>('mapa3d');
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [currentBio, setCurrentBio] = useState(assessment.bioimpedance);
 
-  const bio = assessment.bioimpedance;
+  const bio = currentBio || assessment.bioimpedance;
   const skin = assessment.skinfolds;
   const circ = assessment.circumferences;
+
+  const handleConfirmData = (extracted: {
+    pesoKg: number;
+    percGordura: number;
+    massaMuscularEsqueleticaKg: number;
+    aguaTotalKg: number;
+    massaLivreGorduraKg: number;
+  }) => {
+    if (bio) {
+      setCurrentBio({
+        ...bio,
+        pesoKg: extracted.pesoKg,
+        percGordura: extracted.percGordura,
+        massaMuscularEsqueleticaKg: extracted.massaMuscularEsqueleticaKg,
+        massaMuscularTotalKg: Math.round(extracted.massaMuscularEsqueleticaKg * 1.55 * 10) / 10,
+        aguaTotalKg: extracted.aguaTotalKg,
+        massaLivreGorduraKg: extracted.massaLivreGorduraKg,
+        massaGordaKg: Math.round((extracted.pesoKg * extracted.percGordura) / 10) / 10,
+      });
+    }
+  };
 
   return (
     <View style={{ gap: 16 }}>
@@ -126,25 +151,38 @@ export function AssessmentReport({
             <Label style={{ color: t.accent }}>Laudo Biomecânico & Clínico</Label>
             <Title size={26}>{studentName}</Title>
           </View>
-          <View
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 6,
-              borderRadius: 999,
-              backgroundColor: `${t.accent}20`,
-              borderWidth: 1,
-              borderColor: `${t.accent}50`,
-            }}
-          >
-            <Body style={{ color: t.accent, fontWeight: '700', fontSize: 13 } as any}>
-              Bioimpedância 19/09/2026
-            </Body>
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+            <View
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 999,
+                backgroundColor: `${t.accent}20`,
+                borderWidth: 1,
+                borderColor: `${t.accent}50`,
+              }}
+            >
+              <Body style={{ color: t.accent, fontWeight: '700', fontSize: 13 } as any}>
+                Bioimpedância 19/09/2026
+              </Body>
+            </View>
+            <Button
+              title="📄 Subir Laudo Balança (PDF/Foto)"
+              onPress={() => setShowUploadModal(true)}
+              variant="neonOutline"
+            />
           </View>
         </View>
         <Body muted style={{ fontSize: 13 } as any}>
           Equipamento: Balança Clínica Unique Health de Alta Precisão (8 eletrodos / multifrequencial).
         </Body>
       </Card>
+
+      <AssessmentUploadModal
+        visible={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        onConfirmData={handleConfirmData}
+      />
 
       {/* SELETOR DE ABAS DO LAUDO */}
       <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>

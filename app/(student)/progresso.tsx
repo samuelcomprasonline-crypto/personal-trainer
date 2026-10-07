@@ -5,12 +5,14 @@ import { consistency } from '../../src/domain/schedule';
 import { useAppState } from '../../src/state/AppState';
 import { AssessmentReport } from '../../src/ui/AssessmentReport';
 import { Body, Card, Chip, CircularProgress, Label, Screen, Title } from '../../src/ui/components';
+import { NutritionModule } from '../../src/ui/NutritionModule';
+import { RecoveryModule } from '../../src/ui/RecoveryModule';
 import { useTheme } from '../../src/ui/theme';
 
 export default function Progresso() {
   const t = useTheme();
   const { logs } = useAppState();
-  const [tab, setTab] = useState<'avaliacao' | 'treinos'>('avaliacao');
+  const [tab, setTab] = useState<'avaliacao' | 'nutricao' | 'recuperacao' | 'treinos'>('avaliacao');
   const value = consistency(logs, template.sessions.length, new Date());
   const recent = [...logs]
     .sort((a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt))
@@ -100,12 +102,22 @@ export default function Progresso() {
         </View>
       </View>
 
-      {/* 4. SELETOR DE SEÇÕES */}
-      <View style={{ flexDirection: 'row', gap: 8, marginVertical: 4 }}>
+      {/* 4. SELETOR DE SEÇÕES EXPANDIDO (PADRÃO AMERICANO COMPLETO) */}
+      <View style={{ flexDirection: 'row', gap: 6, marginVertical: 4, flexWrap: 'wrap' }}>
         <Chip
-          label="Topografia 3D & Laudo Clínico"
+          label="Topografia 3D & Laudo"
           selected={tab === 'avaliacao'}
           onPress={() => setTab('avaliacao')}
+        />
+        <Chip
+          label="Nutrição & Dieta"
+          selected={tab === 'nutricao'}
+          onPress={() => setTab('nutricao')}
+        />
+        <Chip
+          label="Recuperação & Sono"
+          selected={tab === 'recuperacao'}
+          onPress={() => setTab('recuperacao')}
         />
         <Chip
           label="Histórico de Treinos"
@@ -114,9 +126,19 @@ export default function Progresso() {
         />
       </View>
 
-      {tab === 'avaliacao' ? (
+      {tab === 'avaliacao' && (
         <AssessmentReport studentName="Samuel Ferreira" assessment={samuelAssessment} />
-      ) : (
+      )}
+
+      {tab === 'nutricao' && (
+        <NutritionModule />
+      )}
+
+      {tab === 'recuperacao' && (
+        <RecoveryModule />
+      )}
+
+      {tab === 'treinos' && (
         <View style={{ gap: 12 }}>
           <Label>Histórico das Últimas Sessões</Label>
           {recent.length === 0 ? (

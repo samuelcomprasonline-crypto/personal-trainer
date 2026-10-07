@@ -32,6 +32,46 @@ export const gymTheme = {
 export type Palette = typeof gymTheme;
 export const studioPalette: Palette = gymTheme;
 
+export const colors = {
+  primary: gymTheme.accent,
+  primaryGlow: gymTheme.accentGlow,
+  background: gymTheme.bg,
+  surface: gymTheme.surface,
+  surfaceElevated: gymTheme.surfaceElevated,
+  surfaceHighlight: gymTheme.surfaceCard,
+  border: gymTheme.border,
+  text: gymTheme.text,
+  textSecondary: gymTheme.muted,
+  textMuted: '#6B7A8D',
+  black: '#0A0E13',
+};
+
+export const radius = {
+  sm: 8,
+  md: 14,
+  lg: 18,
+  xl: 22,
+  xxl: 28,
+  pill: 999,
+};
+
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+};
+
+export const typography = {
+  micro: 11,
+  small: 13,
+  body: 15,
+  h3: 18,
+  h2: 22,
+  h1: 28,
+};
+
 const Override = createContext<Palette | null>(null);
 export const PaletteOverride = Override.Provider;
 
@@ -39,3 +79,4 @@ export function useTheme(): Palette {
   const override = useContext(Override);
   return override ?? gymTheme;
 }
+

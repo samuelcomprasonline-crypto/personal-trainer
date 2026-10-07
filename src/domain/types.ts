@@ -253,3 +253,99 @@ export type StudentInvite = {
 
 export type SyncStatus = 'synced' | 'pending' | 'syncing' | 'offline' | 'error';
 
+// -------------------------------------------------------------
+// Nutrição, Dietas e Vitaminas
+// -------------------------------------------------------------
+
+export type FoodItem = {
+  id: string;
+  name: string;
+  quantityGrams: number;
+  caloriesKcal: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+};
+
+export type Meal = {
+  id: string;
+  name: string;
+  time: string; // ex: "07:30"
+  foods: FoodItem[];
+  vitamins?: string[];
+};
+
+export type DietPlan = {
+  id: string;
+  studentId: string;
+  targetCalories: number;
+  targetProteinG: number;
+  targetCarbsG: number;
+  targetFatG: number;
+  waterTargetMl: number;
+  tmbKcal: number;
+  tdeeKcal: number;
+  meals: Meal[];
+  supplements: string[];
+};
+
+// -------------------------------------------------------------
+// Biblioteca de Métodos e Programas de Treino
+// -------------------------------------------------------------
+
+export type TrainingMethod = {
+  id: string;
+  name: string;
+  description: string;
+  howToApply: string;
+  intensityLevel: 'moderado' | 'alto' | 'extremo';
+};
+
+export type WorkoutProgram = {
+  id: string;
+  name: string;
+  goal: 'hipertrofia' | 'forca' | 'emagrecimento' | 'recomposicao' | 'condicionamento';
+  level: 'iniciante' | 'intermediario' | 'avancado';
+  frequencyDaysPerWeek: number;
+  durationWeeks: number;
+  description: string;
+  sessions: TemplateSession[];
+  recommendedMethods: string[];
+};
+
+// -------------------------------------------------------------
+// Anexo de Balança (PDF ou Foto) e Leitura Inteligente
+// -------------------------------------------------------------
+
+export type AssessmentAttachment = {
+  id: string;
+  assessmentId: string;
+  fileType: 'pdf' | 'image';
+  fileName: string;
+  fileUrl: string;
+  uploadedAt: string;
+  equipmentSource: 'InBody' | 'Unique Health' | 'Tanita' | 'Manual';
+  extractedSummary?: {
+    weightKg: number;
+    bodyFatPerc: number;
+    muscleMassKg: number;
+    totalWaterKg: number;
+  };
+};
+
+// -------------------------------------------------------------
+// Recuperação e Biofeedback (Wearables: Apple Watch, Oura, Whoop)
+// -------------------------------------------------------------
+
+export type RecoveryMetrics = {
+  readinessScore: number; // 0 a 100
+  sleepHours: number;
+  sleepQualityPerc: number;
+  hrvMs: number;
+  restingHeartRateBpm: number;
+  muscleSoreness: 'baixa' | 'moderada' | 'alta';
+  systemicFatigue: 'baixa' | 'moderada' | 'alta';
+  lastUpdated: string;
+};
+
+

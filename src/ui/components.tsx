@@ -1,28 +1,34 @@
 import type { ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from './theme';
+import { WebDashboardLayout } from './WebDashboardLayout';
 
 export function Screen({ children }: { children: ReactNode }) {
   const t = useTheme();
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= 768;
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top', 'left', 'right']}>
-      <ScrollView
-        contentContainerStyle={{
-          padding: 20,
-          paddingBottom: 60,
-          gap: 16,
-          maxWidth: 680,
-          width: '100%',
-          alignSelf: 'center',
-        }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        {children}
-      </ScrollView>
-    </SafeAreaView>
+    <WebDashboardLayout>
+      <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top', 'left', 'right']}>
+        <ScrollView
+          contentContainerStyle={{
+            padding: isDesktop ? 32 : 18,
+            paddingBottom: 80,
+            gap: 18,
+            maxWidth: isDesktop ? 1320 : 640,
+            width: '100%',
+            alignSelf: 'center',
+          }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {children}
+        </ScrollView>
+      </SafeAreaView>
+    </WebDashboardLayout>
   );
 }
 
