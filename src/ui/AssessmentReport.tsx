@@ -5,6 +5,7 @@ import { assessmentHistory, samuelAssessment } from '../data/seed';
 import type { AssessmentPhotos, BioimpedanceAssessment, PhysicalAssessment, SkinfoldsData } from '../domain/types';
 import { AssessmentComparison } from './AssessmentComparison';
 import { AssessmentPhotoGallery } from './AssessmentPhotoGallery';
+import { AssessmentPrintModal } from './AssessmentPrintModal';
 import { AssessmentUploadModal } from './AssessmentUploadModal';
 import { Body3DSegmentMap } from './Body3DSegmentMap';
 import { Body, Button, Card, Chip, Label, TextInputField, Title } from './components';
@@ -123,6 +124,7 @@ export function AssessmentReport({
   const [tab, setTab] = useState<TabView>(initialTab);
   const [bioSubTab, setBioSubTab] = useState<BioSubTab>('laudo');
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showPrintModal, setShowPrintModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Carrega todas as avaliações conectadas a este aluno
@@ -288,6 +290,12 @@ export function AssessmentReport({
               onPress={() => setShowUploadModal(true)}
               variant="neonOutline"
             />
+
+            <Button
+              title="📥 Laudo em PDF 🖨️"
+              onPress={() => setShowPrintModal(true)}
+              variant="primary"
+            />
           </View>
         </View>
 
@@ -348,6 +356,14 @@ export function AssessmentReport({
         visible={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onConfirmData={handleConfirmData}
+      />
+
+      {/* MODAL DE IMPRESSÃO / EXPORTAÇÃO DE LAUDO EM PDF */}
+      <AssessmentPrintModal
+        visible={showPrintModal}
+        studentName={studentName}
+        assessment={currentAssessment}
+        onClose={() => setShowPrintModal(false)}
       />
 
       {/* SELETOR DE ABAS PRINCIPAIS DO LAUDO */}

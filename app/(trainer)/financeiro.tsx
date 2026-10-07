@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   addFinancialTransaction,
+  buildBillingWhatsAppMessage,
   calculateFinancialSummary,
   getFinancialTransactions,
+  getTrainerPixKey,
   getTrainerProducts,
+  saveTrainerPixKey,
   saveTrainerProduct,
   updateTransactionStatus,
 } from '../../src/data/financialStore';
@@ -19,6 +22,9 @@ export default function Financeiro() {
   const [summary, setSummary] = useState(calculateFinancialSummary());
   const [transactions, setTransactions] = useState<FinancialTransaction[]>(getFinancialTransactions());
   const [products, setProducts] = useState<TrainerProduct[]>(getTrainerProducts());
+  const [pixKey, setPixKey] = useState<string>(getTrainerPixKey());
+  const [showPixModal, setShowPixModal] = useState<boolean>(false);
+  const [pixInput, setPixInput] = useState<string>(getTrainerPixKey());
 
   // Modal de Nova Transação
   const [showNewTxModal, setShowNewTxModal] = useState(false);
@@ -99,6 +105,25 @@ export default function Financeiro() {
     showToast(`Produto "${editingProduct.name}" atualizado!`);
   };
 
+  const handleSendWhatsAppReminder = (tx: FinancialTransaction) => {
+    const msg = buildBillingWhatsAppMessage({
+      studentName: tx.studentName,
+      productName: tx.productName,
+      amount: tx.amount,
+      dueDate: tx.dueDate,
+      pixKey,
+    });
+    Linking.openURL(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+  };
+
+  const handleSavePix = () => {
+    if (!pixInput.trim()) return;
+    saveTrainerPixKey(pixInput.trim());
+    setPixKey(pixInput.trim());
+    setShowPixModal(false);
+    showToast('Chave PIX atualizada com sucesso!');
+  };
+
   return (
     <Screen>
       {/* 1. CABEÇALHO */}
@@ -117,6 +142,17 @@ export default function Financeiro() {
       <Body muted style={{ fontSize: 13 } as any}>
         Monitore o faturamento de cada serviço, controle inadimplências e saiba exatamente o valor da sua hora-aula.
       </Body>
+
+      {/* CARD CHAVE PIX */}
+      <Card>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+          <View>
+            <Label style={{ color: t.accent }}>Chave PIX para Cobranças Automáticas</Label>
+            <Body style={{ fontSize: 14, fontWeight: '700' } as any}>🔑 {pixKey}</Body>
+          </View>
+          <Button title="Alterar Chave PIX ✏️" variant="ghost" onPress={() => setShowPixModal(true)} />
+        </View>
+      </Card>
 
       {toastMessage && (
         <View
@@ -305,28 +341,49 @@ export default function Financeiro() {
                     </Title>
 
                     {!isExpense && (
-                      <Pressable
-                        onPress={() => handleToggleStatus(tx.id, tx.status)}
-                        style={({ pressed }) => ({
-                          backgroundColor: isPaid ? 'rgba(198, 244, 50, 0.15)' : 'rgba(234, 179, 8, 0.15)',
-                          paddingHorizontal: 8,
-                          paddingVertical: 3,
-                          borderRadius: 6,
-                          borderWidth: 1,
-                          borderColor: isPaid ? t.accent : '#EAB308',
-                          opacity: pressed ? 0.7 : 1,
-                        })}
-                      >
-                        <Text
-                          style={{
-                            color: isPaid ? t.accent : '#EAB308',
-                            fontSize: 11,
-                            fontWeight: '800',
-                          }}
+                      <View style={{ gap: 4, alignItems: 'flex-end' }}>
+                        <Pressable
+                          onPress={() => handleToggleStatus(tx.id, tx.status)}
+                          style={({ pressed }) => ({
+                            backgroundColor: isPaid ? 'rgba(198, 244, 50, 0.15)' : 'rgba(234, 179, 8, 0.15)',
+                            paddingHorizontal: 8,
+                            paddingVertical: 3,
+                            borderRadius: 6,
+                            borderWidth: 1,
+                            borderColor: isPaid ? t.accent : '#EAB308',
+                            opacity: pressed ? 0.7 : 1,
+                          })}
                         >
-                          {isPaid ? 'PAGO ✓' : 'PENDENTE ⚠️'}
-                        </Text>
-                      </Pressable>
+                          <Text
+                            style={{
+                              color: isPaid ? t.accent : '#EAB308',
+                              fontSize: 11,
+                              fontWeight: '800',
+                            }}
+                          >
+                            {isPaid ? 'PAGO ✓' : 'PENDENTE ⚠️'}
+                          </Text>
+                        </Pressable>
+
+                        {!isPaid && (
+                          <Pressable
+                            onPress={() => handleSendWhatsAppReminder(tx)}
+                            style={({ pressed }) => ({
+                              backgroundColor: '#25D36620',
+                              paddingHorizontal: 8,
+                              paddingVertical: 4,
+                              borderRadius: 6,
+                              borderWidth: 1,
+                              borderColor: '#25D366',
+                              opacity: pressed ? 0.7 : 1,
+                            })}
+                          >
+                            <Text style={{ color: '#25D366', fontSize: 10, fontWeight: '800' }}>
+                              💬 Cobrar no WhatsApp
+                            </Text>
+                          </Pressable>
+                        )}
+                      </View>
                     )}
                   </View>
                 </View>
@@ -477,6 +534,34 @@ export default function Financeiro() {
                 <Button title="Salvar Alterações" onPress={handleSaveProductEdit} />
               </View>
             )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL: ALTERAR CHAVE PIX */}
+      <Modal visible={showPixModal} transparent animationType="fade" onRequestClose={() => setShowPixModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Title size={20}>Chave PIX para Cobranças</Title>
+              <Pressable onPress={() => setShowPixModal(false)}>
+                <Text style={{ color: colors.textMuted, fontSize: 18, fontWeight: 'bold' }}>✕</Text>
+              </Pressable>
+            </View>
+
+            <View style={{ gap: 10, marginTop: 10 }}>
+              <Body muted style={{ fontSize: 13 } as any}>
+                Esta chave será inserida automaticamente nas mensagens prontas de WhatsApp para cobrança dos alunos:
+              </Body>
+              <TextInputField
+                label="Chave PIX (E-mail, CPF, Celular ou Aleatória)"
+                value={pixInput}
+                onChangeText={setPixInput}
+                placeholder="suachave@email.com"
+                autoCapitalize="none"
+              />
+              <Button title="Salvar Chave PIX 🔑" onPress={handleSavePix} />
+            </View>
           </View>
         </View>
       </Modal>

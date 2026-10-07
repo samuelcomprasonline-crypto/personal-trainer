@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Modal, Pressable, Text, View } from 'react-native';
+import { Linking, Modal, Pressable, Text, View } from 'react-native';
 import { assessmentHistory, otherStudents, samuelAssessment, template, trainer } from '../../src/data/seed';
 import { getLatestAssessmentForStudent, saveOrUpdateAssessment } from '../../src/data/assessmentStore';
+import { buildBillingWhatsAppMessage } from '../../src/data/financialStore';
 import { snapshotFromLogs, type StudentSnapshot } from '../../src/domain/radar';
 import { workoutProgramsCatalog, trainingMethods } from '../../src/domain/workoutLibrary';
 import type { PhysicalAssessment, WorkoutProgram } from '../../src/domain/types';
@@ -172,6 +173,34 @@ export default function Alunos() {
                   <Body muted style={{ fontSize: 12 } as any}>
                     • Vencimento: todo dia {s.dueDay || 10}
                   </Body>
+
+                  {!isPaid && (
+                    <Pressable
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        const msg = buildBillingWhatsAppMessage({
+                          studentName: s.name,
+                          productName: `${s.planType || 'Mensalidade'} (${s.assignedProgramName || 'Consultoria'})`,
+                          amount: s.monthlyPrice || 250,
+                          dueDate: `dia ${s.dueDay || 10}`,
+                        });
+                        Linking.openURL(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+                      }}
+                      style={({ pressed }) => ({
+                        backgroundColor: '#25D36620',
+                        paddingHorizontal: 8,
+                        paddingVertical: 3,
+                        borderRadius: 6,
+                        borderWidth: 1,
+                        borderColor: '#25D366',
+                        opacity: pressed ? 0.7 : 1,
+                      })}
+                    >
+                      <Text style={{ color: '#25D366', fontSize: 11, fontWeight: '800' }}>
+                        💬 Cobrar via WhatsApp
+                      </Text>
+                    </Pressable>
+                  )}
                 </View>
 
                 <View style={{ marginTop: 6 }}>

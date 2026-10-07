@@ -19,6 +19,7 @@ import type { Exercise, Mood, SessionLog } from '../src/domain/types';
 import { useAppState } from '../src/state/AppState';
 import { Body, Button, Card, Chip, Label, LoadStepper, Screen, Title } from '../src/ui/components';
 import { ExerciseVideoModal } from '../src/ui/ExerciseVideoModal';
+import { RestTimerModal } from '../src/ui/RestTimerModal';
 import { PaletteOverride, studioPalette, useTheme } from '../src/ui/theme';
 
 type SetState = { reps: string; done: boolean };
@@ -29,29 +30,6 @@ const MOODS: { value: Mood; label: string }[] = [
   { value: 'ok', label: 'Bem' },
   { value: 'great', label: 'Ótimo' },
 ];
-
-function playTimerChime() {
-  if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioCtx) {
-        const ctx = new AudioCtx();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, ctx.currentTime);
-        gain.gain.setValueAtTime(0.2, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.6);
-      }
-    } catch {
-      // no-op silencioso
-    }
-  }
-}
 
 export default function TreinoScreen() {
   return (
@@ -87,24 +65,10 @@ function Treino() {
   const [saving, setSaving] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<Exercise | null>(null);
 
-  // CRONÔMETRO DE DESCANSO
-  const [restSeconds, setRestSeconds] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (restSeconds === null) return;
-    if (restSeconds <= 0) {
-      playTimerChime();
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-      setRestSeconds(null);
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setRestSeconds((prev) => (prev !== null && prev > 0 ? prev - 1 : null));
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [restSeconds]);
+  // CRONÔMETRO DE DESCANSO INTERATIVO
+  const [timerModalVisible, setTimerModalVisible] = useState(false);
+  const [timerInitialSeconds, setTimerInitialSeconds] = useState(60);
+  const [timerExerciseName, setTimerExerciseName] = useState<string | undefined>(undefined);
 
   if (!session || !slot) {
     return (
@@ -130,8 +94,11 @@ function Treino() {
 
     if (isNowDone) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-      const restTime = session.items[itemIdx]?.restS ?? 90;
-      setRestSeconds(restTime);
+      const restTime = session.items[itemIdx]?.restS ?? 60;
+      const ex = exerciseById(items[itemIdx].exerciseId);
+      setTimerInitialSeconds(restTime);
+      setTimerExerciseName(ex.name);
+      setTimerModalVisible(true);
     }
   };
 
@@ -253,19 +220,42 @@ function Treino() {
           <Pressable onPress={() => router.back()} style={{ paddingVertical: 4 }}>
             <Body muted style={{ fontSize: 16 } as any}>← Sair do treino</Body>
           </Pressable>
-          <View
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 5,
-              borderRadius: 999,
-              backgroundColor: `${t.accent}20`,
-              borderWidth: 1,
-              borderColor: `${t.accent}40`,
-            }}
-          >
-            <Body style={{ color: t.accent, fontSize: 12, fontWeight: '700' } as any}>
-              ● Treino em Andamento
-            </Body>
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+            <Pressable
+              onPress={() => {
+                setTimerInitialSeconds(60);
+                setTimerExerciseName(undefined);
+                setTimerModalVisible(true);
+              }}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 5,
+                borderRadius: 999,
+                backgroundColor: t.surfaceElevated,
+                borderWidth: 1,
+                borderColor: t.accent,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <Text style={{ color: t.accent, fontSize: 12, fontWeight: '700' }}>⏱ Descanso</Text>
+            </Pressable>
+
+            <View
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 5,
+                borderRadius: 999,
+                backgroundColor: `${t.accent}20`,
+                borderWidth: 1,
+                borderColor: `${t.accent}40`,
+              }}
+            >
+              <Body style={{ color: t.accent, fontSize: 12, fontWeight: '700' } as any}>
+                ● Treino em Andamento
+              </Body>
+            </View>
           </View>
         </View>
 
@@ -299,37 +289,6 @@ function Treino() {
           </View>
         </View>
 
-        {/* BANNER FLUTUANTE DE CRONÔMETRO DE DESCANSO */}
-        {restSeconds !== null && (
-          <View
-            style={{
-              backgroundColor: '#161C26',
-              borderRadius: 18,
-              padding: 16,
-              borderWidth: 1,
-              borderColor: t.accent,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <View style={{ gap: 2 }}>
-              <Label style={{ color: t.accent }}>Tempo de Descanso</Label>
-              <Title size={28} style={{ color: t.accent, letterSpacing: 1 }}>
-                {Math.floor(restSeconds / 60)}:
-                {(restSeconds % 60).toString().padStart(2, '0')}
-              </Title>
-            </View>
-
-            <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-              <Chip label="+30s" onPress={() => setRestSeconds((s) => (s ?? 0) + 30)} />
-              <Pressable onPress={() => setRestSeconds(null)} style={{ padding: 8 }}>
-                <Body muted style={{ fontSize: 13 } as any}>Pular</Body>
-              </Pressable>
-            </View>
-          </View>
-        )}
-
         {/* LISTA DE EXERCÍCIOS */}
         {items.map((s, i) => {
           const planned = session.items[i];
@@ -337,31 +296,57 @@ function Treino() {
 
           return (
             <Card key={planned.id}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                <View style={{ flex: 1, minWidth: 180 }}>
                   <Title size={20}>{exercise.name}</Title>
                   <Body muted style={{ fontSize: 13 } as any}>
                     {planned.sets} séries × {planned.repMin}–{planned.repMax} reps • Descanso {planned.restS}s
                   </Body>
                 </View>
 
-                {/* Botão para ver vídeo no YouTube */}
-                <Pressable
-                  onPress={() => setSelectedVideo(exercise)}
-                  style={{
-                    backgroundColor: '#FF000020',
-                    borderWidth: 1,
-                    borderColor: '#FF000050',
-                    paddingHorizontal: 10,
-                    paddingVertical: 6,
-                    borderRadius: 999,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 6,
-                  }}
-                >
-                  <Text style={{ color: '#FF0000', fontSize: 12, fontWeight: 'bold' }}>▶ YouTube</Text>
-                </Pressable>
+                <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
+                  {/* Botão de descanso rápido do exercício */}
+                  <Pressable
+                    onPress={() => {
+                      setTimerInitialSeconds(planned.restS ?? 60);
+                      setTimerExerciseName(exercise.name);
+                      setTimerModalVisible(true);
+                    }}
+                    style={{
+                      backgroundColor: `${t.accent}15`,
+                      borderWidth: 1,
+                      borderColor: `${t.accent}50`,
+                      paddingHorizontal: 10,
+                      paddingVertical: 6,
+                      borderRadius: 999,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    <Text style={{ color: t.accent, fontSize: 12, fontWeight: '700' }}>
+                      ⏱ {planned.restS}s
+                    </Text>
+                  </Pressable>
+
+                  {/* Botão para ver vídeo no YouTube */}
+                  <Pressable
+                    onPress={() => setSelectedVideo(exercise)}
+                    style={{
+                      backgroundColor: '#FF000020',
+                      borderWidth: 1,
+                      borderColor: '#FF000050',
+                      paddingHorizontal: 10,
+                      paddingVertical: 6,
+                      borderRadius: 999,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    <Text style={{ color: '#FF0000', fontSize: 12, fontWeight: 'bold' }}>▶ YouTube</Text>
+                  </Pressable>
+                </View>
               </View>
 
               {s.exerciseId !== planned.exerciseId && (
@@ -455,6 +440,14 @@ function Treino() {
         exercise={selectedVideo}
         visible={selectedVideo !== null}
         onClose={() => setSelectedVideo(null)}
+      />
+
+      {/* CRONÔMETRO DE DESCANSO INTERATIVO */}
+      <RestTimerModal
+        visible={timerModalVisible}
+        initialSeconds={timerInitialSeconds}
+        exerciseName={timerExerciseName}
+        onClose={() => setTimerModalVisible(false)}
       />
 
       {/* MODAL DE SUBSTITUIÇÃO DE EXERCÍCIO */}

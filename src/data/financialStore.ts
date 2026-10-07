@@ -293,3 +293,27 @@ export function calculateFinancialSummary(): FinancialSummary {
     revenueByProduct,
   };
 }
+
+let trainerPixKeyMemory = 'treinador@personaltrainer.com.br';
+
+export function getTrainerPixKey(): string {
+  return trainerPixKeyMemory;
+}
+
+export function saveTrainerPixKey(key: string): void {
+  trainerPixKeyMemory = key.trim();
+}
+
+export function buildBillingWhatsAppMessage(params: {
+  studentName: string;
+  productName: string;
+  amount: number;
+  dueDate?: string;
+  pixKey?: string;
+}): string {
+  const pix = params.pixKey || getTrainerPixKey();
+  const venc = params.dueDate ? `com vencimento em *${params.dueDate}*` : 'em aberto';
+
+  return `Olá, ${params.studentName}! Tudo bem?\n\nPassando para enviar o lembrete da mensalidade do seu plano *${params.productName}*, ${venc}, no valor de *R$ ${params.amount},00*.\n\n🔑 *Chave PIX:* ${pix}\n\nAssim que realizar o pagamento, por favor me envie o comprovante por aqui para mantermos seus treinos e suporte 100% atualizados no app. Bons treinos! 💪🏋️‍♂️`;
+}
+
