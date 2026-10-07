@@ -1,84 +1,380 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
 import { router } from 'expo-router';
-import { otherStudents, trainer } from '../../src/data/seed';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { exercises, otherStudents, trainer } from '../../src/data/seed';
 import { workoutProgramsCatalog } from '../../src/domain/workoutLibrary';
-import type { WorkoutProgram } from '../../src/domain/types';
+import type { Exercise, WorkoutProgram } from '../../src/domain/types';
 import { Screen, Title, Label, Body, Card, Chip, Button } from '../../src/ui/components';
 import { NutritionModule } from '../../src/ui/NutritionModule';
 import { NewWorkoutProgramModal } from '../../src/ui/NewWorkoutProgramModal';
 import { useTheme } from '../../src/ui/theme';
 
+type CustomExerciseItem = {
+  id: string;
+  exerciseId: string;
+  name: string;
+  muscle: string;
+  equipment: string;
+  sets: number;
+  reps: string;
+  rest: string;
+  method: string;
+};
+
+type SplitWorkout = {
+  letter: string;
+  name: string;
+  items: CustomExerciseItem[];
+};
+
+const STORAGE_CUSTOM_STUDENTS = '@personal_trainer_custom_students';
+
 export default function PrescreverDietaScreen() {
   const t = useTheme();
   const [selectedStudent, setSelectedStudent] = useState('Samuel Ferreira');
   const [activeTab, setActiveTab] = useState<'treino' | 'dieta'>('treino');
+  const [workoutMode, setWorkoutMode] = useState<'individual' | 'protocolos'>('individual');
   const [showNewProgramModal, setShowNewProgramModal] = useState(false);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
-  const [assignedProgram, setAssignedProgram] = useState<string>('Projeto 60 Dias Balestrin — Iniciante 1');
+  const [assignedProgram, setAssignedProgram] = useState<string>('Treino Personalizado Exclusivo');
 
-  const studentList = [
-    { name: 'Samuel Ferreira', goal: 'Hipertrofia', weight: '78.5 kg' },
-    { name: 'Alex', goal: 'Definição', weight: '74.0 kg' },
-    { name: 'Beatriz Lima', goal: 'Emagrecimento', weight: '62.0 kg' },
-    { name: 'Carlos Mendes', goal: 'Força & Potência', weight: '85.2 kg' },
-  ];
+  // Lista de alunos carregada dinamicamente
+  const [studentList, setStudentList] = useState([
+    { name: 'Samuel Ferreira', goal: 'Hipertrofia & Força', weight: '78.5 kg', tag: 'VIP' },
+    { name: 'Alex', goal: 'Definição & Densidade', weight: '74.0 kg', tag: 'Atleta' },
+    { name: 'Beatriz Lima', goal: 'Emagrecimento & Tônus', weight: '62.0 kg', tag: 'Iniciante' },
+    { name: 'Carlos Mendes', goal: 'Força Máxima', weight: '85.2 kg', tag: 'Intermediário' },
+  ]);
 
-  const handleApplyProgram = (prog: WorkoutProgram) => {
+  // Carrega alunos personalizados cadastrados pelo personal
+  useEffect(() => {
+    async function loadStudents() {
+      try {
+        const stored = await AsyncStorage.getItem(STORAGE_CUSTOM_STUDENTS);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setStudentList((prev) => {
+              const existing = new Set(prev.map((s) => s.name));
+              const additions = parsed
+                .filter((p: any) => !existing.has(p.name))
+                .map((p: any) => ({
+                  name: p.name,
+                  goal: 'Hipertrofia',
+                  weight: '75.0 kg',
+                  tag: 'Novo Aluno',
+                }));
+              return [...prev, ...additions];
+            });
+          }
+        }
+      } catch {}
+    }
+    loadStudents();
+  }, []);
+
+  // ESTADO DO TREINO PERSONALIZADO POR EXERCÍCIOS INDIVIDUAIS
+  const [activeSplitIndex, setActiveSplitIndex] = useState(0);
+  const [splits, setSplits] = useState<SplitWorkout[]>([
+    {
+      letter: 'A',
+      name: 'Peitoral, Tríceps & Deltoide Frontal',
+      items: [
+        {
+          id: 'item-1',
+          exerciseId: 'supino-reto',
+          name: 'Supino Reto com Barra',
+          muscle: 'Peitoral',
+          equipment: 'Barra Olímpica',
+          sets: 4,
+          reps: '8-10',
+          rest: '90s',
+          method: 'Normal',
+        },
+        {
+          id: 'item-2',
+          exerciseId: 'supino-inclinado',
+          name: 'Supino Inclinado com Halteres',
+          muscle: 'Peitoral Superior',
+          equipment: 'Halteres',
+          sets: 4,
+          reps: '10-12',
+          rest: '60s',
+          method: 'Drop-Set',
+        },
+        {
+          id: 'item-3',
+          exerciseId: 'crucifixo-polia',
+          name: 'Crucifixo na Polia Média',
+          muscle: 'Peitoral',
+          equipment: 'Cross Over',
+          sets: 3,
+          reps: '12-15',
+          rest: '45s',
+          method: 'Ponto Zero',
+        },
+        {
+          id: 'item-4',
+          exerciseId: 'triceps-corda',
+          name: 'Tríceps Pulley na Corda',
+          muscle: 'Tríceps',
+          equipment: 'Polia Alta',
+          sets: 4,
+          reps: '10-12',
+          rest: '45s',
+          method: 'Rest-Pause',
+        },
+      ],
+    },
+    {
+      letter: 'B',
+      name: 'Dorsal, Bíceps & Deltoide Posterior',
+      items: [
+        {
+          id: 'item-b1',
+          exerciseId: 'puxada-frente',
+          name: 'Puxada Aberta na Polia Alta',
+          muscle: 'Dorsal',
+          equipment: 'Polia Alta',
+          sets: 4,
+          reps: '8-10',
+          rest: '60s',
+          method: 'Normal',
+        },
+        {
+          id: 'item-b2',
+          exerciseId: 'remada-curvada',
+          name: 'Remada Curvada com Barra',
+          muscle: 'Costas Geral',
+          equipment: 'Barra',
+          sets: 4,
+          reps: '8-10',
+          rest: '90s',
+          method: 'Normal',
+        },
+        {
+          id: 'item-b3',
+          exerciseId: 'rosca-direta',
+          name: 'Rosca Direta com Barra W',
+          muscle: 'Bíceps',
+          equipment: 'Barra W',
+          sets: 3,
+          reps: '10-12',
+          rest: '60s',
+          method: 'Drop-Set',
+        },
+      ],
+    },
+    {
+      letter: 'C',
+      name: 'Quadríceps, Isquiotibiais & Panturrilhas',
+      items: [
+        {
+          id: 'item-c1',
+          exerciseId: 'agachamento-livre',
+          name: 'Agachamento Livre com Barra',
+          muscle: 'Quadríceps & Glúteos',
+          equipment: 'Gaiola de Agachamento',
+          sets: 4,
+          reps: '8-10',
+          rest: '120s',
+          method: 'Normal',
+        },
+        {
+          id: 'item-c2',
+          exerciseId: 'leg-press-45',
+          name: 'Leg Press 45°',
+          muscle: 'Pernas Completo',
+          equipment: 'Aparelho 45°',
+          sets: 4,
+          reps: '10-12',
+          rest: '90s',
+          method: 'Rest-Pause',
+        },
+        {
+          id: 'item-c3',
+          exerciseId: 'cadeira-extensora',
+          name: 'Cadeira Extensora',
+          muscle: 'Quadríceps',
+          equipment: 'Máquina Extensora',
+          sets: 3,
+          reps: '12-15',
+          rest: '45s',
+          method: 'Ponto Zero',
+        },
+      ],
+    },
+  ]);
+
+  // Seletor de exercícios da biblioteca
+  const [showExercisePicker, setShowExercisePicker] = useState(false);
+  const [exerciseSearch, setExerciseSearch] = useState('');
+  const [selectedMuscleFilter, setSelectedMuscleFilter] = useState('todos');
+
+  const filteredLibraryExercises = exercises.filter((ex) => {
+    const matchesSearch =
+      ex.name.toLowerCase().includes(exerciseSearch.toLowerCase()) ||
+      ex.primaryMuscle.toLowerCase().includes(exerciseSearch.toLowerCase());
+    const matchesMuscle =
+      selectedMuscleFilter === 'todos' ||
+      ex.primaryMuscle.toLowerCase() === selectedMuscleFilter.toLowerCase() ||
+      ex.targetArea === selectedMuscleFilter;
+    return matchesSearch && matchesMuscle;
+  });
+
+  const currentSplit = splits[activeSplitIndex] || splits[0];
+
+  const handleAddExerciseToSplit = (ex: Exercise) => {
+    const newItem: CustomExerciseItem = {
+      id: `item-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      exerciseId: ex.id,
+      name: ex.name,
+      muscle: ex.primaryMuscle,
+      equipment: ex.equipment,
+      sets: 4,
+      reps: '8-12',
+      rest: '60s',
+      method: 'Normal',
+    };
+
+    setSplits((prev) =>
+      prev.map((s, idx) =>
+        idx === activeSplitIndex ? { ...s, items: [...s.items, newItem] } : s
+      )
+    );
+    setShowExercisePicker(false);
+    setExerciseSearch('');
+    setSuccessNotice(`"${ex.name}" adicionado ao Treino ${currentSplit.letter}!`);
+    setTimeout(() => setSuccessNotice(null), 3000);
+  };
+
+  const handleRemoveExercise = (itemId: string) => {
+    setSplits((prev) =>
+      prev.map((s, idx) =>
+        idx === activeSplitIndex
+          ? { ...s, items: s.items.filter((item) => item.id !== itemId) }
+          : s
+      )
+    );
+  };
+
+  const handleUpdateItemSets = (itemId: string, delta: number) => {
+    setSplits((prev) =>
+      prev.map((s, idx) =>
+        idx === activeSplitIndex
+          ? {
+              ...s,
+              items: s.items.map((item) =>
+                item.id === itemId
+                  ? { ...item, sets: Math.max(1, Math.min(10, item.sets + delta)) }
+                  : item
+              ),
+            }
+          : s
+      )
+    );
+  };
+
+  const handleUpdateItemReps = (itemId: string, newReps: string) => {
+    setSplits((prev) =>
+      prev.map((s, idx) =>
+        idx === activeSplitIndex
+          ? {
+              ...s,
+              items: s.items.map((item) =>
+                item.id === itemId ? { ...item, reps: newReps } : item
+              ),
+            }
+          : s
+      )
+    );
+  };
+
+  const handleUpdateItemMethod = (itemId: string, nextMethod: string) => {
+    setSplits((prev) =>
+      prev.map((s, idx) =>
+        idx === activeSplitIndex
+          ? {
+              ...s,
+              items: s.items.map((item) =>
+                item.id === itemId ? { ...item, method: nextMethod } : item
+              ),
+            }
+          : s
+      )
+    );
+  };
+
+  const handleSaveCustomWorkout = () => {
+    const totalExercises = splits.reduce((acc, s) => acc + s.items.length, 0);
+    setAssignedProgram(`Periodização Individual (${splits.length} Divisões • ${totalExercises} Exercícios)`);
+    setSuccessNotice(
+      `Ficha individual de ${selectedStudent} (${splits.length} Divisões, ${totalExercises} Exercícios) sincronizada e ativada no app com sucesso!`
+    );
+    setTimeout(() => setSuccessNotice(null), 5000);
+  };
+
+  const handleApplyPresetProgram = (prog: WorkoutProgram) => {
     setAssignedProgram(prog.name);
     setSuccessNotice(`Treino "${prog.name}" prescrito e ativado para ${selectedStudent}!`);
     setTimeout(() => setSuccessNotice(null), 4000);
   };
 
+  const methodOptions = ['Normal', 'Drop-Set', 'Rest-Pause', 'Ponto Zero', 'Bi-Set', 'GVT'];
+
   return (
     <Screen>
-      {/* Botão de Retorno Rápido */}
-      <Pressable
-        onPress={() => router.navigate('/radar')}
-        style={({ pressed }) => ({
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 6,
-          alignSelf: 'flex-start',
-          opacity: pressed ? 0.7 : 1,
-          paddingVertical: 4,
-        })}
-      >
-        <Text style={{ color: t.accent, fontSize: 13, fontWeight: '700' }}>← Voltar ao Radar</Text>
-      </Pressable>
-
-      {/* Cabeçalho */}
+      {/* 1. CABEÇALHO DA PRESCRIÇÃO */}
       <View style={{ gap: 4 }}>
-        <Label style={{ color: t.accent }}>{trainer.name} • Prescrição 360°</Label>
-        <Title size={28}>Prescrever Treino & Dieta</Title>
+        <Label style={{ color: t.accent }}>{trainer.name} • Prescrição 360° Personalizada</Label>
+        <Title size={28}>Central de Prescrição do Aluno</Title>
         <Body muted style={{ fontSize: 13 } as any}>
-          Monte e envie prescrições completas de treinamento e nutrição com sincronização instantânea no app do aluno.
+          Escolha o aluno cadastrado, monte treinos por exercícios individuais com variações avançadas ou selecione protocolos periodizados.
         </Body>
       </View>
 
-      {/* Seletor de Aluno Ativo */}
-      <Card style={{ padding: 14 }}>
-        <Label style={{ color: t.accent }}>Selecione o Aluno para Prescrição:</Label>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginTop: 8 }}>
+      {/* 2. SELETOR DE ALUNO CADASTRADO (OBRIGATÓRIO) */}
+      <Card style={{ backgroundColor: '#141824', borderColor: 'rgba(198, 244, 50, 0.25)', borderWidth: 1 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Text style={{ fontSize: 18 }}>👤</Text>
+            <Label style={{ color: t.accent }}>1. ESCOLHA O ALUNO CADASTRADO PARA RECEBER O TREINO</Label>
+          </View>
+          <View style={{ backgroundColor: 'rgba(198, 244, 50, 0.15)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
+            <Text style={{ color: t.accent, fontSize: 11, fontWeight: '800' }}>
+              SELECIONADO: {selectedStudent.toUpperCase()}
+            </Text>
+          </View>
+        </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginTop: 10 }}>
           {studentList.map((st) => {
             const isSelected = selectedStudent === st.name;
             return (
               <Pressable
                 key={st.name}
                 onPress={() => setSelectedStudent(st.name)}
-                style={{
-                  backgroundColor: isSelected ? 'rgba(198, 244, 50, 0.15)' : '#0E121B',
-                  borderWidth: 1,
+                style={({ pressed }) => ({
+                  backgroundColor: isSelected ? 'rgba(198, 244, 50, 0.18)' : '#0E121B',
+                  borderWidth: 1.5,
                   borderColor: isSelected ? t.accent : 'rgba(255, 255, 255, 0.08)',
-                  paddingHorizontal: 14,
-                  paddingVertical: 10,
-                  borderRadius: 12,
-                  gap: 2,
-                }}
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  borderRadius: 14,
+                  gap: 3,
+                  minWidth: 150,
+                  opacity: pressed ? 0.8 : 1,
+                })}
               >
-                <Text style={{ color: isSelected ? t.accent : '#FFFFFF', fontSize: 13, fontWeight: '800' }}>
-                  {st.name}
-                </Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text style={{ color: isSelected ? t.accent : '#FFFFFF', fontSize: 14, fontWeight: '800' }}>
+                    {st.name}
+                  </Text>
+                  <Text style={{ fontSize: 10, color: isSelected ? t.accent : '#8E9AA8' }}>
+                    {isSelected ? '● ATIVO' : ''}
+                  </Text>
+                </View>
                 <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
                   {st.goal} • {st.weight}
                 </Text>
@@ -88,121 +384,431 @@ export default function PrescreverDietaScreen() {
         </ScrollView>
       </Card>
 
-      {/* Notificação de Sucesso */}
+      {/* NOTIFICAÇÃO DE SUCESSO LUMINOSA */}
       {successNotice && (
         <View
           style={{
             backgroundColor: 'rgba(198, 244, 50, 0.15)',
-            padding: 12,
+            padding: 14,
             borderRadius: 14,
             borderWidth: 1,
             borderColor: t.accent,
           }}
         >
-          <Body style={{ color: t.accent, fontWeight: '700' } as any}>✓ {successNotice}</Body>
+          <Body style={{ color: t.accent, fontWeight: '800' } as any}>✓ {successNotice}</Body>
         </View>
       )}
 
-      {/* Abas Principais: Treino vs Dieta */}
+      {/* 3. ABAS: TREINO vs DIETA */}
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <Chip
-          label="🏋️‍♂️ Prescrição de Treino"
+          label="🏋️‍♂️ Prescrição de Treinamento"
           selected={activeTab === 'treino'}
           onPress={() => setActiveTab('treino')}
         />
         <Chip
-          label="🥗 Prescrição Nutricional & Macros"
+          label="🥗 Prescrição Nutricional & Dieta"
           selected={activeTab === 'dieta'}
           onPress={() => setActiveTab('dieta')}
         />
       </View>
 
-      {/* ABA 1: PRESCREVER TREINO */}
+      {/* ABA DE TREINO */}
       {activeTab === 'treino' && (
-        <View style={{ gap: 14 }}>
-          {/* Card do Programa Atual do Aluno */}
-          <Card style={{ borderWidth: 1, borderColor: 'rgba(198, 244, 50, 0.3)' }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View style={{ gap: 4 }}>
-                <Label style={{ color: t.accent }}>TREINO ATUALMENTE ATIVO NO APP DO ALUNO</Label>
-                <Title size={20}>{assignedProgram}</Title>
-                <Body muted style={{ fontSize: 12 } as any}>
-                  Aluno: {selectedStudent} • Sincronizado na nuvem em tempo real
-                </Body>
-              </View>
-              <View
+        <View style={{ gap: 16 }}>
+          {/* SUB-SELETOR: MODO INDIVIDUAL vs PROTOCOLOS PRONTOS */}
+          <View
+            style={{
+              flexDirection: 'row',
+              backgroundColor: '#10141E',
+              padding: 4,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.08)',
+              gap: 4,
+            }}
+          >
+            <Pressable
+              onPress={() => setWorkoutMode('individual')}
+              style={{
+                flex: 1,
+                paddingVertical: 10,
+                alignItems: 'center',
+                borderRadius: 8,
+                backgroundColor: workoutMode === 'individual' ? t.accent : 'transparent',
+              }}
+            >
+              <Text
                 style={{
-                  backgroundColor: 'rgba(198, 244, 50, 0.15)',
-                  paddingHorizontal: 10,
-                  paddingVertical: 4,
-                  borderRadius: 6,
+                  color: workoutMode === 'individual' ? '#0A0E14' : '#8E9AA8',
+                  fontSize: 13,
+                  fontWeight: '800',
                 }}
               >
-                <Text style={{ color: t.accent, fontSize: 11, fontWeight: '800' }}>ATIVO ✓</Text>
-              </View>
-            </View>
-          </Card>
+                ✍️ Personalizar por Exercícios Individuais
+              </Text>
+            </Pressable>
 
-          {/* Botão de Criar Novo Protocolo / Importar Texto Livre */}
-          <View style={{ marginVertical: 4 }}>
-            <Button
-              title="+ Criar Novo Protocolo / Importar Texto Livre 📋"
-              onPress={() => setShowNewProgramModal(true)}
-            />
+            <Pressable
+              onPress={() => setWorkoutMode('protocolos')}
+              style={{
+                flex: 1,
+                paddingVertical: 10,
+                alignItems: 'center',
+                borderRadius: 8,
+                backgroundColor: workoutMode === 'protocolos' ? t.accent : 'transparent',
+              }}
+            >
+              <Text
+                style={{
+                  color: workoutMode === 'protocolos' ? '#0A0E14' : '#8E9AA8',
+                  fontSize: 13,
+                  fontWeight: '800',
+                }}
+              >
+                📋 Protocolos & Fichas Prontas da Consultoria
+              </Text>
+            </Pressable>
           </View>
 
-          {/* Catálogo de Programas Prontos para Prescrever com 1 Toque */}
-          <View style={{ gap: 8 }}>
-            <Label>Ou selecione um protocolo periodizado do banco de treinos:</Label>
-            {workoutProgramsCatalog.map((prog) => {
-              const isCurrent = assignedProgram === prog.name;
-              return (
-                <Card key={prog.id}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <View style={{ flex: 1, gap: 4 }}>
-                      <Title size={18}>{prog.name}</Title>
-                      <Body muted style={{ fontSize: 12 } as any}>
-                        {prog.description}
-                      </Body>
-                      <View style={{ flexDirection: 'row', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
-                        <View style={{ backgroundColor: '#1A2130', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
-                          <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '700' }}>
-                            {prog.frequencyDaysPerWeek}x / SEMANA
+          {/* MODO 1: PERSONALIZAR POR EXERCÍCIOS INDIVIDUAIS */}
+          {workoutMode === 'individual' && (
+            <View style={{ gap: 16 }}>
+              {/* DIVISÕES DO TREINO (A, B, C...) */}
+              <Card style={{ backgroundColor: '#141824', padding: 16 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                  <Label style={{ color: t.accent }}>SELECIONE A DIVISÃO DO TREINO:</Label>
+                  <Text style={{ color: '#8E9AA8', fontSize: 12 }}>
+                    Aluno: <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>{selectedStudent}</Text>
+                  </Text>
+                </View>
+
+                {/* Pílulas de divisão A, B, C */}
+                <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+                  {splits.map((split, idx) => {
+                    const isSelected = activeSplitIndex === idx;
+                    return (
+                      <Pressable
+                        key={split.letter}
+                        onPress={() => setActiveSplitIndex(idx)}
+                        style={{
+                          backgroundColor: isSelected ? t.accent : '#0E121B',
+                          paddingHorizontal: 16,
+                          paddingVertical: 10,
+                          borderRadius: 10,
+                          borderWidth: 1,
+                          borderColor: isSelected ? t.accent : 'rgba(255, 255, 255, 0.08)',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 6,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: isSelected ? '#0A0E14' : '#FFFFFF',
+                            fontSize: 14,
+                            fontWeight: '900',
+                          }}
+                        >
+                          Treino {split.letter}
+                        </Text>
+                        <View
+                          style={{
+                            backgroundColor: isSelected ? '#0A0E14' : 'rgba(255,255,255,0.1)',
+                            paddingHorizontal: 6,
+                            paddingVertical: 2,
+                            borderRadius: 4,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: isSelected ? t.accent : '#8E9AA8',
+                              fontSize: 10,
+                              fontWeight: '800',
+                            }}
+                          >
+                            {split.items.length} ex
                           </Text>
                         </View>
-                        <View style={{ backgroundColor: '#1A2130', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
-                          <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '700' }}>
-                            {prog.sessions.length} DIVISÕES ({prog.sessions.map((s) => s.name.split('—')[0].trim()).join(', ')})
-                          </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+
+                {/* Nome / Foco da Divisão */}
+                <View style={{ marginTop: 14, gap: 4 }}>
+                  <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '700' }}>
+                    FOCO MUSCULAR DESTA SESSÃO:
+                  </Text>
+                  <TextInput
+                    value={currentSplit.name}
+                    onChangeText={(val) => {
+                      setSplits((prev) =>
+                        prev.map((s, idx) =>
+                          idx === activeSplitIndex ? { ...s, name: val } : s
+                        )
+                      );
+                    }}
+                    style={{
+                      backgroundColor: '#0E121B',
+                      borderRadius: 10,
+                      borderWidth: 1,
+                      borderColor: 'rgba(255, 255, 255, 0.08)',
+                      padding: 10,
+                      color: '#FFFFFF',
+                      fontSize: 14,
+                      fontWeight: '700',
+                    }}
+                  />
+                </View>
+              </Card>
+
+              {/* LISTA DE EXERCÍCIOS ADICIONADOS NA DIVISÃO ATUAL */}
+              <View style={{ gap: 10 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800' }}>
+                    Exercícios do Treino {currentSplit.letter} ({currentSplit.items.length})
+                  </Text>
+                  <Button
+                    title="+ Adicionar Exercício da Biblioteca ➕"
+                    onPress={() => setShowExercisePicker(true)}
+                  />
+                </View>
+
+                {currentSplit.items.length === 0 ? (
+                  <Card style={{ alignItems: 'center', paddingVertical: 24, gap: 8 }}>
+                    <Text style={{ fontSize: 24 }}>🏋️‍♂️</Text>
+                    <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '700' }}>
+                      Nenhum exercício adicionado a esta divisão ainda
+                    </Text>
+                    <Text style={{ color: '#8E9AA8', fontSize: 12 }}>
+                      Clique em "+ Adicionar Exercício da Biblioteca" para escolher os movimentos.
+                    </Text>
+                  </Card>
+                ) : (
+                  currentSplit.items.map((item, idx) => (
+                    <Card key={item.id} style={{ backgroundColor: '#141824', gap: 12 }}>
+                      {/* Topo do Exercício */}
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                          <View
+                            style={{
+                              width: 28,
+                              height: 28,
+                              borderRadius: 14,
+                              backgroundColor: 'rgba(198, 244, 50, 0.15)',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Text style={{ color: t.accent, fontSize: 12, fontWeight: '900' }}>
+                              {idx + 1}
+                            </Text>
+                          </View>
+                          <View>
+                            <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '800' }}>
+                              {item.name}
+                            </Text>
+                            <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
+                              {item.muscle} • Equipamento: {item.equipment}
+                            </Text>
+                          </View>
                         </View>
-                        <View style={{ backgroundColor: '#1A2130', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
-                          <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '700' }}>
-                            {prog.level.toUpperCase()}
+
+                        {/* Botão de Excluir Exercício */}
+                        <Pressable
+                          onPress={() => handleRemoveExercise(item.id)}
+                          style={{
+                            paddingHorizontal: 8,
+                            paddingVertical: 4,
+                            borderRadius: 6,
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                          }}
+                        >
+                          <Text style={{ color: '#EF4444', fontSize: 12, fontWeight: '700' }}>
+                            🗑️ Remover
                           </Text>
+                        </Pressable>
+                      </View>
+
+                      {/* Parâmetros: Séries, Reps, Descanso e Método */}
+                      <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
+                        {/* Séries */}
+                        <View style={{ backgroundColor: '#0E121B', padding: 8, borderRadius: 8, minWidth: 100 }}>
+                          <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '700' }}>SÉRIES</Text>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                            <Pressable
+                              onPress={() => handleUpdateItemSets(item.id, -1)}
+                              style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#1A2130', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                              <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>-</Text>
+                            </Pressable>
+                            <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '800' }}>
+                              {item.sets}
+                            </Text>
+                            <Pressable
+                              onPress={() => handleUpdateItemSets(item.id, 1)}
+                              style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#1A2130', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                              <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>+</Text>
+                            </Pressable>
+                          </View>
+                        </View>
+
+                        {/* Repetições */}
+                        <View style={{ backgroundColor: '#0E121B', padding: 8, borderRadius: 8, minWidth: 110 }}>
+                          <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '700' }}>REPETIÇÕES</Text>
+                          <View style={{ flexDirection: 'row', gap: 4, marginTop: 4 }}>
+                            {['6-8', '8-10', '10-12', '12-15'].map((r) => (
+                              <Pressable
+                                key={r}
+                                onPress={() => handleUpdateItemReps(item.id, r)}
+                                style={{
+                                  paddingHorizontal: 6,
+                                  paddingVertical: 2,
+                                  borderRadius: 4,
+                                  backgroundColor: item.reps === r ? t.accent : '#1A2130',
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    color: item.reps === r ? '#0A0E14' : '#8E9AA8',
+                                    fontSize: 10,
+                                    fontWeight: '800',
+                                  }}
+                                >
+                                  {r}
+                                </Text>
+                              </Pressable>
+                            ))}
+                          </View>
+                        </View>
+
+                        {/* Método / Variação Avançada */}
+                        <View style={{ backgroundColor: '#0E121B', padding: 8, borderRadius: 8, flex: 1, minWidth: 180 }}>
+                          <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '700' }}>MÉTODO / INTENSIDADE</Text>
+                          <View style={{ flexDirection: 'row', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
+                            {methodOptions.map((m) => (
+                              <Pressable
+                                key={m}
+                                onPress={() => handleUpdateItemMethod(item.id, m)}
+                                style={{
+                                  paddingHorizontal: 6,
+                                  paddingVertical: 2,
+                                  borderRadius: 4,
+                                  backgroundColor: item.method === m ? 'rgba(198, 244, 50, 0.2)' : '#1A2130',
+                                  borderWidth: 1,
+                                  borderColor: item.method === m ? t.accent : 'transparent',
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    color: item.method === m ? t.accent : '#8E9AA8',
+                                    fontSize: 10,
+                                    fontWeight: '700',
+                                  }}
+                                >
+                                  {m}
+                                </Text>
+                              </Pressable>
+                            ))}
+                          </View>
                         </View>
                       </View>
-                    </View>
+                    </Card>
+                  ))
+                )}
+              </View>
 
-                    <Button
-                      title={isCurrent ? 'Treino Atual ✓' : 'Ativar no Aluno ↗'}
-                      variant={isCurrent ? 'ghost' : 'primary'}
-                      onPress={() => handleApplyProgram(prog)}
-                    />
+              {/* BOTÃO EM DESTAQUE: SALVAR E ATIVAR FICHA NO APP DO ALUNO */}
+              <View style={{ marginVertical: 8 }}>
+                <Button
+                  title={`⚡ Salvar e Ativar Ficha Completa no App de ${selectedStudent}`}
+                  onPress={handleSaveCustomWorkout}
+                />
+              </View>
+            </View>
+          )}
+
+          {/* MODO 2: PROTOCOLOS PRONTOS DA CONSULTORIA */}
+          {workoutMode === 'protocolos' && (
+            <View style={{ gap: 14 }}>
+              <Card style={{ borderWidth: 1, borderColor: 'rgba(198, 244, 50, 0.3)' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <View style={{ gap: 4 }}>
+                    <Label style={{ color: t.accent }}>TREINO ATUALMENTE ATIVO NO APP DO ALUNO</Label>
+                    <Title size={20}>{assignedProgram}</Title>
+                    <Body muted style={{ fontSize: 12 } as any}>
+                      Aluno: {selectedStudent} • Sincronizado na nuvem em tempo real
+                    </Body>
                   </View>
-                </Card>
-              );
-            })}
-          </View>
+                  <View
+                    style={{
+                      backgroundColor: 'rgba(198, 244, 50, 0.15)',
+                      paddingHorizontal: 10,
+                      paddingVertical: 4,
+                      borderRadius: 6,
+                    }}
+                  >
+                    <Text style={{ color: t.accent, fontSize: 11, fontWeight: '800' }}>ATIVO ✓</Text>
+                  </View>
+                </View>
+              </Card>
+
+              {/* Catálogo de Programas Prontos */}
+              <View style={{ gap: 8 }}>
+                <Label>Selecione um protocolo periodizado pronto para aplicar em {selectedStudent}:</Label>
+                {workoutProgramsCatalog.map((prog) => {
+                  const isCurrent = assignedProgram === prog.name;
+                  return (
+                    <Card key={prog.id}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <View style={{ flex: 1, gap: 4 }}>
+                          <Title size={18}>{prog.name}</Title>
+                          <Body muted style={{ fontSize: 12 } as any}>
+                            {prog.description}
+                          </Body>
+                          <View style={{ flexDirection: 'row', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+                            <View style={{ backgroundColor: '#1A2130', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
+                              <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '700' }}>
+                                {prog.frequencyDaysPerWeek}x / SEMANA
+                              </Text>
+                            </View>
+                            <View style={{ backgroundColor: '#1A2130', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
+                              <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '700' }}>
+                                {prog.sessions.length} DIVISÕES ({prog.sessions.map((s) => s.name.split('—')[0].trim()).join(', ')})
+                              </Text>
+                            </View>
+                            <View style={{ backgroundColor: '#1A2130', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
+                              <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '700' }}>
+                                {prog.level.toUpperCase()}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+
+                        <Button
+                          title={isCurrent ? 'Treino Atual ✓' : `Ativar em ${selectedStudent} ↗`}
+                          variant={isCurrent ? 'ghost' : 'primary'}
+                          onPress={() => handleApplyPresetProgram(prog)}
+                        />
+                      </View>
+                    </Card>
+                  );
+                })}
+              </View>
+            </View>
+          )}
         </View>
       )}
 
-      {/* ABA 2: PRESCREVER DIETA & MACROS */}
+      {/* ABA DE NUTRIÇÃO & DIETA */}
       {activeTab === 'dieta' && (
         <View style={{ gap: 14 }}>
           <Card>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View style={{ gap: 2 }}>
-                <Label style={{ color: t.accent }}>PACIENTE / ALUNO SELECIONADO</Label>
+                <Label style={{ color: t.accent }}>ALUNO SELECIONADO PARA A DIETA</Label>
                 <Title size={18}>{selectedStudent}</Title>
               </View>
               <Button
@@ -220,16 +826,151 @@ export default function PrescreverDietaScreen() {
         </View>
       )}
 
-      {/* MODAL DE CRIAÇÃO DE PROTOCOLO COM IMPORTADOR DE TEXTO LIVRE */}
-      <NewWorkoutProgramModal
-        visible={showNewProgramModal}
-        onClose={() => setShowNewProgramModal(false)}
-        onSaveProgram={(newProg) => {
-          workoutProgramsCatalog.unshift(newProg);
-          handleApplyProgram(newProg);
-          setShowNewProgramModal(false);
-        }}
-      />
+      {/* MODAL SELETOR DE EXERCÍCIOS DA BIBLIOTECA */}
+      {showExercisePicker && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(5, 7, 10, 0.9)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 20,
+            zIndex: 9999,
+          }}
+        >
+          <View
+            style={{
+              width: '100%',
+              maxWidth: 640,
+              maxHeight: '90%',
+              backgroundColor: '#141824',
+              borderRadius: 20,
+              padding: 22,
+              borderWidth: 1,
+              borderColor: 'rgba(198, 244, 50, 0.3)',
+              gap: 14,
+            }}
+          >
+            {/* Topo do Modal */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View>
+                <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }}>
+                  Adicionar ao Treino {currentSplit.letter}
+                </Text>
+                <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
+                  Selecione o exercício biomecânico na biblioteca oficial
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => setShowExercisePicker(false)}
+                style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#1E2533', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Text style={{ color: '#8E9AA8', fontSize: 16, fontWeight: '700' }}>✕</Text>
+              </Pressable>
+            </View>
+
+            {/* Campo de Busca */}
+            <TextInput
+              value={exerciseSearch}
+              onChangeText={setExerciseSearch}
+              placeholder="Buscar por nome (ex: supino, agachamento, terra)..."
+              placeholderTextColor="#8E9AA8"
+              style={{
+                backgroundColor: '#0E121B',
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: 'rgba(255, 255, 255, 0.08)',
+                padding: 10,
+                color: '#FFFFFF',
+                fontSize: 13,
+              }}
+            />
+
+            {/* Filtros de Músculo em Chips */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
+              {[
+                { label: 'Todos', value: 'todos' },
+                { label: 'Peito', value: 'chest' },
+                { label: 'Costas', value: 'back' },
+                { label: 'Pernas', value: 'legs' },
+                { label: 'Ombros', value: 'shoulders' },
+                { label: 'Braços', value: 'arms' },
+                { label: 'Glúteos', value: 'glutes' },
+                { label: 'Core / Abdômen', value: 'abs' },
+              ].map((f) => (
+                <Pressable
+                  key={f.value}
+                  onPress={() => setSelectedMuscleFilter(f.value)}
+                  style={{
+                    backgroundColor: selectedMuscleFilter === f.value ? t.accent : '#1E2533',
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 8,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: selectedMuscleFilter === f.value ? '#0A0E14' : '#D1D5DB',
+                      fontSize: 11,
+                      fontWeight: '700',
+                    }}
+                  >
+                    {f.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+
+            {/* Lista com Rolagem dos Exercícios Filtrados */}
+            <ScrollView style={{ maxHeight: 360 }} showsVerticalScrollIndicator={false}>
+              <View style={{ gap: 8 }}>
+                {filteredLibraryExercises.map((ex) => (
+                  <Pressable
+                    key={ex.id}
+                    onPress={() => handleAddExerciseToSplit(ex)}
+                    style={({ pressed }) => ({
+                      backgroundColor: '#0E121B',
+                      borderRadius: 12,
+                      padding: 12,
+                      borderWidth: 1,
+                      borderColor: 'rgba(255, 255, 255, 0.06)',
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      opacity: pressed ? 0.8 : 1,
+                    })}
+                  >
+                    <View style={{ flex: 1, gap: 2 }}>
+                      <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '700' }}>
+                        {ex.name}
+                      </Text>
+                      <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
+                        Músculo: {ex.primaryMuscle} • Equipamento: {ex.equipment}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        backgroundColor: t.accent,
+                        paddingHorizontal: 10,
+                        paddingVertical: 6,
+                        borderRadius: 6,
+                      }}
+                    >
+                      <Text style={{ color: '#0A0E14', fontSize: 11, fontWeight: '800' }}>
+                        + Adicionar
+                      </Text>
+                    </View>
+                  </Pressable>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      )}
     </Screen>
   );
 }

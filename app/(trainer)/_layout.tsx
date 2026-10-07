@@ -78,8 +78,10 @@ export default function TrainerTabs() {
       <Tabs.Screen
         name="prescrever-dieta"
         options={{
-          href: null,
-          title: 'Prescrever Treino & Dieta',
+          title: 'Prescrever',
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 18, color }}>⚡</Text>
+          ),
         }}
       />
     </Tabs>

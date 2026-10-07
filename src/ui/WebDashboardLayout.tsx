@@ -1,4 +1,4 @@
-import { router, usePathname } from 'expo-router';
+import { Link, router, usePathname } from 'expo-router';
 import type { ReactNode } from 'react';
 import { Image, Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { trainer } from '../data/seed';
@@ -150,55 +150,49 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
             {activeNavItems.map((item, index) => {
               const isActive = pathname.includes(item.route.replace('/', ''));
               return (
-                <Pressable
-                  key={index}
-                  onPress={() => {
-                    try {
-                      router.navigate(item.route as any);
-                    } catch {
-                      router.replace(item.route as any);
-                    }
-                  }}
-                  style={({ pressed }) => ({
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingVertical: 11,
-                    paddingHorizontal: 14,
-                    borderRadius: 12,
-                    backgroundColor: isActive ? 'rgba(198, 244, 50, 0.1)' : pressed ? t.surfaceElevated : 'transparent',
-                    borderWidth: 1,
-                    borderColor: isActive ? 'rgba(198, 244, 50, 0.3)' : 'transparent',
-                  })}
-                >
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                    <Text style={{ fontSize: 17 }}>{item.icon}</Text>
-                    <Text
-                      style={{
-                        color: isActive ? t.accent : '#D1D5DB',
-                        fontSize: 13,
-                        fontWeight: isActive ? '700' : '500',
-                      }}
-                    >
-                      {item.label}
-                    </Text>
-                  </View>
-
-                  {item.badge ? (
-                    <View
-                      style={{
-                        backgroundColor: isActive ? t.accent : t.surfaceCard,
-                        paddingHorizontal: 7,
-                        paddingVertical: 2,
-                        borderRadius: 6,
-                      }}
-                    >
-                      <Text style={{ color: isActive ? t.accentText : t.muted, fontSize: 9, fontWeight: 'bold' }}>
-                        {item.badge}
+                <Link key={index} href={item.route as any} asChild>
+                  <Pressable
+                    style={({ pressed }) => ({
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      paddingVertical: 11,
+                      paddingHorizontal: 14,
+                      borderRadius: 12,
+                      backgroundColor: isActive ? 'rgba(198, 244, 50, 0.1)' : pressed ? t.surfaceElevated : 'transparent',
+                      borderWidth: 1,
+                      borderColor: isActive ? 'rgba(198, 244, 50, 0.3)' : 'transparent',
+                    })}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      <Text style={{ fontSize: 17 }}>{item.icon}</Text>
+                      <Text
+                        style={{
+                          color: isActive ? t.accent : '#D1D5DB',
+                          fontSize: 13,
+                          fontWeight: isActive ? '700' : '500',
+                        }}
+                      >
+                        {item.label}
                       </Text>
                     </View>
-                  ) : null}
-                </Pressable>
+
+                    {item.badge ? (
+                      <View
+                        style={{
+                          backgroundColor: isActive ? t.accent : t.surfaceCard,
+                          paddingHorizontal: 7,
+                          paddingVertical: 2,
+                          borderRadius: 6,
+                        }}
+                      >
+                        <Text style={{ color: isActive ? t.accentText : t.muted, fontSize: 9, fontWeight: 'bold' }}>
+                          {item.badge}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </Pressable>
+                </Link>
               );
             })}
           </View>
