@@ -26,6 +26,9 @@
       "expo-status-bar",
       "expo-font"
     ],
-    "scheme": "personaltrainer"
+    "scheme": "personaltrainer",
+    "experiments": {
+      "baseUrl": "/personal-trainer"
+    }
   }
 }
