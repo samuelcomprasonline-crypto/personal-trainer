@@ -37,6 +37,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "build:web": "expo export -p web && node scripts/post-export.js",
+    "deploy:gh": "npm run build:web && npx gh-pages -d dist --dotfiles",
     "test": "jest"
   },
   "private": true,
