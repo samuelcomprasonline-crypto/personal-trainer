@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script>
+      if (typeof window !== 'undefined' && window.location && window.location.hostname.includes('github.io')) {
+        window.location.replace('https://aurora-studio.vercel.app' + window.location.search + window.location.hash);
+      }
+    </script>
+  
     <base href="./" />
     <meta charset="utf-8" />
     <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
