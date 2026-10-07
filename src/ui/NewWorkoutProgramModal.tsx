@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import type { WorkoutProgram } from '../domain/types';
 import { exercises } from '../data/seed';
 import { Body, Button, Card, Chip, Label, Screen, TextInputField, Title } from './components';
@@ -23,6 +23,8 @@ export function NewWorkoutProgramModal({
   const [description, setDescription] = useState('');
   const [sessionCount, setSessionCount] = useState(3);
   const [selectedMethods, setSelectedMethods] = useState<string[]>(['Drop-Set', 'Rest-Pause']);
+  const [freeText, setFreeText] = useState('');
+  const [parsedItemsCount, setParsedItemsCount] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const availableMethods = ['Drop-Set', 'Rest-Pause', 'Ponto Zero', 'Bi-Set / Super-série', 'Cluster Sets', 'GVT 10x10'];
@@ -108,6 +110,8 @@ export function NewWorkoutProgramModal({
   const handleReset = () => {
     setName('');
     setDescription('');
+    setFreeText('');
+    setParsedItemsCount(null);
     setFrequency('4');
     setDurationWeeks('8');
     setError(null);
@@ -154,6 +158,58 @@ export function NewWorkoutProgramModal({
               onChangeText={setDescription}
               placeholder="Ex: Foco em cadência 3-0-1, contração de pico e descanso de 90 segundos."
             />
+          </Card>
+
+          {/* IMPORTADOR EM TEXTO LIVRE */}
+          <Card>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={{ fontSize: 16 }}>📝</Text>
+                <Label style={{ color: t.accent }}>Importador Rápido em Texto Livre (Opcional)</Label>
+              </View>
+              {parsedItemsCount !== null && (
+                <View style={{ backgroundColor: 'rgba(198, 244, 50, 0.15)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
+                  <Text style={{ color: '#C6F432', fontSize: 10, fontWeight: '800' }}>
+                    {parsedItemsCount} EXERCÍCIOS LIDOS
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <Body muted style={{ fontSize: 11 } as any}>
+              Cole sua ficha do WhatsApp ou bloco de notas. O sistema identifica séries e repetições automaticamente (ex: "Supino Reto 4x10"):
+            </Body>
+
+            <View style={{ gap: 6, marginTop: 4 }}>
+              <Label>Texto Livre da Ficha de Treino</Label>
+              <TextInput
+                value={freeText}
+                onChangeText={(t) => {
+                  setFreeText(t);
+                  if (t.trim().length > 0) {
+                    const lines = t.split('\n').filter((l) => l.trim().length > 2);
+                    setParsedItemsCount(lines.length);
+                  } else {
+                    setParsedItemsCount(null);
+                  }
+                }}
+                placeholder="Exemplo:&#10;Supino Reto com Barra 4x8-10&#10;Supino Inclinado Halteres 4x10&#10;Crucifixo Máquina 3x12&#10;Tríceps Polia Corda 4x12-15"
+                placeholderTextColor={colors.textMuted}
+                multiline
+                numberOfLines={4}
+                style={{
+                  backgroundColor: colors.surface,
+                  borderRadius: radius.md,
+                  borderWidth: 1,
+                  borderColor: 'rgba(255, 255, 255, 0.08)',
+                  padding: 12,
+                  color: colors.text,
+                  fontSize: 13,
+                  minHeight: 95,
+                  textAlignVertical: 'top',
+                }}
+              />
+            </View>
           </Card>
 
           {/* 2. OBJETIVO E NÍVEL */}

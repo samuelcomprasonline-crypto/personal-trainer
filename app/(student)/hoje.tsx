@@ -1,9 +1,10 @@
+import React, { useState } from 'react';
+import { View, Text, Pressable, Image, useWindowDimensions, Modal, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import Svg, { Circle, Defs, LinearGradient, Line, Path, Rect, Stop } from 'react-native-svg';
-import { exerciseById, template, trainer } from '../../src/data/seed';
+import Svg, { Defs, LinearGradient, Stop, Line, Path, Circle } from 'react-native-svg';
+import { approvedAlternatives, exerciseById, exercises, studentEquipment, template, trainer } from '../../src/data/seed';
 import { nextSlot, shouldRest } from '../../src/domain/schedule';
+import { suggestAlternatives } from '../../src/domain/substitution';
 import type { Exercise } from '../../src/domain/types';
 import { useAppState } from '../../src/state/AppState';
 import { useAuth } from '../../src/state/AuthContext';
@@ -18,6 +19,46 @@ export default function Hoje() {
   const { logs, ready, syncStatus } = useAppState();
   const { profile } = useAuth();
   const [selectedVideoExercise, setSelectedVideoExercise] = useState<Exercise | null>(null);
+
+  // ESTADO DE HIDRATAÇÃO RÁPIDA (QUICK WATER TRACKER)
+  const [waterMl, setWaterMl] = useState(2250);
+  const targetWaterMl = 3500;
+  const waterPercent = Math.min(100, Math.round((waterMl / targetWaterMl) * 100));
+
+  // ESTADO DE SUBSTITUIÇÃO DE EXERCÍCIO (APARELHO OCUPADO)
+  const [exerciseToSwap, setExerciseToSwap] = useState<Exercise | null>(null);
+  const [swapSuccessNotice, setSwapSuccessNotice] = useState<string | null>(null);
+
+  // Lista dinâmica de exercícios do treino de hoje
+  const [todayExercises, setTodayExercises] = useState([
+    { name: 'Supino Reto com Barra', setsReps: '4 x 6-8', done: true, exId: 'supino-reto' },
+    { name: 'Supino Inclinado com Halteres', setsReps: '4 x 8-10', done: true, exId: 'supino-inclinado' },
+    { name: 'Desenvolvimento Militar Halteres', setsReps: '3 x 8-10', done: false, exId: 'desenvolvimento-halteres' },
+    { name: 'Crucifixo na Polia Média', setsReps: '3 x 12-15', done: false, exId: 'crucifixo-polia' },
+    { name: 'Tríceps Pulley na Corda', setsReps: '3 x 12-15', done: false, exId: 'triceps-corda' },
+  ]);
+
+  const handleAddWater = (amount: number) => {
+    setWaterMl((prev) => Math.min(5000, prev + amount));
+  };
+
+  const handleSwapExercise = (alternative: Exercise) => {
+    if (!exerciseToSwap) return;
+    setTodayExercises((prev) =>
+      prev.map((item) =>
+        item.exId === exerciseToSwap.id
+          ? {
+              ...item,
+              name: alternative.name,
+              exId: alternative.id,
+            }
+          : item
+      )
+    );
+    setSwapSuccessNotice(`Substituído com sucesso por "${alternative.name}"!`);
+    setExerciseToSwap(null);
+    setTimeout(() => setSwapSuccessNotice(null), 4000);
+  };
 
   // Dias da semana para a barra superior idêntica ao tablet de referência
   const daysOfWeek = [
@@ -307,6 +348,85 @@ export default function Hoje() {
         </View>
       </View>
 
+      {/* NOVO: WIDGET DE HIDRATAÇÃO RÁPIDA (QUICK WATER TRACKER) */}
+      <View
+        style={{
+          backgroundColor: '#0F1626',
+          borderRadius: 18,
+          padding: 18,
+          borderWidth: 1,
+          borderColor: 'rgba(0, 240, 255, 0.25)',
+          gap: 12,
+        }}
+      >
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 12,
+                backgroundColor: 'rgba(0, 240, 255, 0.15)',
+                borderWidth: 1,
+                borderColor: '#00F0FF',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 18 }}>💧</Text>
+            </View>
+            <View>
+              <Text style={{ color: '#00F0FF', fontSize: 10, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
+                CONTROLE DE HIDRATAÇÃO BIOMÉTRICA
+              </Text>
+              <Text style={{ color: '#FFFFFF', fontSize: 17, fontWeight: '900' }}>
+                {waterMl.toLocaleString('pt-BR')} ml <Text style={{ color: '#8E9AA8', fontSize: 13, fontWeight: '500' }}>de {targetWaterMl.toLocaleString('pt-BR')} ml meta</Text>
+              </Text>
+            </View>
+          </View>
+
+          {/* Botões Rápidos de Registro */}
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Pressable
+              onPress={() => handleAddWater(250)}
+              style={({ pressed }) => ({
+                backgroundColor: 'rgba(0, 240, 255, 0.1)',
+                paddingHorizontal: 12,
+                paddingVertical: 7,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: '#00F0FF',
+                opacity: pressed ? 0.8 : 1,
+              })}
+            >
+              <Text style={{ color: '#00F0FF', fontSize: 12, fontWeight: '800' }}>
+                +250ml 🥛 Copo
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => handleAddWater(500)}
+              style={({ pressed }) => ({
+                backgroundColor: '#00F0FF',
+                paddingHorizontal: 12,
+                paddingVertical: 7,
+                borderRadius: 10,
+                opacity: pressed ? 0.8 : 1,
+              })}
+            >
+              <Text style={{ color: '#0A0E14', fontSize: 12, fontWeight: '900' }}>
+                +500ml 🧴 Garrafa
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Barra de Progresso de Água */}
+        <View style={{ height: 8, backgroundColor: '#162238', borderRadius: 4, overflow: 'hidden' }}>
+          <View style={{ width: `${waterPercent}%`, height: '100%', backgroundColor: '#00F0FF', borderRadius: 4 }} />
+        </View>
+      </View>
+
       {/* 3. LINHA DO MEIO: TODAY'S WORKOUT vs RECENT ACTIVITY */}
       <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 18 }}>
         {/* CARD 3: TODAY'S WORKOUT (EXERCÍCIOS COM CHECKBOX + BOTÃO VERDE NEON) */}
@@ -321,31 +441,31 @@ export default function Hoje() {
             gap: 16,
           }}
         >
-          <View style={{ gap: 4 }}>
-            <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
-              TREINO DO DIA
-            </Text>
-            <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '900' }}>
-              {session?.name ?? 'Upper Push • Peitoral & Deltoides'}
-            </Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View style={{ gap: 4 }}>
+              <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
+                TREINO DO DIA
+              </Text>
+              <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '900' }}>
+                {session?.name ?? 'Upper Push • Peitoral & Deltoides'}
+              </Text>
+            </View>
           </View>
 
-          {/* Lista de Exercícios com Séries, Repetições e Status */}
+          {swapSuccessNotice && (
+            <View style={{ backgroundColor: 'rgba(198, 244, 50, 0.15)', borderWidth: 1, borderColor: neonLime, borderRadius: 10, padding: 10 }}>
+              <Text style={{ color: neonLime, fontSize: 12, fontWeight: '700' }}>
+                ✓ {swapSuccessNotice}
+              </Text>
+            </View>
+          )}
+
+          {/* Lista Dinâmica de Exercícios com Ação de Troca Rápida */}
           <View style={{ gap: 10 }}>
-            {[
-              { name: 'Supino Reto com Barra', setsReps: '4 x 6-8', done: true, exId: 'supino-reto' },
-              { name: 'Supino Inclinado com Halteres', setsReps: '4 x 8-10', done: true, exId: 'supino-inclinado' },
-              { name: 'Desenvolvimento Militar Halteres', setsReps: '3 x 8-10', done: false, exId: 'desenvolvimento-halteres' },
-              { name: 'Crucifixo na Polia Média', setsReps: '3 x 12-15', done: false, exId: 'crucifixo-polia' },
-              { name: 'Tríceps Pulley na Corda', setsReps: '3 x 12-15', done: false, exId: 'triceps-corda' },
-            ].map((item, idx) => (
-              <Pressable
+            {todayExercises.map((item, idx) => (
+              <View
                 key={idx}
-                onPress={() => {
-                  const ex = exerciseById(item.exId);
-                  if (ex) setSelectedVideoExercise(ex);
-                }}
-                style={({ pressed }) => ({
+                style={{
                   flexDirection: 'row',
                   justifyContent: 'space-between',
                   alignItems: 'center',
@@ -355,17 +475,44 @@ export default function Hoje() {
                   backgroundColor: item.done ? 'rgba(198, 244, 50, 0.04)' : '#10141F',
                   borderWidth: 1,
                   borderColor: item.done ? 'rgba(198, 244, 50, 0.2)' : 'rgba(255, 255, 255, 0.03)',
-                  opacity: pressed ? 0.85 : 1,
-                })}
+                }}
               >
-                <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '600' }}>
-                  {item.name}
-                </Text>
-
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <Text style={{ color: '#8E9AA8', fontSize: 12, fontWeight: '700' }}>
-                    {item.setsReps}
+                <Pressable
+                  onPress={() => {
+                    const ex = exerciseById(item.exId);
+                    if (ex) setSelectedVideoExercise(ex);
+                  }}
+                  style={{ flex: 1, gap: 2 }}
+                >
+                  <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '600' }}>
+                    {item.name}
                   </Text>
+                  <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
+                    {item.setsReps} • Ver execução técnica ↗
+                  </Text>
+                </Pressable>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  {/* Botão de Troca Rápida de Aparelho Ocupado */}
+                  <Pressable
+                    onPress={() => {
+                      const ex = exerciseById(item.exId);
+                      if (ex) setExerciseToSwap(ex);
+                    }}
+                    style={{
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 6,
+                      backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(255, 255, 255, 0.1)',
+                    }}
+                  >
+                    <Text style={{ color: '#9CA3AF', fontSize: 10, fontWeight: '700' }}>
+                      🔄 Trocar
+                    </Text>
+                  </Pressable>
+
                   <View
                     style={{
                       width: 20,
@@ -383,7 +530,7 @@ export default function Hoje() {
                     )}
                   </View>
                 </View>
-              </Pressable>
+              </View>
             ))}
           </View>
 
@@ -666,6 +813,157 @@ export default function Hoje() {
         visible={selectedVideoExercise !== null}
         onClose={() => setSelectedVideoExercise(null)}
       />
+
+      {/* MODAL DE SUBSTITUIÇÃO DE APARELHO OCUPADO */}
+      <Modal
+        visible={exerciseToSwap !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setExerciseToSwap(null)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(5, 7, 10, 0.85)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 20,
+          }}
+        >
+          <View
+            style={{
+              width: '100%',
+              maxWidth: 520,
+              backgroundColor: '#141824',
+              borderRadius: 20,
+              padding: 24,
+              borderWidth: 1,
+              borderColor: 'rgba(198, 244, 50, 0.25)',
+              shadowColor: neonLime,
+              shadowOpacity: 0.2,
+              shadowRadius: 20,
+              gap: 16,
+            }}
+          >
+            {/* Cabeçalho do Modal */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <View style={{ gap: 4, flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 18 }}>🔄</Text>
+                  <Text style={{ color: neonLime, fontSize: 12, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
+                    Aparelho Ocupado na Academia
+                  </Text>
+                </View>
+                <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '900' }}>
+                  Substituir {exerciseToSwap?.name}
+                </Text>
+                <Text style={{ color: '#8E9AA8', fontSize: 12, lineHeight: 17 }}>
+                  Substitutos biomecanicamente validados para recrutar as mesmas fibras sem perder a eficácia do treino.
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => setExerciseToSwap(null)}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  backgroundColor: '#1E2533',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ color: '#8E9AA8', fontSize: 16, fontWeight: '700' }}>✕</Text>
+              </Pressable>
+            </View>
+
+            {/* Lista de Alternativas */}
+            <ScrollView style={{ maxHeight: 320 }} showsVerticalScrollIndicator={false}>
+              <View style={{ gap: 10 }}>
+                {exerciseToSwap &&
+                  suggestAlternatives(
+                    exerciseToSwap,
+                    exercises,
+                    approvedAlternatives[exerciseToSwap.id] ?? [],
+                    studentEquipment
+                  ).map((alt) => {
+                    const isApproved = (approvedAlternatives[exerciseToSwap.id] ?? []).includes(alt.id);
+                    return (
+                      <Pressable
+                        key={alt.id}
+                        onPress={() => handleSwapExercise(alt)}
+                        style={({ pressed }) => ({
+                          backgroundColor: '#0E121B',
+                          borderRadius: 14,
+                          padding: 14,
+                          borderWidth: 1,
+                          borderColor: isApproved ? 'rgba(198, 244, 50, 0.3)' : 'rgba(255, 255, 255, 0.08)',
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          opacity: pressed ? 0.8 : 1,
+                        })}
+                      >
+                        <View style={{ flex: 1, gap: 4, paddingRight: 12 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '700' }}>
+                              {alt.name}
+                            </Text>
+                            {isApproved && (
+                              <View
+                                style={{
+                                  backgroundColor: 'rgba(198, 244, 50, 0.15)',
+                                  paddingHorizontal: 6,
+                                  paddingVertical: 2,
+                                  borderRadius: 4,
+                                }}
+                              >
+                                <Text style={{ color: neonLime, fontSize: 9, fontWeight: '800' }}>
+                                  ★ RECOMENDADO
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                          <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
+                            Equipamento: {alt.equipment} • Músculo: {alt.primaryMuscle}
+                          </Text>
+                        </View>
+
+                        <View
+                          style={{
+                            backgroundColor: neonLime,
+                            paddingHorizontal: 12,
+                            paddingVertical: 8,
+                            borderRadius: 8,
+                          }}
+                        >
+                          <Text style={{ color: '#0A0E14', fontSize: 12, fontWeight: '800' }}>
+                            Trocar ↗
+                          </Text>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+              </View>
+            </ScrollView>
+
+            {/* Rodapé / Botão de Fechar */}
+            <Pressable
+              onPress={() => setExerciseToSwap(null)}
+              style={({ pressed }) => ({
+                backgroundColor: '#1E2533',
+                borderRadius: 10,
+                paddingVertical: 12,
+                alignItems: 'center',
+                opacity: pressed ? 0.8 : 1,
+              })}
+            >
+              <Text style={{ color: '#9CA3AF', fontSize: 13, fontWeight: '700' }}>
+                Cancelar / Manter Exercício Atual
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
       </View>
     </Screen>
   );

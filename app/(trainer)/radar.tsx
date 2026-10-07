@@ -1,4 +1,5 @@
-import { Text, View } from 'react-native';
+import { Text, View, Pressable } from 'react-native';
+import { router } from 'expo-router';
 import { exercises, otherStudents, template, trainer } from '../../src/data/seed';
 import { buildRadar, snapshotFromLogs, type RadarKind } from '../../src/domain/radar';
 import { useAppState } from '../../src/state/AppState';
@@ -28,6 +29,127 @@ export default function Radar() {
         <Body muted style={{ fontSize: 13 } as any}>
           Alertas automatizados por prioridade: vídeos de execução pendentes, risco de evasão e platôs de força.
         </Body>
+      </View>
+
+      {/* Card de Onboarding Rápido do Treinador (3 Passos) */}
+      <View
+        style={{
+          backgroundColor: '#141824',
+          borderRadius: 16,
+          padding: 16,
+          borderWidth: 1,
+          borderColor: 'rgba(198, 244, 50, 0.25)',
+          gap: 12,
+        }}
+      >
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Text style={{ fontSize: 18 }}>🚀</Text>
+            <View>
+              <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '800' }}>
+                Guia Rápido de Configuração da Consultoria
+              </Text>
+              <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
+                Passos essenciais para começar a faturar e gerenciar seus alunos
+              </Text>
+            </View>
+          </View>
+          <View
+            style={{
+              backgroundColor: 'rgba(198, 244, 50, 0.15)',
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              borderRadius: 6,
+            }}
+          >
+            <Text style={{ color: '#C6F432', fontSize: 11, fontWeight: '800' }}>
+              2 / 3 Concluídos
+            </Text>
+          </View>
+        </View>
+
+        <View style={{ gap: 8 }}>
+          {/* Passo 1 */}
+          <Pressable
+            onPress={() => router.push('/financeiro')}
+            style={({ pressed }) => ({
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: '#0E121B',
+              padding: 10,
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.05)',
+              opacity: pressed ? 0.8 : 1,
+              gap: 10,
+            })}
+          >
+            <Text style={{ fontSize: 16 }}>✅</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>
+                1. Chave Pix & Planos Financeiros
+              </Text>
+              <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
+                Configurada: pix@aurorafit.com.br • Mensalidade: R$ 180/mês
+              </Text>
+            </View>
+            <Text style={{ color: '#C6F432', fontSize: 11, fontWeight: '700' }}>Editar ↗</Text>
+          </Pressable>
+
+          {/* Passo 2 */}
+          <Pressable
+            onPress={() => router.push('/alunos')}
+            style={({ pressed }) => ({
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: '#0E121B',
+              padding: 10,
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.05)',
+              opacity: pressed ? 0.8 : 1,
+              gap: 10,
+            })}
+          >
+            <Text style={{ fontSize: 16 }}>✅</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>
+                2. Convidar Aluno via Link ou WhatsApp
+              </Text>
+              <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
+                4 alunos ativos na base com credenciais de acesso
+              </Text>
+            </View>
+            <Text style={{ color: '#C6F432', fontSize: 11, fontWeight: '700' }}>Convidar ↗</Text>
+          </Pressable>
+
+          {/* Passo 3 */}
+          <Pressable
+            onPress={() => router.push('/prescrever-dieta')}
+            style={({ pressed }) => ({
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: '#0E121B',
+              padding: 10,
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: 'rgba(198, 244, 50, 0.3)',
+              opacity: pressed ? 0.8 : 1,
+              gap: 10,
+            })}
+          >
+            <Text style={{ fontSize: 16 }}>⚡</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: '#C6F432', fontSize: 13, fontWeight: '800' }}>
+                3. Prescrever Treino e Dieta Completa
+              </Text>
+              <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
+                Importe treinos em texto livre ou gere protocolos hipertróficos
+              </Text>
+            </View>
+            <Text style={{ color: '#C6F432', fontSize: 11, fontWeight: '800' }}>Prescrever ↗</Text>
+          </Pressable>
+        </View>
       </View>
 
       {/* Cartões de Métricas do Radar */}
