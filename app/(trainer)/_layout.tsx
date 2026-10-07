@@ -10,18 +10,28 @@ export default function TrainerTabs() {
   const options = useTabOptions();
 
   useEffect(() => {
-    if (!loading && !profile) {
-      router.replace('/');
+    if (!loading) {
+      if (!profile) {
+        router.replace('/');
+      } else if (profile.role !== 'trainer') {
+        // Aluno tentando acessar área de treinador -> redireciona para a área exclusiva do aluno
+        router.replace('/hoje');
+      }
     }
   }, [profile, loading]);
 
-  if (!loading && !profile) {
+  if (!loading && (!profile || profile.role !== 'trainer')) {
     return (
       <View style={{ flex: 1, backgroundColor: '#050811', justifyContent: 'center', alignItems: 'center', padding: 24 }}>
         <Card style={{ maxWidth: 400, alignItems: 'center', gap: 12 }}>
-          <Title size={20}>Sessão Não Iniciada</Title>
-          <Body muted style={{ textAlign: 'center' }}>Faça login para acessar o painel de gestão do treinador.</Body>
-          <Button title="Ir para a Tela de Login" onPress={() => router.replace('/')} />
+          <Title size={20}>Acesso Restrito ao Treinador</Title>
+          <Body muted style={{ textAlign: 'center' }}>
+            Esta área é restrita para treinadores e profissionais cadastrados.
+          </Body>
+          <Button
+            title={profile ? 'Ir para Minha Área de Aluno' : 'Ir para a Tela de Login'}
+            onPress={() => router.replace(profile ? '/hoje' : '/')}
+          />
         </Card>
       </View>
     );

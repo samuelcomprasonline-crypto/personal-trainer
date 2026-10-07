@@ -42,16 +42,6 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
 
   const activeNavItems = isTrainer ? trainerNavItems : studentNavItems;
 
-  const handleToggleRole = () => {
-    if (isTrainer) {
-      enterDemoMode('student');
-      router.replace('/hoje');
-    } else {
-      enterDemoMode('trainer');
-      router.replace('/radar');
-    }
-  };
-
   const isAuthRoute =
     pathname === '/' || pathname === '/login' || pathname === '/cadastro';
 
@@ -77,10 +67,7 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
       >
         {/* Topo da Sidebar: Marca do Estúdio */}
         <View style={{ gap: 20 }}>
-          <Pressable
-            onPress={() => router.replace('/')}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}
-          >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View
               style={{
                 width: 44,
@@ -101,44 +88,47 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
                 {isTrainer ? 'Painel do Treinador' : 'Portal do Aluno'}
               </Text>
             </View>
-          </Pressable>
+          </View>
 
-          {/* Seletor Instantâneo de Perfil (Aluno vs Treinador) */}
-          <Pressable
-            onPress={handleToggleRole}
-            style={({ pressed }) => ({
-              backgroundColor: isTrainer ? 'rgba(198, 244, 50, 0.12)' : t.surfaceElevated,
+          {/* Cartão de Identificação de Perfil (Fixo, sem alternância) */}
+          <View
+            style={{
+              backgroundColor: isTrainer ? 'rgba(0, 240, 255, 0.08)' : 'rgba(168, 85, 247, 0.08)',
               borderRadius: 12,
-              padding: 10,
+              padding: 12,
               borderWidth: 1,
-              borderColor: isTrainer ? t.accent : t.border,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              opacity: pressed ? 0.85 : 1,
-            })}
+              borderColor: isTrainer ? 'rgba(0, 240, 255, 0.25)' : 'rgba(168, 85, 247, 0.25)',
+              gap: 4,
+            }}
           >
-            <View style={{ gap: 2 }}>
-              <Text style={{ color: t.muted, fontSize: 10, fontWeight: '700', textTransform: 'uppercase' }}>
-                VISÃO ATUAL
-              </Text>
-              <Text style={{ color: isTrainer ? t.accent : '#FFFFFF', fontSize: 13, fontWeight: '800' }}>
-                {isTrainer ? '⚡ Painel do Treinador' : '👤 Área do Aluno'}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <View
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
+                  backgroundColor: isTrainer ? '#00F0FF' : '#A855F7',
+                }}
+              />
+              <Text
+                style={{
+                  color: isTrainer ? '#00F0FF' : '#A855F7',
+                  fontSize: 10,
+                  fontWeight: '800',
+                  letterSpacing: 0.5,
+                  textTransform: 'uppercase',
+                }}
+              >
+                {isTrainer ? 'Treinador Responsável' : 'Aluno VIP Exclusivo'}
               </Text>
             </View>
-            <View
-              style={{
-                backgroundColor: isTrainer ? t.accent : t.surfaceCard,
-                paddingHorizontal: 8,
-                paddingVertical: 4,
-                borderRadius: 6,
-              }}
-            >
-              <Text style={{ color: isTrainer ? t.accentText : t.muted, fontSize: 10, fontWeight: '800' }}>
-                Alternar ⇄
-              </Text>
-            </View>
-          </Pressable>
+            <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '800' }} numberOfLines={1}>
+              {profile?.name ?? (isTrainer ? 'Aurora Personal' : 'Samuel Ferreira')}
+            </Text>
+            <Text style={{ color: t.muted, fontSize: 11 }} numberOfLines={1}>
+              {profile?.email}
+            </Text>
+          </View>
 
           {/* Links de Navegação Exclusivos */}
           <View style={{ gap: 4 }}>

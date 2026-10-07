@@ -10,18 +10,28 @@ export default function StudentTabs() {
   const options = useTabOptions();
 
   useEffect(() => {
-    if (!loading && !profile) {
-      router.replace('/');
+    if (!loading) {
+      if (!profile) {
+        router.replace('/');
+      } else if (profile.role !== 'student') {
+        // Treinador tentando acessar área de aluno -> redireciona para o radar do treinador
+        router.replace('/radar');
+      }
     }
   }, [profile, loading]);
 
-  if (!loading && !profile) {
+  if (!loading && (!profile || profile.role !== 'student')) {
     return (
       <View style={{ flex: 1, backgroundColor: '#050811', justifyContent: 'center', alignItems: 'center', padding: 24 }}>
         <Card style={{ maxWidth: 400, alignItems: 'center', gap: 12 }}>
-          <Title size={20}>Sessão Não Iniciada</Title>
-          <Body muted style={{ textAlign: 'center' }}>Faça login para acessar o seu portal do aluno.</Body>
-          <Button title="Ir para a Tela de Login" onPress={() => router.replace('/')} />
+          <Title size={20}>Área Exclusiva do Aluno</Title>
+          <Body muted style={{ textAlign: 'center' }}>
+            Esta área é destinada exclusivamente aos treinos e acompanhamento do aluno.
+          </Body>
+          <Button
+            title={profile ? 'Ir para o Painel do Treinador' : 'Ir para a Tela de Login'}
+            onPress={() => router.replace(profile ? '/radar' : '/')}
+          />
         </Card>
       </View>
     );
