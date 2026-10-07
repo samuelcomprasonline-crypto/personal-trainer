@@ -12,6 +12,11 @@ export type StudentSnapshot = {
   recentRpes: number[]; // mais antigo → mais recente
   loadHistory: Record<string, { exerciseName: string; loads: number[] }>; // mais antigo → mais recente
   pendingVideoIds: string[];
+  monthlyPrice?: number; // Valor da consultoria em R$
+  planType?: 'Mensal' | 'Trimestral' | 'Semestral' | 'Anual';
+  dueDay?: number; // Dia de vencimento (ex: 10)
+  paymentStatus?: 'pago' | 'pendente' | 'atrasado';
+  assignedProgramName?: string;
 };
 
 const ORDER: RadarKind[] = ['video', 'adherence', 'stalled', 'rpe'];

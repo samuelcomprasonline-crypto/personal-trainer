@@ -597,9 +597,21 @@ export const baseLoads: Record<string, number> = {
 
 export const studentEquipment = ['machine', 'dumbbell', 'barbell', 'cable', 'ball', 'bench', 'bodyweight'];
 
-// Alunos para o Radar do Treinador
+// Alunos para o Radar do Treinador com Dados Financeiros e de Treino
 export const otherStudents: StudentSnapshot[] = [
-  { studentId: 'marina', name: 'Marina Costa', consistency: 0.85, recentRpes: [7, 8, 7], loadHistory: {}, pendingVideoIds: [] },
+  {
+    studentId: 'marina',
+    name: 'Marina Costa',
+    consistency: 0.85,
+    recentRpes: [7, 8, 7],
+    loadHistory: {},
+    pendingVideoIds: [],
+    monthlyPrice: 280,
+    planType: 'Trimestral',
+    dueDay: 10,
+    paymentStatus: 'pago',
+    assignedProgramName: 'Push / Pull / Legs — Volume Máximo',
+  },
   {
     studentId: 'rafael',
     name: 'Rafael Lima',
@@ -607,8 +619,25 @@ export const otherStudents: StudentSnapshot[] = [
     recentRpes: [8, 9, 8],
     loadHistory: { 'leg-press': { exerciseName: 'Leg Press - Pés Paralelos', loads: [80, 90, 100, 110] } },
     pendingVideoIds: [],
+    monthlyPrice: 350,
+    planType: 'Semestral',
+    dueDay: 5,
+    paymentStatus: 'pago',
+    assignedProgramName: 'Projeto 60 Dias Balestrin — Iniciante 1',
   },
-  { studentId: 'julia', name: 'Julia Prado', consistency: 0.78, recentRpes: [6, 7, 7], loadHistory: {}, pendingVideoIds: [] },
+  {
+    studentId: 'julia',
+    name: 'Julia Prado',
+    consistency: 0.78,
+    recentRpes: [6, 7, 7],
+    loadHistory: {},
+    pendingVideoIds: [],
+    monthlyPrice: 250,
+    planType: 'Mensal',
+    dueDay: 15,
+    paymentStatus: 'pendente',
+    assignedProgramName: 'Upper / Lower — Foco em Força & Hipertrofia',
+  },
 ];
 
 // ========================================================================

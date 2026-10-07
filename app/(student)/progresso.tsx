@@ -4,6 +4,7 @@ import { exerciseById, samuelAssessment, template } from '../../src/data/seed';
 import { consistency } from '../../src/domain/schedule';
 import { useAppState } from '../../src/state/AppState';
 import { AssessmentReport } from '../../src/ui/AssessmentReport';
+import { AssessmentPhotoGallery } from '../../src/ui/AssessmentPhotoGallery';
 import { Body, Card, Chip, CircularProgress, Label, Screen, Title } from '../../src/ui/components';
 import { NutritionModule } from '../../src/ui/NutritionModule';
 import { RecoveryModule } from '../../src/ui/RecoveryModule';
@@ -12,7 +13,7 @@ import { useTheme } from '../../src/ui/theme';
 export default function Progresso() {
   const t = useTheme();
   const { logs } = useAppState();
-  const [tab, setTab] = useState<'avaliacao' | 'nutricao' | 'recuperacao' | 'treinos'>('avaliacao');
+  const [tab, setTab] = useState<'avaliacao' | 'fotos' | 'nutricao' | 'recuperacao' | 'treinos'>('avaliacao');
   const value = consistency(logs, template.sessions.length, new Date());
   const recent = [...logs]
     .sort((a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt))
@@ -110,6 +111,11 @@ export default function Progresso() {
           onPress={() => setTab('avaliacao')}
         />
         <Chip
+          label="Fotos da Avaliação 📷"
+          selected={tab === 'fotos'}
+          onPress={() => setTab('fotos')}
+        />
+        <Chip
           label="Nutrição & Dieta"
           selected={tab === 'nutricao'}
           onPress={() => setTab('nutricao')}
@@ -128,6 +134,10 @@ export default function Progresso() {
 
       {tab === 'avaliacao' && (
         <AssessmentReport studentName="Samuel Ferreira" assessment={samuelAssessment} />
+      )}
+
+      {tab === 'fotos' && (
+        <AssessmentPhotoGallery photos={samuelAssessment.photos} />
       )}
 
       {tab === 'nutricao' && (

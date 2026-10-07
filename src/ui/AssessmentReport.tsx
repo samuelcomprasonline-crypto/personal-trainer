@@ -108,12 +108,14 @@ import { AssessmentUploadModal } from './AssessmentUploadModal';
 export function AssessmentReport({
   studentName = 'Samuel Ferreira',
   assessment = samuelAssessment,
+  initialTab = 'mapa3d',
 }: {
   studentName?: string;
   assessment?: PhysicalAssessment;
+  initialTab?: TabView;
 }) {
   const t = useTheme();
-  const [tab, setTab] = useState<TabView>('mapa3d');
+  const [tab, setTab] = useState<TabView>(initialTab);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [currentBio, setCurrentBio] = useState(assessment.bioimpedance);
 

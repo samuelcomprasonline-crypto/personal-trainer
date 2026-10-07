@@ -5,14 +5,17 @@ import { trainingMethods, workoutProgramsCatalog } from '../../src/domain/workou
 import type { Exercise, WorkoutProgram, TrainingMethod } from '../../src/domain/types';
 import { Body, Card, Chip, Label, Screen, Title, Button } from '../../src/ui/components';
 import { ExerciseVideoModal } from '../../src/ui/ExerciseVideoModal';
+import { NewWorkoutProgramModal } from '../../src/ui/NewWorkoutProgramModal';
 import { useTheme } from '../../src/ui/theme';
 
 export default function Biblioteca() {
   const t = useTheme();
+  const [programsList, setProgramsList] = useState<WorkoutProgram[]>([...workoutProgramsCatalog]);
   const [tab, setTab] = useState<'programas' | 'metodos' | 'exercicios'>('programas');
   const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selectedVideo, setSelectedVideo] = useState<Exercise | null>(null);
+  const [showNewProgramModal, setShowNewProgramModal] = useState(false);
   const [appliedProgramNotice, setAppliedProgramNotice] = useState<string | null>(null);
 
   const filteredExercises = exercises.filter((e) => {
@@ -27,6 +30,14 @@ export default function Biblioteca() {
   const handleApplyProgram = (program: WorkoutProgram) => {
     setAppliedProgramNotice(`Programa "${program.name}" selecionado e sincronizado com os alunos da consultoria!`);
     setTimeout(() => setAppliedProgramNotice(null), 4000);
+  };
+
+  const handleSaveNewProgram = (newProg: WorkoutProgram) => {
+    workoutProgramsCatalog.unshift(newProg);
+    setProgramsList([newProg, ...programsList]);
+    setShowNewProgramModal(false);
+    setAppliedProgramNotice(`Protocolo "${newProg.name}" cadastrado com sucesso no banco de dados!`);
+    setTimeout(() => setAppliedProgramNotice(null), 5000);
   };
 
   return (
@@ -55,6 +66,14 @@ export default function Biblioteca() {
           </View>
         )}
 
+        {/* BOTÃO EM DESTAQUE PARA CADASTRAR NOVO PROTOCOLO */}
+        <View style={{ marginVertical: 4 }}>
+          <Button
+            title="+ Cadastrar Novo Treino / Protocolo 📋"
+            onPress={() => setShowNewProgramModal(true)}
+          />
+        </View>
+
         {/* ABAS MODERNAS */}
         <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
           <Chip
@@ -81,7 +100,7 @@ export default function Biblioteca() {
               Divisões de treino cientificamente estruturadas. Clique para aplicar diretamente aos alunos.
             </Body>
 
-            {workoutProgramsCatalog.map((prog) => (
+            {programsList.map((prog) => (
               <Card key={prog.id}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <View style={{ flex: 1 }}>
@@ -348,6 +367,13 @@ export default function Biblioteca() {
         exercise={selectedVideo}
         visible={selectedVideo !== null}
         onClose={() => setSelectedVideo(null)}
+      />
+
+      {/* MODAL DE CADASTRO DE NOVO TREINO / PROTOCOLO */}
+      <NewWorkoutProgramModal
+        visible={showNewProgramModal}
+        onClose={() => setShowNewProgramModal(false)}
+        onSaveProgram={handleSaveNewProgram}
       />
     </>
   );

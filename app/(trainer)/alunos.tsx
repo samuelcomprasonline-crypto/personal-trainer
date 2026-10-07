@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Modal, Pressable, View } from 'react-native';
+import { Modal, Pressable, Text, View } from 'react-native';
 import { assessmentHistory, otherStudents, samuelAssessment, template, trainer } from '../../src/data/seed';
-import { snapshotFromLogs } from '../../src/domain/radar';
+import { snapshotFromLogs, type StudentSnapshot } from '../../src/domain/radar';
 import { workoutProgramsCatalog, trainingMethods } from '../../src/domain/workoutLibrary';
 import type { PhysicalAssessment, WorkoutProgram } from '../../src/domain/types';
 import { useAppState } from '../../src/state/AppState';
@@ -20,14 +20,21 @@ export default function Alunos() {
   const { logs } = useAppState();
   const { signOut, profile } = useAuth();
   const me = snapshotFromLogs('previa', 'Samuel Ferreira', logs, template.sessions.length, new Date(), {});
-  const students = [me, ...otherStudents];
-  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
-  const [studentTab, setStudentTab] = useState<'laudo' | 'treino' | 'nutricao' | 'recuperacao'>('laudo');
+  me.monthlyPrice = 300;
+  me.planType = 'Trimestral';
+  me.dueDay = 10;
+  me.paymentStatus = 'pago';
+  me.assignedProgramName = 'Projeto 60 Dias Balestrin — Iniciante 1';
+
+  const [studentsList, setStudentsList] = useState<StudentSnapshot[]>([me, ...otherStudents]);
+  const [selectedStudentName, setSelectedStudentName] = useState<string | null>(null);
+  const [studentTab, setStudentTab] = useState<'laudo' | 'treino' | 'nutricao' | 'recuperacao' | 'financeiro'>('laudo');
   const [showNewModal, setShowNewModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [currentAssessment, setCurrentAssessment] = useState(samuelAssessment);
-  const [currentProgramName, setCurrentProgramName] = useState('Push / Pull / Legs — Volume Máximo');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const activeStudent = studentsList.find((s) => s.name === selectedStudentName) || studentsList[0];
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -48,8 +55,24 @@ export default function Alunos() {
   };
 
   const handleApplyProgramToStudent = (prog: WorkoutProgram) => {
-    setCurrentProgramName(prog.name);
-    showToast(`Programa "${prog.name}" aplicado a ${selectedStudent}!`);
+    if (!selectedStudentName) return;
+    setStudentsList((prev) =>
+      prev.map((s) => (s.name === selectedStudentName ? { ...s, assignedProgramName: prog.name } : s))
+    );
+    showToast(`Programa "${prog.name}" aplicado e ativado no app de ${selectedStudentName}!`);
+  };
+
+  const handleTogglePaymentStatus = (studentName: string) => {
+    setStudentsList((prev) =>
+      prev.map((s) => {
+        if (s.name === studentName) {
+          const nextStatus = s.paymentStatus === 'pago' ? 'pendente' : 'pago';
+          return { ...s, paymentStatus: nextStatus };
+        }
+        return s;
+      })
+    );
+    showToast(`Status financeiro atualizado!`);
   };
 
   return (
@@ -58,7 +81,7 @@ export default function Alunos() {
         <Label>{profile?.name ? `${profile.name} · Consultoria` : `${trainer.name} · Consultoria`}</Label>
         <Title>Gestão de Alunos & Prontuários</Title>
         <Body muted>
-          Acompanhe o engajamento, periodize treinos do banco de dados, prescreva nutrição e analise laudos clínicos.
+          Acompanhe mensalidades, envie periodizações do banco de treinos e prescreva protocolos nutricionais.
         </Body>
 
         {toastMessage && (
@@ -78,7 +101,7 @@ export default function Alunos() {
 
         <View style={{ gap: 8, marginVertical: 4 }}>
           <Button
-            title="+ Convidar Novo Aluno (Gerar Código)"
+            title="+ Cadastrar & Convidar Novo Aluno ⚡"
             onPress={() => setShowInviteModal(true)}
           />
           <Button
@@ -88,29 +111,77 @@ export default function Alunos() {
           />
         </View>
 
+        {/* LISTA DE ALUNOS COM CARDS FINANCEIROS COMPLETOS */}
         <View style={{ gap: 12 }}>
-          {students.map((s) => (
-            <Card key={s.studentId} onPress={() => setSelectedStudent(s.name)}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Title size={20}>{s.name}</Title>
+          {studentsList.map((s) => {
+            const isPaid = s.paymentStatus === 'pago';
+            return (
+              <Card key={s.studentId} onPress={() => setSelectedStudentName(s.name)}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Title size={20}>{s.name}</Title>
+                  <View
+                    style={{
+                      backgroundColor: `${t.accent}15`,
+                      paddingHorizontal: 10,
+                      paddingVertical: 4,
+                      borderRadius: 999,
+                    }}
+                  >
+                    <Body muted style={{ color: t.accent, fontSize: 13, fontWeight: '600' } as any}>
+                      Abrir Prontuário 360° →
+                    </Body>
+                  </View>
+                </View>
+
+                {/* Resumo Financeiro & Treino */}
                 <View
                   style={{
-                    backgroundColor: `${t.accent}15`,
-                    paddingHorizontal: 10,
-                    paddingVertical: 4,
-                    borderRadius: 999,
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    alignItems: 'center',
+                    gap: 8,
+                    marginTop: 8,
+                    paddingTop: 8,
+                    borderTopWidth: 1,
+                    borderColor: t.border,
                   }}
                 >
-                  <Body muted style={{ color: t.accent, fontSize: 13, fontWeight: '600' } as any}>
-                    Abrir Prontuário 360° →
+                  <View
+                    style={{
+                      backgroundColor: isPaid ? 'rgba(198, 244, 50, 0.15)' : 'rgba(234, 179, 8, 0.15)',
+                      paddingHorizontal: 8,
+                      paddingVertical: 3,
+                      borderRadius: 6,
+                    }}
+                  >
+                    <Body
+                      style={{
+                        color: isPaid ? t.accent : '#EAB308',
+                        fontSize: 11,
+                        fontWeight: '800',
+                      } as any}
+                    >
+                      {isPaid ? 'MENSALIDADE PAGA ✓' : 'PAGAMENTO PENDENTE ⚠️'}
+                    </Body>
+                  </View>
+
+                  <Body style={{ fontSize: 12, fontWeight: '700' } as any}>
+                    R$ {s.monthlyPrice || 250},00 ({s.planType || 'Mensal'})
+                  </Body>
+
+                  <Body muted style={{ fontSize: 12 } as any}>
+                    • Vencimento: todo dia {s.dueDay || 10}
                   </Body>
                 </View>
-              </View>
-              <Body muted>
-                Consistência: {Math.round(s.consistency * 100)}% nas últimas 4 semanas · {currentProgramName}
-              </Body>
-            </Card>
-          ))}
+
+                <View style={{ marginTop: 6 }}>
+                  <Body muted style={{ fontSize: 12 } as any}>
+                    🏋️ Treino Ativo: <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>{s.assignedProgramName || 'Projeto 60 Dias Balestrin'}</Text>
+                  </Body>
+                </View>
+              </Card>
+            );
+          })}
         </View>
 
         <View style={{ marginTop: 12, gap: 8 }}>
@@ -125,31 +196,35 @@ export default function Alunos() {
         </View>
       </Screen>
 
-      {/* MODAL DE CONVITE DE NOVO ALUNO */}
+      {/* MODAL DE CADASTRO E CONVITE COM FINANCEIRO */}
       <NewInviteModal
         visible={showInviteModal}
         onClose={() => setShowInviteModal(false)}
+        onStudentAdded={(newS) => {
+          setStudentsList((prev) => [newS, ...prev]);
+          showToast(`Aluno ${newS.name} cadastrado com plano de R$ ${newS.monthlyPrice}/mês!`);
+        }}
       />
 
       {/* MODAL DE CADASTRO DE NOVA AVALIAÇÃO */}
       <NewAssessmentModal
         visible={showNewModal}
-        studentName="Samuel Ferreira"
+        studentName={selectedStudentName || 'Samuel Ferreira'}
         onClose={() => setShowNewModal(false)}
         onSave={handleSaveAssessment}
       />
 
-      {/* MODAL DO PRONTUÁRIO COMPLETO DO ALUNO (ESTILO APPS AMERICANOS DE PONTA) */}
+      {/* MODAL DO PRONTUÁRIO COMPLETO DO ALUNO */}
       <Modal
-        visible={selectedStudent !== null}
+        visible={selectedStudentName !== null}
         animationType="slide"
-        onRequestClose={() => setSelectedStudent(null)}
+        onRequestClose={() => setSelectedStudentName(null)}
       >
         <Screen>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <Pressable
               accessibilityRole="button"
-              onPress={() => setSelectedStudent(null)}
+              onPress={() => setSelectedStudentName(null)}
               style={{ paddingVertical: 6 }}
             >
               <Body muted>← Voltar para lista de alunos</Body>
@@ -164,7 +239,7 @@ export default function Alunos() {
               }}
             >
               <Body style={{ color: t.accent, fontSize: 11, fontWeight: '700' } as any}>
-                Aluno: {selectedStudent}
+                Aluno: {selectedStudentName}
               </Body>
             </View>
           </View>
@@ -197,12 +272,17 @@ export default function Alunos() {
               onPress={() => setStudentTab('treino')}
             />
             <Chip
+              label="Financeiro & Contrato 💳"
+              selected={studentTab === 'financeiro'}
+              onPress={() => setStudentTab('financeiro')}
+            />
+            <Chip
               label="Prescrição Nutricional"
               selected={studentTab === 'nutricao'}
               onPress={() => setStudentTab('nutricao')}
             />
             <Chip
-              label="Biofeedback & Wearables"
+              label="Biofeedback"
               selected={studentTab === 'recuperacao'}
               onPress={() => setStudentTab('recuperacao')}
             />
@@ -211,7 +291,7 @@ export default function Alunos() {
           {/* ABA 1: LAUDO CLÍNICO */}
           {studentTab === 'laudo' && (
             <AssessmentReport
-              studentName={selectedStudent ?? 'Samuel Ferreira'}
+              studentName={selectedStudentName ?? 'Samuel Ferreira'}
               assessment={currentAssessment}
             />
           )}
@@ -221,15 +301,15 @@ export default function Alunos() {
             <View style={{ gap: 14 }}>
               <Card>
                 <Label style={{ color: t.accent }}>PROGRAMA ATIVO DO ALUNO</Label>
-                <Title size={22}>{currentProgramName}</Title>
+                <Title size={22}>{activeStudent?.assignedProgramName || 'Projeto 60 Dias Balestrin'}</Title>
                 <Body muted style={{ fontSize: 13, marginTop: 4 } as any}>
-                  Você pode selecionar qualquer uma das periodizações do banco de dados abaixo para aplicar a este aluno.
+                  Este é o treino que o aluno visualiza e executa hoje no aplicativo dele. Escolha qualquer treino abaixo para alterar instantaneamente.
                 </Body>
               </Card>
 
-              <Label style={{ marginTop: 4 }}>Programas Disponíveis no Banco de Dados:</Label>
+              <Label style={{ marginTop: 4 }}>Treinos e Protocolos no Banco de Dados:</Label>
               {workoutProgramsCatalog.map((prog) => {
-                const isCurrent = prog.name === currentProgramName;
+                const isCurrent = prog.name === activeStudent?.assignedProgramName;
                 return (
                   <Card key={prog.id}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -253,13 +333,78 @@ export default function Alunos() {
 
                     {!isCurrent && (
                       <Button
-                        title={`Aplicar este programa a ${selectedStudent}`}
+                        title={`Enviar / Aplicar este Treino a ${selectedStudentName} ✓`}
                         onPress={() => handleApplyProgramToStudent(prog)}
                       />
                     )}
                   </Card>
                 );
               })}
+            </View>
+          )}
+
+          {/* ABA FINANCEIRA & CONTRATO */}
+          {studentTab === 'financeiro' && selectedStudentName && (
+            <View style={{ gap: 14 }}>
+              <Card>
+                <Label style={{ color: t.accent }}>CONTRATO DA CONSULTORIA</Label>
+                <Title size={24}>{activeStudent?.name}</Title>
+
+                <View
+                  style={{
+                    backgroundColor: t.surfaceElevated,
+                    padding: 16,
+                    borderRadius: 14,
+                    marginTop: 10,
+                    gap: 10,
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Body muted>Valor Mensal da Consultoria:</Body>
+                    <Title size={20} style={{ color: t.accent }}>R$ {activeStudent?.monthlyPrice || 250},00</Title>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Body muted>Modalidade do Plano:</Body>
+                    <Body style={{ fontWeight: '700' } as any}>{activeStudent?.planType || 'Mensal'}</Body>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Body muted>Dia de Vencimento:</Body>
+                    <Body style={{ fontWeight: '700' } as any}>Todo dia {activeStudent?.dueDay || 10}</Body>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Body muted>Situação do Pagamento:</Body>
+                    <View
+                      style={{
+                        backgroundColor: activeStudent?.paymentStatus === 'pago' ? 'rgba(198, 244, 50, 0.2)' : 'rgba(234, 179, 8, 0.2)',
+                        paddingHorizontal: 8,
+                        paddingVertical: 3,
+                        borderRadius: 6,
+                      }}
+                    >
+                      <Body
+                        style={{
+                          color: activeStudent?.paymentStatus === 'pago' ? t.accent : '#EAB308',
+                          fontSize: 12,
+                          fontWeight: '800',
+                        } as any}
+                      >
+                        {activeStudent?.paymentStatus === 'pago' ? 'EM DIA (PAGO) ✓' : 'PENDENTE DE PAGAMENTO ⚠️'}
+                      </Body>
+                    </View>
+                  </View>
+                </View>
+
+                <View style={{ marginTop: 14 }}>
+                  <Button
+                    title={activeStudent?.paymentStatus === 'pago' ? 'Marcar como Pendente' : 'Registrar Pagamento Recebido ✓'}
+                    variant={activeStudent?.paymentStatus === 'pago' ? 'ghost' : 'primary'}
+                    onPress={() => handleTogglePaymentStatus(activeStudent.name)}
+                  />
+                </View>
+              </Card>
             </View>
           )}
 
@@ -274,7 +419,7 @@ export default function Alunos() {
           )}
 
           <View style={{ marginTop: 24, marginBottom: 16 }}>
-            <Button title="Fechar Prontuário" variant="ghost" onPress={() => setSelectedStudent(null)} />
+            <Button title="Fechar Prontuário" variant="ghost" onPress={() => setSelectedStudentName(null)} />
           </View>
         </Screen>
       </Modal>

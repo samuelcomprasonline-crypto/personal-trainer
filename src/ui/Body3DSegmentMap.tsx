@@ -178,7 +178,6 @@ export function Body3DSegmentMap({ bio }: { bio: BioimpedanceAssessment }) {
             fill="url(#troncoGrad)"
             stroke={selectedSegment === 'tronco' ? '#FFFFFF' : activeColor}
             strokeWidth={selectedSegment === 'tronco' ? '3' : '2'}
-            onPress={() => setSelectedSegment('tronco')}
           />
           {/* Linhas 3D de relevo do tronco */}
           <Line x1="170" y1="90" x2="170" y2="230" stroke={activeColor} strokeWidth="1" strokeDasharray="4 3" opacity="0.6" />
@@ -214,7 +213,6 @@ export function Body3DSegmentMap({ bio }: { bio: BioimpedanceAssessment }) {
             fillOpacity="0.18"
             stroke={selectedSegment === 'bracoEsquerdo' ? '#FFFFFF' : activeColor}
             strokeWidth={selectedSegment === 'bracoEsquerdo' ? '3' : '1.8'}
-            onPress={() => setSelectedSegment('bracoEsquerdo')}
           />
           {/* Linhas de fibra 3D no braço esquerdo */}
           <Line x1="225" y1="120" x2="245" y2="170" stroke={activeColor} strokeWidth="1" strokeDasharray="3 3" opacity="0.5" />
@@ -232,7 +230,6 @@ export function Body3DSegmentMap({ bio }: { bio: BioimpedanceAssessment }) {
             fillOpacity="0.18"
             stroke={selectedSegment === 'bracoDireito' ? '#FFFFFF' : activeColor}
             strokeWidth={selectedSegment === 'bracoDireito' ? '3' : '1.8'}
-            onPress={() => setSelectedSegment('bracoDireito')}
           />
           {/* Linhas de fibra 3D no braço direito */}
           <Line x1="115" y1="120" x2="95" y2="170" stroke={activeColor} strokeWidth="1" strokeDasharray="3 3" opacity="0.5" />
@@ -250,7 +247,6 @@ export function Body3DSegmentMap({ bio }: { bio: BioimpedanceAssessment }) {
             fillOpacity="0.20"
             stroke={selectedSegment === 'pernaDireita' ? '#FFFFFF' : activeColor}
             strokeWidth={selectedSegment === 'pernaDireita' ? '3' : '1.8'}
-            onPress={() => setSelectedSegment('pernaDireita')}
           />
           {/* Relevo 3D quadríceps / panturrilha direita */}
           <Line x1="135" y1="240" x2="140" y2="300" stroke={activeColor} strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
@@ -269,7 +265,6 @@ export function Body3DSegmentMap({ bio }: { bio: BioimpedanceAssessment }) {
             fillOpacity="0.20"
             stroke={selectedSegment === 'pernaEsquerda' ? '#FFFFFF' : activeColor}
             strokeWidth={selectedSegment === 'pernaEsquerda' ? '3' : '1.8'}
-            onPress={() => setSelectedSegment('pernaEsquerda')}
           />
           {/* Relevo 3D quadríceps / panturrilha esquerda */}
           <Line x1="205" y1="240" x2="200" y2="300" stroke={activeColor} strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
