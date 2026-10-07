@@ -1,7 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Linking, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { workoutProgramsCatalog } from '../domain/workoutLibrary';
 import type { StudentSnapshot } from '../domain/radar';
+import {
+  getResendApiKey,
+  saveResendApiKey,
+  sendAutomaticInviteEmail,
+  type SendEmailResult,
+} from '../lib/emailService';
 import { useAuth } from '../state/AuthContext';
 import { Body, Button, Card, Chip, Label, Screen, TextInputField, Title } from './components';
 import { colors, radius, spacing, useTheme } from './theme';
@@ -26,22 +32,64 @@ export function NewInviteModal({
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emailStatusToast, setEmailStatusToast] = useState<string | null>(null);
+
+  // Estados de Envio Automático
+  const [autoEmailResult, setAutoEmailResult] = useState<SendEmailResult | null>(null);
+  const [hasApiKey, setHasApiKey] = useState<boolean>(false);
+  const [showConfigApiKey, setShowConfigApiKey] = useState<boolean>(false);
+  const [apiKeyInput, setApiKeyInput] = useState<string>('');
+
+  useEffect(() => {
+    async function checkKey() {
+      const key = await getResendApiKey();
+      setHasApiKey(Boolean(key));
+    }
+    if (visible) {
+      checkKey();
+    }
+  }, [visible]);
 
   const getInviteMessage = (code: string) => {
     const nome = studentName.trim() || 'Aluno';
     return `Olá ${nome}! Seu acesso à consultoria Personal Trainer foi liberado!\n\nPlano: ${planType} (R$ ${monthlyPrice}/mês)\nTreino Liberado: ${selectedProgram}\n\nSeu código de ativação individual é: *${code}*\n\nAcesse o app e insira o código para começar agora!`;
   };
 
-  const handleSendEmail = async (code: string) => {
+  const handleSendAutomatic = async (code: string) => {
+    setAutoEmailResult(null);
+    const res = await sendAutomaticInviteEmail({
+      studentName,
+      studentEmail,
+      code,
+      planType,
+      monthlyPrice,
+      dueDay,
+      workoutProgram: selectedProgram,
+    });
+    setAutoEmailResult(res);
+  };
+
+  const handleSaveApiKey = async () => {
+    if (!apiKeyInput.trim() || apiKeyInput.trim().length < 8) {
+      Alert.alert('Chave Inválida', 'Por favor insira uma chave de API válida da Resend (começa com re_...).');
+      return;
+    }
+    await saveResendApiKey(apiKeyInput.trim());
+    setHasApiKey(true);
+    setShowConfigApiKey(false);
+    if (generatedCode) {
+      // Dispara o e-mail no mesmo instante
+      handleSendAutomatic(generatedCode);
+    }
+  };
+
+  const handleSendManualEmail = async (code: string) => {
     const subject = encodeURIComponent('🏋️ Seu Acesso ao Personal Trainer — Código de Ativação');
     const body = encodeURIComponent(getInviteMessage(code));
     const mailtoUrl = `mailto:${studentEmail.trim()}?subject=${subject}&body=${body}`;
     try {
       await Linking.openURL(mailtoUrl);
-      setEmailStatusToast(`Cliente de e-mail aberto para envio direto a ${studentEmail}!`);
     } catch {
-      setEmailStatusToast(`Convite preparado para ${studentEmail}! Copie os dados abaixo.`);
+      // Ignora erro
     }
   };
 
@@ -89,8 +137,8 @@ export function NewInviteModal({
         });
       }
 
-      // Dispara o e-mail automaticamente ao gerar
-      handleSendEmail(res.code);
+      // DISPARO 100% AUTOMÁTICO VIA SERVIDOR / API RESEND
+      handleSendAutomatic(res.code);
     }
   };
 
@@ -102,7 +150,8 @@ export function NewInviteModal({
     setDueDay('10');
     setGeneratedCode(null);
     setError(null);
-    setEmailStatusToast(null);
+    setAutoEmailResult(null);
+    setShowConfigApiKey(false);
     onClose();
   };
 
@@ -121,7 +170,7 @@ export function NewInviteModal({
           <Label style={{ color: t.accent }}>Gestão de Alunos & Financeiro</Label>
           <Title size={28}>Cadastrar & Convidar Aluno</Title>
           <Body muted>
-            Defina a mensalidade, o plano contratado, o treino inicial e envie o convite por e-mail ou WhatsApp.
+            Defina o plano, o treino inicial e o sistema enviará o convite automaticamente para o e-mail do aluno.
           </Body>
         </View>
 
@@ -148,34 +197,109 @@ export function NewInviteModal({
               </Body>
             </View>
 
-            {emailStatusToast && (
+            {/* STATUS DO ENVIO AUTOMÁTICO */}
+            {autoEmailResult?.success ? (
               <View
                 style={{
                   backgroundColor: 'rgba(198, 244, 50, 0.15)',
-                  padding: 10,
+                  padding: 14,
                   borderRadius: radius.md,
                   borderWidth: 1,
                   borderColor: t.accent,
+                  marginBottom: 10,
+                  gap: 4,
+                }}
+              >
+                <Body style={{ color: t.accent, fontWeight: '800', fontSize: 14 } as any}>
+                  ⚡ E-mail enviado 100% de forma automática!
+                </Body>
+                <Body muted style={{ fontSize: 12, color: '#FFFFFF' } as any}>
+                  O aluno recebeu o convite com o código na caixa de entrada ({studentEmail}).
+                </Body>
+              </View>
+            ) : autoEmailResult?.needsConfig ? (
+              <View
+                style={{
+                  backgroundColor: 'rgba(234, 179, 8, 0.12)',
+                  padding: 14,
+                  borderRadius: radius.md,
+                  borderWidth: 1,
+                  borderColor: '#EAB308',
+                  marginBottom: 10,
+                  gap: 8,
+                }}
+              >
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text style={{ color: '#EAB308', fontWeight: '800', fontSize: 13 }}>
+                    ⚙️ Envio Automático por E-mail (Servidor)
+                  </Text>
+                  <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, backgroundColor: '#EAB30825' }}>
+                    <Text style={{ color: '#EAB308', fontSize: 10, fontWeight: 'bold' }}>GRATUITO</Text>
+                  </View>
+                </View>
+
+                <Body muted style={{ fontSize: 12 } as any}>
+                  Para os e-mails saírem sozinhos direto do servidor sem abrir o seu app de e-mail, ative a chave gratuita da API Resend (leva 1 minuto).
+                </Body>
+
+                <Button
+                  title={showConfigApiKey ? 'Ocultar Configuração' : 'Ativar Envio Automático com Chave Resend ⚡'}
+                  variant="neonOutline"
+                  onPress={() => setShowConfigApiKey(!showConfigApiKey)}
+                />
+
+                {showConfigApiKey && (
+                  <View style={{ marginTop: 8, gap: 8, backgroundColor: t.surfaceElevated, padding: 12, borderRadius: 10 }}>
+                    <TextInputField
+                      label="Sua Chave da API Resend (ex: re_123456...)"
+                      value={apiKeyInput}
+                      onChangeText={setApiKeyInput}
+                      placeholder="re_..."
+                      autoCapitalize="none"
+                    />
+                    <Button title="Salvar Chave & Disparar E-mail Agora" onPress={handleSaveApiKey} />
+                    <Body muted style={{ fontSize: 11 } as any}>
+                      Não tem chave ainda? Crie uma grátis em resend.com (até 3.000 e-mails/mês sem custo).
+                    </Body>
+                  </View>
+                )}
+              </View>
+            ) : autoEmailResult && !autoEmailResult.success ? (
+              <View
+                style={{
+                  backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                  padding: 10,
+                  borderRadius: radius.md,
+                  borderWidth: 1,
+                  borderColor: '#EF4444',
                   marginBottom: 8,
                 }}
               >
-                <Body style={{ color: t.accent, fontWeight: '700', fontSize: 13 } as any}>
-                  ✓ {emailStatusToast}
+                <Body style={{ color: '#EF4444', fontWeight: '700', fontSize: 12 } as any}>
+                  ⚠️ {autoEmailResult.message}
                 </Body>
+              </View>
+            ) : (
+              <View style={{ padding: 8, alignItems: 'center' }}>
+                <Body muted style={{ fontSize: 12 } as any}>Enviando e-mail automaticamente para o aluno...</Body>
               </View>
             )}
 
-            {/* BOTÕES DE ENVIO IMEDIATO */}
+            {/* BOTÕES DE ENVIO ADICIONAIS / WHATSAPP */}
             <View style={{ gap: 8, marginVertical: 6 }}>
               <Button
-                title="✉️ Enviar / Reenviar E-mail de Convite"
-                onPress={() => handleSendEmail(generatedCode)}
-              />
-              <Button
-                title="💬 Enviar Convite pelo WhatsApp"
+                title="💬 Enviar Também pelo WhatsApp"
                 variant="neonOutline"
                 onPress={() => handleSendWhatsApp(generatedCode)}
               />
+              <Pressable
+                onPress={() => handleSendManualEmail(generatedCode)}
+                style={{ paddingVertical: 6, alignItems: 'center' }}
+              >
+                <Body muted style={{ fontSize: 12, textDecorationLine: 'underline' } as any}>
+                  Ou abrir cliente de e-mail do aparelho (opção alternativa)
+                </Body>
+              </Pressable>
             </View>
 
             {/* Resumo do Contrato */}
@@ -300,7 +424,7 @@ export function NewInviteModal({
 
             <View style={{ marginVertical: 8 }}>
               <Button
-                title={loading ? 'Cadastrando aluno...' : 'Finalizar Cadastro & Gerar Convite ⚡'}
+                title={loading ? 'Cadastrando aluno...' : 'Finalizar Cadastro & Enviar Convite Automático ⚡'}
                 onPress={handleGenerate}
                 disabled={loading}
               />
