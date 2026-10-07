@@ -400,8 +400,14 @@ export function AssessmentReport({
         />
       </View>
 
-      {/* ABA 1: TOPOGRAFIA 3D */}
-      {tab === 'mapa3d' && bio && <Body3DSegmentMap bio={bio} />}
+      {/* ABA 1: TOPOGRAFIA 3D VIVA E FOCOS DE AÇÃO */}
+      {tab === 'mapa3d' && bio && (
+        <Body3DSegmentMap
+          bio={bio}
+          skinfolds={currentAssessment.skinfolds}
+          goal="Hipertrofia Limpa com Redução de Gordura Central"
+        />
+      )}
 
       {/* ABA 2: FOTOS DA AVALIAÇÃO COM UPLOAD */}
       {tab === 'fotos' && (

@@ -156,19 +156,19 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    paddingVertical: 10,
-                    paddingHorizontal: 12,
-                    borderRadius: 10,
-                    backgroundColor: isActive ? `${t.accent}18` : pressed ? t.surfaceElevated : 'transparent',
-                    borderLeftWidth: isActive ? 3 : 0,
-                    borderLeftColor: t.accent,
+                    paddingVertical: 11,
+                    paddingHorizontal: 14,
+                    borderRadius: 12,
+                    backgroundColor: isActive ? 'rgba(198, 244, 50, 0.1)' : pressed ? t.surfaceElevated : 'transparent',
+                    borderWidth: 1,
+                    borderColor: isActive ? 'rgba(198, 244, 50, 0.3)' : 'transparent',
                   })}
                 >
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                    <Text style={{ fontSize: 16 }}>{item.icon}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <Text style={{ fontSize: 17 }}>{item.icon}</Text>
                     <Text
                       style={{
-                        color: isActive ? t.accent : t.text,
+                        color: isActive ? t.accent : '#D1D5DB',
                         fontSize: 13,
                         fontWeight: isActive ? '700' : '500',
                       }}
@@ -181,7 +181,7 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
                     <View
                       style={{
                         backgroundColor: isActive ? t.accent : t.surfaceCard,
-                        paddingHorizontal: 6,
+                        paddingHorizontal: 7,
                         paddingVertical: 2,
                         borderRadius: 6,
                       }}
@@ -197,48 +197,71 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
           </View>
         </View>
 
-        {/* Rodapé da Sidebar: Perfil Ativo e Botão de Sair */}
-        <View
-          style={{
-            borderTopWidth: 1,
-            borderTopColor: t.border,
-            paddingTop: 16,
-            gap: 10,
-          }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Image
-              source={{
-                uri: isTrainer
-                  ? 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&auto=format&fit=crop&q=80'
-                  : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
-              }}
-              style={{ width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: t.accent }}
-            />
-            <View style={{ flex: 1 }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: 'bold' }} numberOfLines={1}>
-                {isTrainer ? trainer.name : profile?.name ?? 'Samuel Ferreira'}
-              </Text>
-              <Text style={{ color: isTrainer ? t.accent : t.muted, fontSize: 11, fontWeight: '600' }}>
-                {isTrainer ? 'Treinador Titular' : 'Aluno VIP'}
-              </Text>
-            </View>
-          </View>
-
-          <Pressable
-            onPress={async () => {
-              await signOut();
-              router.replace('/');
-            }}
+        {/* Rodapé da Sidebar: Card Motivacional Clássico (Idêntico ao Tablet) + Perfil */}
+        <View style={{ gap: 14 }}>
+          {/* Card com a citação de Abraham Lincoln do print */}
+          <View
             style={{
-              backgroundColor: t.surfaceElevated,
-              paddingVertical: 7,
-              borderRadius: 8,
-              alignItems: 'center',
+              backgroundColor: '#121721',
+              borderRadius: 14,
+              padding: 14,
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.06)',
+              gap: 6,
             }}
           >
-            <Text style={{ color: t.muted, fontSize: 11, fontWeight: '600' }}>Encerrar Sessão</Text>
-          </Pressable>
+            <Text style={{ color: t.accent, fontSize: 24, fontWeight: '900', lineHeight: 22 }}>“</Text>
+            <Text style={{ color: '#9CA3AF', fontSize: 11, fontStyle: 'italic', lineHeight: 16 }}>
+              A disciplina é a escolha entre o que você quer agora e o que você mais quer na vida.
+            </Text>
+            <Text style={{ color: t.accent, fontSize: 10, fontWeight: '700' }}>
+              — Abraham Lincoln
+            </Text>
+          </View>
+
+          {/* Perfil Ativo e Botão de Sair */}
+          <View
+            style={{
+              borderTopWidth: 1,
+              borderTopColor: t.border,
+              paddingTop: 12,
+              gap: 10,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <Image
+                source={{
+                  uri: isTrainer
+                    ? 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&auto=format&fit=crop&q=80'
+                    : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+                }}
+                style={{ width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: t.accent }}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: 'bold' }} numberOfLines={1}>
+                  {isTrainer ? trainer.name : profile?.name ?? 'Samuel Ferreira'}
+                </Text>
+                <Text style={{ color: isTrainer ? t.accent : t.muted, fontSize: 11, fontWeight: '600' }}>
+                  {isTrainer ? 'Treinador Titular' : 'Aluno VIP'}
+                </Text>
+              </View>
+            </View>
+
+            <Pressable
+              onPress={async () => {
+                await signOut();
+                router.replace('/');
+              }}
+              style={{
+                backgroundColor: t.surfaceElevated,
+                paddingVertical: 8,
+                borderRadius: 8,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ color: t.muted, fontSize: 11, fontWeight: '600' }}>Encerrar Sessão</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
 
