@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   addFinancialTransaction,
@@ -12,6 +12,7 @@ import {
   updateTransactionStatus,
 } from '../../src/data/financialStore';
 import type { FinancialTransaction, TrainerProduct } from '../../src/domain/types';
+import { pullTransactionsFromCloud } from '../../src/lib/syncService';
 import { Body, Button, Card, Chip, Label, Screen, TextInputField, Title } from '../../src/ui/components';
 import { colors, radius, spacing, useTheme } from '../../src/ui/theme';
 
@@ -25,6 +26,20 @@ export default function Financeiro() {
   const [pixKey, setPixKey] = useState<string>(getTrainerPixKey());
   const [showPixModal, setShowPixModal] = useState<boolean>(false);
   const [pixInput, setPixInput] = useState<string>(getTrainerPixKey());
+
+  // Puxa transações da nuvem ao abrir a tela
+  useEffect(() => {
+    pullTransactionsFromCloud().then((cloudTxs) => {
+      if (cloudTxs.length > 0) {
+        setTransactions((prev) => {
+          const ids = new Set(prev.map((p) => p.id));
+          const newOnes = cloudTxs.filter((ct) => !ids.has(ct.id));
+          return [...newOnes, ...prev];
+        });
+        setSummary(calculateFinancialSummary());
+      }
+    }).catch(() => {});
+  }, []);
 
   // Modal de Nova Transação
   const [showNewTxModal, setShowNewTxModal] = useState(false);

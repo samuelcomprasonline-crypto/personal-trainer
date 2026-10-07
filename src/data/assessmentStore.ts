@@ -1,4 +1,5 @@
 import type { AssessmentPhotos, BioimpedanceAssessment, PhysicalAssessment } from '../domain/types';
+import { syncAssessmentToCloud, pullAssessmentsFromCloud } from '../lib/syncService';
 import { samuelAssessment } from './seed';
 
 // Avaliação baseline anterior do Samuel (10/01/2026) para permitir comparativo Antes x Depois
@@ -207,7 +208,7 @@ export function getLatestAssessmentForStudent(studentNameOrId: string): Physical
 }
 
 /**
- * Salva ou atualiza uma avaliação física.
+ * Salva ou atualiza uma avaliação física (localmente e na nuvem).
  */
 export function saveOrUpdateAssessment(assessment: PhysicalAssessment): PhysicalAssessment {
   const idx = assessmentsMemory.findIndex((a) => a.id === assessment.id);
@@ -216,6 +217,12 @@ export function saveOrUpdateAssessment(assessment: PhysicalAssessment): Physical
   } else {
     assessmentsMemory.push({ ...assessment });
   }
+
+  // Sincronização em segundo plano com o Supabase
+  syncAssessmentToCloud(assessment).catch((err) => {
+    console.warn('Falha silenciosa ao sincronizar avaliação com o Supabase:', err);
+  });
+
   return assessment;
 }
 
@@ -229,6 +236,10 @@ export function updateAssessmentPhotos(assessmentId: string, photos: AssessmentP
       ...assessmentsMemory[idx],
       photos: { ...photos },
     };
+
+    // Sincroniza fotos com a nuvem
+    syncAssessmentToCloud(assessmentsMemory[idx]).catch(() => {});
+
     return assessmentsMemory[idx];
   }
   return null;
@@ -250,6 +261,10 @@ export function updateBioimpedanceData(
         ...updates,
       },
     };
+
+    // Sincroniza bioimpedância com a nuvem
+    syncAssessmentToCloud(assessmentsMemory[idx]).catch(() => {});
+
     return assessmentsMemory[idx];
   }
   return null;

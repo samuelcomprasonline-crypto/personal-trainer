@@ -163,3 +163,250 @@ export async function pullRemoteLogs(studentId: string): Promise<SessionLog[]> {
     return [];
   }
 }
+
+/**
+ * -------------------------------------------------------------
+ * 1. SINCRONIZAÇÃO DE ALUNOS (STUDENTS)
+ * -------------------------------------------------------------
+ */
+export async function syncStudentToCloud(student: {
+  studentId: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  monthlyPrice?: number;
+  dueDay?: number;
+  paymentStatus?: string;
+}): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  try {
+    const { error } = await supabase.from('students').upsert({
+      id: student.studentId,
+      name: student.name,
+      email: student.email ?? null,
+      phone: student.phone ?? null,
+      monthly_fee: student.monthlyPrice ?? 250,
+      billing_due_day: student.dueDay ?? 10,
+      status: student.paymentStatus === 'atrasado' ? 'pendente' : 'ativo',
+      updated_at: new Date().toISOString(),
+    });
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+export async function pullStudentsFromCloud(): Promise<
+  Array<{
+    studentId: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    monthlyPrice: number;
+    dueDay: number;
+    paymentStatus: 'pago' | 'pendente' | 'atrasado';
+  }>
+> {
+  if (!isSupabaseConfigured) return [];
+  try {
+    const { data, error } = await supabase
+      .from('students')
+      .select('id, name, email, phone, monthly_fee, billing_due_day, status')
+      .order('created_at', { ascending: false });
+
+    if (error || !data) return [];
+
+    return data.map((row) => ({
+      studentId: row.id,
+      name: row.name,
+      email: row.email ?? undefined,
+      phone: row.phone ?? undefined,
+      monthlyPrice: Number(row.monthly_fee) || 250,
+      dueDay: Number(row.billing_due_day) || 10,
+      paymentStatus: (row.status === 'pendente' ? 'pendente' : 'pago') as 'pago' | 'pendente' | 'atrasado',
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * -------------------------------------------------------------
+ * 2. SINCRONIZAÇÃO DE AVALIAÇÕES FÍSICAS (ASSESSMENTS)
+ * -------------------------------------------------------------
+ */
+export async function syncAssessmentToCloud(assessment: any): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  try {
+    const bio = assessment.bioimpedance;
+    const { error } = await supabase.from('assessments').upsert({
+      id: assessment.id,
+      student_id: assessment.studentId || 'samuel',
+      date: assessment.data || new Date().toISOString(),
+      peso_kg: bio?.pesoKg ?? null,
+      altura_cm: bio?.alturaCm ?? null,
+      perc_gordura: bio?.percGordura ?? null,
+      massa_muscular_kg: bio?.massaMuscularEsqueleticaKg ?? null,
+      agua_total_kg: bio?.aguaTotalKg ?? null,
+      gordura_visceral: bio?.gorduraVisceralNivel ?? null,
+      bmr_kcal: bio?.bmrKcal ?? null,
+      imc: bio?.imc ?? null,
+      massa_gorda_kg: bio?.massaGordaKg ?? null,
+      data_bioimpedance: bio ?? null,
+      data_skinfolds: assessment.skinfolds ?? null,
+      data_circumferences: assessment.circumferences ?? null,
+      photos: assessment.photos ?? null,
+    });
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+export async function pullAssessmentsFromCloud(studentId: string): Promise<any[]> {
+  if (!isSupabaseConfigured) return [];
+  try {
+    const { data, error } = await supabase
+      .from('assessments')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('date', { ascending: true });
+
+    if (error || !data) return [];
+    return data.map((row) => ({
+      id: row.id,
+      studentId: row.student_id,
+      trainerId: 'trainer-julio-balestrin',
+      data: row.date,
+      photos: row.photos,
+      bioimpedance: row.data_bioimpedance,
+      circumferences: row.data_circumferences,
+      skinfolds: row.data_skinfolds,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * -------------------------------------------------------------
+ * 3. SINCRONIZAÇÃO DE TRANSAÇÕES FINANCEIRAS (FINANCEIRO)
+ * -------------------------------------------------------------
+ */
+export async function syncTransactionToCloud(tx: {
+  id: string;
+  studentId?: string;
+  studentName: string;
+  productId?: string;
+  productTitle: string;
+  category: string;
+  amount: number;
+  dueDate?: string;
+  date?: string;
+  status: 'pago' | 'pendente' | 'atrasado';
+  notes?: string;
+}): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  try {
+    const { error } = await supabase.from('financial_transactions').upsert({
+      id: tx.id,
+      student_id: tx.studentId ?? null,
+      student_name: tx.studentName,
+      product_id: tx.productId ?? null,
+      product_title: tx.productTitle,
+      category: tx.category,
+      amount: tx.amount,
+      due_date: tx.dueDate ?? tx.date ?? new Date().toLocaleDateString('pt-BR'),
+      paid_at: tx.status === 'pago' ? (tx.date ?? new Date().toISOString()) : null,
+      status: tx.status === 'pago' ? 'pago' : 'pendente',
+      notes: tx.notes ?? null,
+    });
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+export async function pullTransactionsFromCloud(): Promise<any[]> {
+  if (!isSupabaseConfigured) return [];
+  try {
+    const { data, error } = await supabase
+      .from('financial_transactions')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error || !data) return [];
+    return data.map((row) => ({
+      id: row.id,
+      studentId: row.student_id ?? undefined,
+      studentName: row.student_name,
+      productId: row.product_id ?? undefined,
+      productTitle: row.product_title,
+      category: row.category,
+      amount: Number(row.amount),
+      dueDate: row.due_date,
+      paidAt: row.paid_at ?? undefined,
+      status: row.status,
+      pixKey: row.pix_key ?? undefined,
+      notes: row.notes ?? undefined,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * -------------------------------------------------------------
+ * 4. UPLOAD REAL DE FOTOS PARA O SUPABASE STORAGE
+ * -------------------------------------------------------------
+ */
+export async function uploadAssessmentPhotoToStorage(
+  uriOrBase64: string,
+  studentId: string,
+  photoType: 'frente' | 'costas' | 'perfil_direito' | 'perfil_esquerdo' | 'balanca'
+): Promise<string | null> {
+  if (!isSupabaseConfigured) return null;
+  try {
+    const fileName = `${studentId}_${photoType}_${Date.now()}.jpg`;
+    const filePath = `assessments/${studentId}/${fileName}`;
+
+    let body: any;
+
+    if (uriOrBase64.startsWith('data:image')) {
+      // Converte data url base64 para Uint8Array
+      const base64Data = uriOrBase64.split(',')[1];
+      const binaryString = atob(base64Data);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      body = bytes.buffer;
+    } else {
+      // Se for URI remota ou local blob
+      const response = await fetch(uriOrBase64);
+      body = await response.blob();
+    }
+
+    const { error: uploadError } = await supabase.storage
+      .from('assessment-photos')
+      .upload(filePath, body, {
+        contentType: 'image/jpeg',
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.warn('Erro ao enviar foto para o Supabase Storage:', uploadError.message);
+      return null;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from('assessment-photos')
+      .getPublicUrl(filePath);
+
+    return publicUrlData?.publicUrl ?? null;
+  } catch (err) {
+    console.warn('Falha no upload da foto de avaliação:', err);
+    return null;
+  }
+}
+

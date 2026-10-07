@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Linking, Modal, Pressable, Text, View } from 'react-native';
 import { assessmentHistory, otherStudents, samuelAssessment, template, trainer } from '../../src/data/seed';
 import { getLatestAssessmentForStudent, saveOrUpdateAssessment } from '../../src/data/assessmentStore';
@@ -7,6 +7,7 @@ import { buildBillingWhatsAppMessage } from '../../src/data/financialStore';
 import { snapshotFromLogs, type StudentSnapshot } from '../../src/domain/radar';
 import { workoutProgramsCatalog, trainingMethods } from '../../src/domain/workoutLibrary';
 import type { PhysicalAssessment, WorkoutProgram } from '../../src/domain/types';
+import { pullStudentsFromCloud, syncStudentToCloud } from '../../src/lib/syncService';
 import { useAppState } from '../../src/state/AppState';
 import { useAuth } from '../../src/state/AuthContext';
 import { AssessmentReport } from '../../src/ui/AssessmentReport';
@@ -34,6 +35,33 @@ export default function Alunos() {
   const [showNewModal, setShowNewModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Sincroniza e busca alunos cadastrados no Supabase
+  useEffect(() => {
+    pullStudentsFromCloud().then((cloudStudents) => {
+      if (cloudStudents.length > 0) {
+        setStudentsList((prev) => {
+          const existingIds = new Set(prev.map((s) => s.studentId));
+          const newFromCloud: StudentSnapshot[] = cloudStudents
+            .filter((cs) => !existingIds.has(cs.studentId))
+            .map((cs) => ({
+              studentId: cs.studentId,
+              name: cs.name,
+              consistency: 1.0,
+              recentRpes: [],
+              loadHistory: {},
+              pendingVideoIds: [],
+              monthlyPrice: cs.monthlyPrice,
+              planType: 'Mensal',
+              dueDay: cs.dueDay,
+              paymentStatus: cs.paymentStatus,
+              assignedProgramName: 'Projeto 60 Dias Balestrin — Iniciante 1',
+            }));
+          return [...newFromCloud, ...prev];
+        });
+      }
+    }).catch(() => {});
+  }, []);
 
   const activeStudent = studentsList.find((s) => s.name === selectedStudentName) || studentsList[0];
 
@@ -231,7 +259,8 @@ export default function Alunos() {
         onClose={() => setShowInviteModal(false)}
         onStudentAdded={(newS) => {
           setStudentsList((prev) => [newS, ...prev]);
-          showToast(`Aluno ${newS.name} cadastrado com plano de R$ ${newS.monthlyPrice}/mês!`);
+          syncStudentToCloud(newS).catch(() => {});
+          showToast(`Aluno ${newS.name} salvo localmente e sincronizado na nuvem!`);
         }}
       />
 

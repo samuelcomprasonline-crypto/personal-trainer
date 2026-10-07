@@ -4,6 +4,7 @@ import type {
   ProductServiceCategory,
   TrainerProduct,
 } from '../domain/types';
+import { syncTransactionToCloud } from '../lib/syncService';
 
 export const initialTrainerProducts: TrainerProduct[] = [
   {
@@ -192,6 +193,21 @@ export function getFinancialTransactions(): FinancialTransaction[] {
 
 export function addFinancialTransaction(tx: FinancialTransaction): FinancialTransaction {
   transactionsMemory.unshift(tx);
+
+  // Sincroniza transação com o Supabase
+  syncTransactionToCloud({
+    id: tx.id,
+    studentName: tx.studentName,
+    productId: tx.productId,
+    productTitle: tx.productName,
+    category: tx.category,
+    amount: tx.amount,
+    dueDate: tx.dueDate,
+    date: tx.date,
+    status: tx.status,
+    notes: tx.notes,
+  }).catch(() => {});
+
   return tx;
 }
 
@@ -202,6 +218,21 @@ export function updateTransactionStatus(
   const item = transactionsMemory.find((t) => t.id === id);
   if (item) {
     item.status = newStatus;
+
+    // Sincroniza atualização no Supabase
+    syncTransactionToCloud({
+      id: item.id,
+      studentName: item.studentName,
+      productId: item.productId,
+      productTitle: item.productName,
+      category: item.category,
+      amount: item.amount,
+      dueDate: item.dueDate,
+      date: item.date,
+      status: item.status,
+      notes: item.notes,
+    }).catch(() => {});
+
     return item;
   }
   return null;

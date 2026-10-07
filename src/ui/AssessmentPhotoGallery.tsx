@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { AssessmentPhotos } from '../domain/types';
+import { uploadAssessmentPhotoToStorage } from '../lib/syncService';
 import { Body, Button, Card, Chip, Label, Title } from './components';
 import { colors, radius, spacing, typography, useTheme } from './theme';
 
@@ -60,10 +61,26 @@ export function AssessmentPhotoGallery({
         const file = e.target?.files?.[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = (event) => {
+          reader.onload = async (event) => {
             const dataUrl = event.target?.result as string;
             if (dataUrl) {
+              // Aplica imediatamente para a UI não travar
               applyUploadedImage(angle, dataUrl);
+
+              // Faz upload permanente para o bucket assessment-photos do Supabase
+              const cloudUrl = await uploadAssessmentPhotoToStorage(
+                dataUrl,
+                'aluno',
+                angle === 'perfilDireito'
+                  ? 'perfil_direito'
+                  : angle === 'perfilEsquerdo'
+                  ? 'perfil_esquerdo'
+                  : angle
+              );
+
+              if (cloudUrl) {
+                applyUploadedImage(angle, cloudUrl);
+              }
             }
           };
           reader.readAsDataURL(file);
