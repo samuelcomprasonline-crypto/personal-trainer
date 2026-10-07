@@ -34,7 +34,7 @@ export default function Alunos() {
   me.paymentStatus = 'pago';
   me.assignedProgramName = 'Projeto 60 Dias Balestrin — Iniciante 1';
 
-  const [hideDemo, setHideDemo] = useState(true);
+  const [hideDemo, setHideDemo] = useState(false);
   const [customStudents, setCustomStudents] = useState<StudentSnapshot[]>([]);
   const [selectedStudentName, setSelectedStudentName] = useState<string | null>(null);
   const [studentTab, setStudentTab] = useState<'laudo' | 'treino' | 'nutricao' | 'recuperacao' | 'financeiro'>('laudo');
@@ -406,7 +406,7 @@ export default function Alunos() {
         animationType="slide"
         onRequestClose={() => setSelectedStudentName(null)}
       >
-        <Screen>
+        <Screen hideNav>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <Pressable
               accessibilityRole="button"

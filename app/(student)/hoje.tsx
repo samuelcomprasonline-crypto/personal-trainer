@@ -630,7 +630,7 @@ export default function Hoje() {
 
           {/* Botão Ver Histórico Completo */}
           <Pressable
-            onPress={() => router.push('/progresso')}
+            onPress={() => router.navigate('/progresso')}
             style={({ pressed }) => ({
               backgroundColor: '#1E2533',
               borderRadius: 12,
@@ -715,7 +715,7 @@ export default function Hoje() {
           </View>
 
           <Pressable
-            onPress={() => router.push('/progresso')}
+            onPress={() => router.navigate('/progresso')}
             style={({ pressed }) => ({
               backgroundColor: '#1E2533',
               borderRadius: 12,
@@ -789,7 +789,7 @@ export default function Hoje() {
           </View>
 
           <Pressable
-            onPress={() => router.push('/progresso')}
+            onPress={() => router.navigate('/progresso')}
             style={({ pressed }) => ({
               backgroundColor: '#1E2533',
               borderRadius: 12,

@@ -75,6 +75,13 @@ export default function TrainerTabs() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="prescrever-dieta"
+        options={{
+          href: null,
+          title: 'Prescrever Treino & Dieta',
+        }}
+      />
     </Tabs>
   );
 }

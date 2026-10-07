@@ -27,9 +27,10 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
   // Menus estritamente específicos para o Treinador (Sem misturar com visão de aluno)
   const trainerNavItems: NavItem[] = [
     { label: 'Radar & Alertas do Personal', icon: '📡', route: '/radar', badge: 'ALERTAS' },
+    { label: 'Prescrever Treino & Dieta', icon: '⚡', route: '/prescrever-dieta', badge: 'PRESCREVER' },
     { label: 'Alunos & Prontuários 360°', icon: '👥', route: '/alunos', badge: 'GESTÃO' },
-    { label: 'Central de Treinos & Prescrição', icon: '📚', route: '/biblioteca', badge: 'PRO' },
-    { label: 'Financeiro & Fluxo de Caixa', icon: '💰', route: '/financeiro', badge: 'NOVO' },
+    { label: 'Central de Treinos & Metodologia', icon: '📚', route: '/biblioteca', badge: 'PRO' },
+    { label: 'Financeiro & Fluxo de Caixa', icon: '💰', route: '/financeiro', badge: 'FINANÇAS' },
   ];
 
   // Menus estritamente específicos para o Aluno
@@ -151,7 +152,13 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
               return (
                 <Pressable
                   key={index}
-                  onPress={() => router.push(item.route as any)}
+                  onPress={() => {
+                    try {
+                      router.navigate(item.route as any);
+                    } catch {
+                      router.replace(item.route as any);
+                    }
+                  }}
                   style={({ pressed }) => ({
                     flexDirection: 'row',
                     alignItems: 'center',

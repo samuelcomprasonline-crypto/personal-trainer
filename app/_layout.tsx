@@ -31,6 +31,8 @@ export default function RootLayout() {
         <StatusBar style="auto" />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
+          <Stack.Screen name="(trainer)" options={{ headerShown: false }} />
+          <Stack.Screen name="(student)" options={{ headerShown: false }} />
           <Stack.Screen name="treino" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="login" options={{ presentation: 'card' }} />
           <Stack.Screen name="cadastro" options={{ presentation: 'card' }} />
