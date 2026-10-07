@@ -33,6 +33,15 @@ export default function TrainerTabs() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="financeiro"
+        options={{
+          title: 'Financeiro',
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 18, color }}>💰</Text>
+          ),
+        }}
+      />
     </Tabs>
   );
 }

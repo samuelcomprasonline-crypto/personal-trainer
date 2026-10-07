@@ -348,4 +348,60 @@ export type RecoveryMetrics = {
   lastUpdated: string;
 };
 
+// -------------------------------------------------------------
+// Gestão Financeira, Produtos & Fluxo de Caixa do Personal
+// -------------------------------------------------------------
+
+export type ProductServiceCategory =
+  | 'presencial_full'
+  | 'presencial_parcial'
+  | 'consultoria_online'
+  | 'avaliacao_fisica'
+  | 'hora_aula_avulsa'
+  | 'dieta_protocolo'
+  | 'despesa_operacional';
+
+export type TrainerProduct = {
+  id: string;
+  name: string;
+  category: ProductServiceCategory;
+  defaultPrice: number;
+  billingType: 'mensal' | 'unico' | 'hora';
+  hoursEstimatedPerMonth: number;
+  description: string;
+};
+
+export type FinancialTransaction = {
+  id: string;
+  studentName: string;
+  productId: string;
+  productName: string;
+  category: ProductServiceCategory;
+  amount: number;
+  date: string;
+  dueDate?: string;
+  status: 'pago' | 'pendente' | 'atrasado';
+  type: 'receita' | 'despesa';
+  notes?: string;
+};
+
+export type FinancialSummary = {
+  totalExpectedRevenue: number;
+  totalReceivedRevenue: number;
+  totalPendingRevenue: number;
+  totalExpenses: number;
+  netProfit: number;
+  totalHoursWorked: number;
+  effectiveHourlyRate: number;
+  revenueByProduct: {
+    productId: string;
+    productName: string;
+    category: ProductServiceCategory;
+    totalAmount: number;
+    count: number;
+    percentage: number;
+  }[];
+};
+
+
 

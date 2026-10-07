@@ -29,6 +29,7 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
     { label: 'Radar & Alertas do Personal', icon: '📡', route: '/radar', badge: 'ALERTAS' },
     { label: 'Alunos & Prontuários 360°', icon: '👥', route: '/alunos', badge: 'GESTÃO' },
     { label: 'Central de Treinos & Prescrição', icon: '📚', route: '/biblioteca', badge: 'PRO' },
+    { label: 'Financeiro & Fluxo de Caixa', icon: '💰', route: '/financeiro', badge: 'NOVO' },
   ];
 
   // Menus estritamente específicos para o Aluno
