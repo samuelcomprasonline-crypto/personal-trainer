@@ -9,7 +9,7 @@ import { colors, radius, spacing, useTheme } from '../src/ui/theme';
 
 export default function Entrada() {
   const t = useTheme();
-  const { user, profile, loading, signIn, signUp, enterDemoMode } = useAuth();
+  const { user, profile, loading, signIn, signUp, signOut, enterDemoMode } = useAuth();
 
   // Abas do Portal: Login vs Cadastro
   const [authMode, setAuthMode] = useState<'login' | 'cadastro'>('login');
@@ -26,16 +26,7 @@ export default function Entrada() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Redirecionamento automático caso já esteja autenticado
-  useEffect(() => {
-    if (profile) {
-      if (profile.role === 'trainer') {
-        router.replace('/radar');
-      } else {
-        router.replace('/hoje');
-      }
-    }
-  }, [profile]);
+  // Não redirecionamos silenciosamente para garantir que a tela de login seja sempre acessível e controlada pelo usuário
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -118,6 +109,65 @@ export default function Entrada() {
             </Text>
           </View>
         </View>
+
+        {/* 1.1 BANNER DE SESSÃO ATIVA (SE JÁ HOUVER USUÁRIO CONECTADO) */}
+        {profile && (
+          <Card
+            style={{
+              backgroundColor: 'rgba(0, 240, 255, 0.08)',
+              borderColor: 'rgba(0, 240, 255, 0.35)',
+              borderWidth: 1,
+              padding: 14,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 10,
+            }}
+          >
+            <View style={{ flex: 1, minWidth: 180, gap: 2 }}>
+              <Text style={{ color: '#00F0FF', fontSize: 11, fontWeight: '800', letterSpacing: 0.5 }}>
+                SESSÃO ATIVA DETECTADA
+              </Text>
+              <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '700' }}>
+                {profile.name} • {profile.role === 'trainer' ? 'Treinador' : 'Aluno VIP'}
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
+              <Pressable
+                onPress={() => router.replace(profile.role === 'trainer' ? '/radar' : '/hoje')}
+                style={{
+                  backgroundColor: '#00F0FF',
+                  paddingHorizontal: 12,
+                  paddingVertical: 7,
+                  borderRadius: 8,
+                }}
+              >
+                <Text style={{ color: '#000000', fontSize: 12, fontWeight: '800' }}>
+                  Acessar Painel ➔
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={async () => {
+                  await signOut();
+                  setSuccessMessage('Sessão encerrada com sucesso.');
+                }}
+                style={{
+                  backgroundColor: 'rgba(255, 77, 109, 0.15)',
+                  borderColor: '#FF4D6D',
+                  borderWidth: 1,
+                  paddingHorizontal: 10,
+                  paddingVertical: 7,
+                  borderRadius: 8,
+                }}
+              >
+                <Text style={{ color: '#FF4D6D', fontSize: 12, fontWeight: '700' }}>
+                  Sair
+                </Text>
+              </Pressable>
+            </View>
+          </Card>
+        )}
 
         {/* 2. CARD PRINCIPAL DE AUTENTICAÇÃO */}
         <Card style={{ padding: 18, gap: 14 }}>

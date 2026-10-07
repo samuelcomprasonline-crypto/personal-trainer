@@ -11,6 +11,7 @@ import { AssessmentPhotoGallery } from '../../src/ui/AssessmentPhotoGallery';
 import { Body, Card, Chip, CircularProgress, Label, Screen, Title } from '../../src/ui/components';
 import { NutritionModule } from '../../src/ui/NutritionModule';
 import { RecoveryModule } from '../../src/ui/RecoveryModule';
+import { WorkoutHistoryView } from '../../src/ui/WorkoutHistoryView';
 import { useTheme } from '../../src/ui/theme';
 
 export default function Progresso() {
@@ -169,53 +170,7 @@ export default function Progresso() {
       )}
 
       {tab === 'treinos' && (
-        <View style={{ gap: 12 }}>
-          <Label>Histórico das Últimas Sessões</Label>
-          {recent.length === 0 ? (
-            <Card>
-              <Body muted>Nenhum treino concluído ainda. Ao finalizar uma sessão, o resumo aparecerá aqui.</Body>
-            </Card>
-          ) : (
-            recent.map((log) => {
-              const session = template.sessions.find((s) => s.id === log.templateSessionId);
-              return (
-                <Card key={log.id}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Title size={18}>{session?.name ?? 'Treino Concluído'}</Title>
-                    <View
-                      style={{
-                        backgroundColor: `${t.accent}20`,
-                        paddingHorizontal: 8,
-                        paddingVertical: 3,
-                        borderRadius: 999,
-                      }}
-                    >
-                      <Body style={{ color: t.accent, fontSize: 11, fontWeight: 'bold' } as any}>
-                        Semana {log.weekN}
-                      </Body>
-                    </View>
-                  </View>
-
-                  <Body muted style={{ fontSize: 13 } as any}>
-                    {new Date(log.completedAt).toLocaleDateString('pt-BR', {
-                      weekday: 'short',
-                      day: 'numeric',
-                      month: 'short',
-                    })}{' '}
-                    {log.rpe ? `• Esforço: ${log.rpe}/10` : ''}{' '}
-                    {log.mood ? `• Humor: ${log.mood === 'great' ? 'Ótimo' : 'Bem'}` : ''}
-                  </Body>
-
-                  {log.sets.length > 0 && (
-                    <Body style={{ color: t.accent, fontSize: 13, fontWeight: '600' } as any}>
-                      {log.sets.length} séries registradas (ex: {exerciseById(log.sets[0].exerciseId).name} @ {log.sets[0].loadKg} kg)
-                    </Body>
-                  )}
-                </Card>
-              );
-            })
-          )}
-        </View>
+        <WorkoutHistoryView />
       )}
     </Screen>
   );

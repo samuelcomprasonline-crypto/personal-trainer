@@ -369,7 +369,7 @@ export function AssessmentReport({
       {/* SELETOR DE ABAS PRINCIPAIS DO LAUDO */}
       <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
         <Chip
-          label="Topografia 3D"
+          label="🧬 Holograma 3D por Sexo"
           selected={tab === 'mapa3d'}
           onPress={() => setTab('mapa3d')}
         />

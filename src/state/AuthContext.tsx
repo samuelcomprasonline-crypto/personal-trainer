@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { generateInviteCode, normalizeInviteCode, validateInvite } from '../domain/invite';
 import type { StudentInvite, UserProfile, UserRole } from '../domain/types';
@@ -249,10 +250,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     try {
       await AsyncStorage.removeItem('@personal_trainer_user_profile');
+      await AsyncStorage.removeItem('@personal_trainer_demo');
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem('@personal_trainer_user_profile');
+        window.localStorage.removeItem('@personal_trainer_demo');
+      }
     } catch {}
     setUser(null);
     setProfile(null);
     setIsDemo(false);
+    if (typeof window !== 'undefined' && window.location) {
+      window.location.href = '/';
+    } else {
+      router.replace('/');
+    }
   };
 
   const enterDemoMode = (role: UserRole) => {

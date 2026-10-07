@@ -8,10 +8,12 @@ import { ExerciseVideoModal } from '../../src/ui/ExerciseVideoModal';
 import { NewWorkoutProgramModal } from '../../src/ui/NewWorkoutProgramModal';
 import { useTheme } from '../../src/ui/theme';
 
+import { WorkoutHistoryView } from '../../src/ui/WorkoutHistoryView';
+
 export default function Biblioteca() {
   const t = useTheme();
   const [programsList, setProgramsList] = useState<WorkoutProgram[]>([...workoutProgramsCatalog]);
-  const [tab, setTab] = useState<'programas' | 'metodos' | 'exercicios'>('programas');
+  const [tab, setTab] = useState<'programas' | 'metodos' | 'exercicios' | 'historico'>('programas');
   const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
   const [selectedArea, setSelectedArea] = useState<string>('todos');
   const [search, setSearch] = useState('');
@@ -92,6 +94,11 @@ export default function Biblioteca() {
             label="Biblioteca de Exercícios"
             selected={tab === 'exercicios'}
             onPress={() => setTab('exercicios')}
+          />
+          <Chip
+            label="Telemetria & Histórico Pro"
+            selected={tab === 'historico'}
+            onPress={() => setTab('historico')}
           />
         </View>
 
@@ -589,6 +596,11 @@ export default function Biblioteca() {
               </View>
             </View>
           </View>
+        )}
+
+        {/* ABA 4: HISTÓRICO & TELEMETRIA PRO (IDÊNTICO À REFERÊNCIA DO USUÁRIO) */}
+        {tab === 'historico' && (
+          <WorkoutHistoryView />
         )}
       </Screen>
 
