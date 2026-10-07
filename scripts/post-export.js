@@ -30,9 +30,20 @@ const indexPath = path.join(distDir, 'index.html');
 if (fs.existsSync(indexPath)) {
   let html = fs.readFileSync(indexPath, 'utf8');
 
+  // Redirecionamento instantâneo se acessado via GitHub Pages para o domínio oficial aurora-studio.vercel.app
+  const redirectScript = `
+    <script>
+      if (window.location.hostname.includes('github.io')) {
+        window.location.replace('https://aurora-studio.vercel.app' + window.location.search + window.location.hash);
+      }
+    </script>
+  `;
+
   // Adicionar base tag relativa se não existir
   if (!html.includes('<base')) {
-    html = html.replace('<head>', '<head>\n    <base href="./" />');
+    html = html.replace('<head>', `<head>${redirectScript}\n    <base href="./" />`);
+  } else {
+    html = html.replace('<head>', `<head>${redirectScript}`);
   }
 
   // Garantir que scripts usem caminhos relativos
