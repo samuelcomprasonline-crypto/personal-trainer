@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 import { assessmentHistory, otherStudents, samuelAssessment, template, trainer } from '../../src/data/seed';
+import { getLatestAssessmentForStudent, saveOrUpdateAssessment } from '../../src/data/assessmentStore';
 import { snapshotFromLogs, type StudentSnapshot } from '../../src/domain/radar';
 import { workoutProgramsCatalog, trainingMethods } from '../../src/domain/workoutLibrary';
 import type { PhysicalAssessment, WorkoutProgram } from '../../src/domain/types';
@@ -31,7 +32,6 @@ export default function Alunos() {
   const [studentTab, setStudentTab] = useState<'laudo' | 'treino' | 'nutricao' | 'recuperacao' | 'financeiro'>('laudo');
   const [showNewModal, setShowNewModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [currentAssessment, setCurrentAssessment] = useState(samuelAssessment);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const activeStudent = studentsList.find((s) => s.name === selectedStudentName) || studentsList[0];
@@ -42,7 +42,7 @@ export default function Alunos() {
   };
 
   const handleSaveAssessment = (newAss: PhysicalAssessment) => {
-    setCurrentAssessment(newAss);
+    saveOrUpdateAssessment(newAss);
     if (newAss.bioimpedance) {
       assessmentHistory.push({
         data: new Date().toLocaleDateString('pt-BR'),
@@ -51,7 +51,7 @@ export default function Alunos() {
         percGordura: newAss.bioimpedance.percGordura,
       });
     }
-    showToast('Nova avaliação física salva com sucesso!');
+    showToast(`Avaliação de ${newAss.studentId || selectedStudentName || 'aluno'} salva com sucesso!`);
   };
 
   const handleApplyProgramToStudent = (prog: WorkoutProgram) => {
@@ -288,11 +288,17 @@ export default function Alunos() {
             />
           </View>
 
-          {/* ABA 1: LAUDO CLÍNICO */}
+          {/* ABA 1: LAUDO CLÍNICO & COMPARTIVO CONECTADO AO ALUNO */}
           {studentTab === 'laudo' && (
             <AssessmentReport
+              key={selectedStudentName}
               studentName={selectedStudentName ?? 'Samuel Ferreira'}
-              assessment={currentAssessment}
+              studentId={activeStudent?.studentId}
+              assessment={getLatestAssessmentForStudent(selectedStudentName ?? 'Samuel Ferreira')}
+              onAssessmentChange={(updated) => {
+                saveOrUpdateAssessment(updated);
+                showToast(`Avaliação de ${selectedStudentName} sincronizada!`);
+              }}
             />
           )}
 

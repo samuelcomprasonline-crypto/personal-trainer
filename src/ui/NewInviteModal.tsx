@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Linking, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { workoutProgramsCatalog } from '../domain/workoutLibrary';
 import type { StudentSnapshot } from '../domain/radar';
 import { useAuth } from '../state/AuthContext';
@@ -26,6 +26,34 @@ export function NewInviteModal({
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailStatusToast, setEmailStatusToast] = useState<string | null>(null);
+
+  const getInviteMessage = (code: string) => {
+    const nome = studentName.trim() || 'Aluno';
+    return `Olá ${nome}! Seu acesso à consultoria Personal Trainer foi liberado!\n\nPlano: ${planType} (R$ ${monthlyPrice}/mês)\nTreino Liberado: ${selectedProgram}\n\nSeu código de ativação individual é: *${code}*\n\nAcesse o app e insira o código para começar agora!`;
+  };
+
+  const handleSendEmail = async (code: string) => {
+    const subject = encodeURIComponent('🏋️ Seu Acesso ao Personal Trainer — Código de Ativação');
+    const body = encodeURIComponent(getInviteMessage(code));
+    const mailtoUrl = `mailto:${studentEmail.trim()}?subject=${subject}&body=${body}`;
+    try {
+      await Linking.openURL(mailtoUrl);
+      setEmailStatusToast(`Cliente de e-mail aberto para envio direto a ${studentEmail}!`);
+    } catch {
+      setEmailStatusToast(`Convite preparado para ${studentEmail}! Copie os dados abaixo.`);
+    }
+  };
+
+  const handleSendWhatsApp = async (code: string) => {
+    const text = encodeURIComponent(getInviteMessage(code));
+    const waUrl = `https://wa.me/?text=${text}`;
+    try {
+      await Linking.openURL(waUrl);
+    } catch {
+      // Ignora erro
+    }
+  };
 
   const handleGenerate = async () => {
     if (!studentEmail.trim()) {
@@ -60,6 +88,9 @@ export function NewInviteModal({
           assignedProgramName: selectedProgram,
         });
       }
+
+      // Dispara o e-mail automaticamente ao gerar
+      handleSendEmail(res.code);
     }
   };
 
@@ -71,6 +102,7 @@ export function NewInviteModal({
     setDueDay('10');
     setGeneratedCode(null);
     setError(null);
+    setEmailStatusToast(null);
     onClose();
   };
 
@@ -89,7 +121,7 @@ export function NewInviteModal({
           <Label style={{ color: t.accent }}>Gestão de Alunos & Financeiro</Label>
           <Title size={28}>Cadastrar & Convidar Aluno</Title>
           <Body muted>
-            Defina a mensalidade, o plano contratado, o treino inicial e gere o código de ativação individual.
+            Defina a mensalidade, o plano contratado, o treino inicial e envie o convite por e-mail ou WhatsApp.
           </Body>
         </View>
 
@@ -116,24 +148,48 @@ export function NewInviteModal({
               </Body>
             </View>
 
+            {emailStatusToast && (
+              <View
+                style={{
+                  backgroundColor: 'rgba(198, 244, 50, 0.15)',
+                  padding: 10,
+                  borderRadius: radius.md,
+                  borderWidth: 1,
+                  borderColor: t.accent,
+                  marginBottom: 8,
+                }}
+              >
+                <Body style={{ color: t.accent, fontWeight: '700', fontSize: 13 } as any}>
+                  ✓ {emailStatusToast}
+                </Body>
+              </View>
+            )}
+
+            {/* BOTÕES DE ENVIO IMEDIATO */}
+            <View style={{ gap: 8, marginVertical: 6 }}>
+              <Button
+                title="✉️ Enviar / Reenviar E-mail de Convite"
+                onPress={() => handleSendEmail(generatedCode)}
+              />
+              <Button
+                title="💬 Enviar Convite pelo WhatsApp"
+                variant="neonOutline"
+                onPress={() => handleSendWhatsApp(generatedCode)}
+              />
+            </View>
+
             {/* Resumo do Contrato */}
             <View style={{ backgroundColor: t.surfaceElevated, padding: 12, borderRadius: radius.md, gap: 4, marginVertical: 4 }}>
               <Body style={{ fontSize: 13, fontWeight: '700' } as any}>Resumo do Cadastro:</Body>
               <Body muted style={{ fontSize: 12 } as any}>• Aluno: {studentName || studentEmail}</Body>
+              <Body muted style={{ fontSize: 12 } as any}>• E-mail: {studentEmail}</Body>
               <Body muted style={{ fontSize: 12 } as any}>• Mensalidade: R$ {monthlyPrice},00 ({planType})</Body>
               <Body muted style={{ fontSize: 12 } as any}>• Vencimento: Todo dia {dueDay}</Body>
               <Body muted style={{ fontSize: 12 } as any}>• Treino Liberado: {selectedProgram}</Body>
             </View>
 
-            <Card>
-              <Label>Mensagem Pronta para WhatsApp / E-mail</Label>
-              <Body style={{ fontSize: 13, color: '#FFFFFF' } as any}>
-                "Olá{studentName ? ` ${studentName}` : ''}! Já cadastrei seu plano ({planType}) e ativei seu treino '{selectedProgram}' no app da nossa consultoria. Baixe o aplicativo e insira seu código exclusivo *{generatedCode}* para acessar sua ficha e avaliação completa!"
-              </Body>
-            </Card>
-
-            <View style={{ marginTop: 12 }}>
-              <Button title="Concluir e Voltar aos Alunos" onPress={handleReset} />
+            <View style={{ marginTop: 8 }}>
+              <Button title="Concluir e Voltar aos Alunos" variant="ghost" onPress={handleReset} />
             </View>
           </Card>
         ) : (

@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { View } from 'react-native';
+import { getAssessmentsForStudent, getLatestAssessmentForStudent } from '../../src/data/assessmentStore';
 import { exerciseById, samuelAssessment, template } from '../../src/data/seed';
 import { consistency } from '../../src/domain/schedule';
 import { useAppState } from '../../src/state/AppState';
+import { useAuth } from '../../src/state/AuthContext';
+import { AssessmentComparison } from '../../src/ui/AssessmentComparison';
 import { AssessmentReport } from '../../src/ui/AssessmentReport';
 import { AssessmentPhotoGallery } from '../../src/ui/AssessmentPhotoGallery';
 import { Body, Card, Chip, CircularProgress, Label, Screen, Title } from '../../src/ui/components';
@@ -13,7 +16,12 @@ import { useTheme } from '../../src/ui/theme';
 export default function Progresso() {
   const t = useTheme();
   const { logs } = useAppState();
-  const [tab, setTab] = useState<'avaliacao' | 'fotos' | 'nutricao' | 'recuperacao' | 'treinos'>('avaliacao');
+  const { profile } = useAuth();
+  const studentName = profile?.name || 'Samuel Ferreira';
+  const studentAssessments = getAssessmentsForStudent(studentName);
+  const currentAss = getLatestAssessmentForStudent(studentName);
+
+  const [tab, setTab] = useState<'avaliacao' | 'comparativo' | 'fotos' | 'nutricao' | 'recuperacao' | 'treinos'>('avaliacao');
   const value = consistency(logs, template.sessions.length, new Date());
   const recent = [...logs]
     .sort((a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt))
@@ -111,6 +119,11 @@ export default function Progresso() {
           onPress={() => setTab('avaliacao')}
         />
         <Chip
+          label="📸 Comparativo Antes x Depois"
+          selected={tab === 'comparativo'}
+          onPress={() => setTab('comparativo')}
+        />
+        <Chip
           label="Fotos da Avaliação 📷"
           selected={tab === 'fotos'}
           onPress={() => setTab('fotos')}
@@ -133,11 +146,18 @@ export default function Progresso() {
       </View>
 
       {tab === 'avaliacao' && (
-        <AssessmentReport studentName="Samuel Ferreira" assessment={samuelAssessment} />
+        <AssessmentReport studentName={studentName} assessment={currentAss} />
+      )}
+
+      {tab === 'comparativo' && (
+        <AssessmentComparison
+          assessments={studentAssessments}
+          studentName={studentName}
+        />
       )}
 
       {tab === 'fotos' && (
-        <AssessmentPhotoGallery photos={samuelAssessment.photos} />
+        <AssessmentPhotoGallery photos={currentAss.photos} />
       )}
 
       {tab === 'nutricao' && (

@@ -1,15 +1,19 @@
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { getAssessmentsForStudent, saveOrUpdateAssessment, updateAssessmentPhotos, updateBioimpedanceData } from '../data/assessmentStore';
 import { assessmentHistory, samuelAssessment } from '../data/seed';
-import type { BioimpedanceAssessment, PhysicalAssessment, SkinfoldsData } from '../domain/types';
+import type { AssessmentPhotos, BioimpedanceAssessment, PhysicalAssessment, SkinfoldsData } from '../domain/types';
+import { AssessmentComparison } from './AssessmentComparison';
 import { AssessmentPhotoGallery } from './AssessmentPhotoGallery';
+import { AssessmentUploadModal } from './AssessmentUploadModal';
 import { Body3DSegmentMap } from './Body3DSegmentMap';
-import { Body, Button, Card, Chip, Label, Title } from './components';
+import { Body, Button, Card, Chip, Label, TextInputField, Title } from './components';
 import { EvolutionChart } from './EvolutionChart';
 import { EvolutionComparison } from './EvolutionComparison';
-import { useTheme } from './theme';
+import { colors, radius, spacing, useTheme } from './theme';
 
-type TabView = 'mapa3d' | 'fotos' | 'bioimpedancia' | 'dobras' | 'evolucao';
+type TabView = 'mapa3d' | 'fotos' | 'comparativo' | 'bioimpedancia' | 'dobras' | 'evolucao';
+type BioSubTab = 'laudo' | 'manual' | 'upload';
 
 function MetricBar({
   label,
@@ -74,7 +78,6 @@ function MetricBar({
         </View>
       </View>
 
-      {/* Barra de Progresso com Cor Temática */}
       <View
         style={{
           height: 7,
@@ -103,25 +106,61 @@ function MetricBar({
   );
 }
 
-import { AssessmentUploadModal } from './AssessmentUploadModal';
-
 export function AssessmentReport({
   studentName = 'Samuel Ferreira',
-  assessment = samuelAssessment,
+  studentId,
+  assessment: initialAssessment,
   initialTab = 'mapa3d',
+  onAssessmentChange,
 }: {
   studentName?: string;
+  studentId?: string;
   assessment?: PhysicalAssessment;
   initialTab?: TabView;
+  onAssessmentChange?: (updated: PhysicalAssessment) => void;
 }) {
   const t = useTheme();
   const [tab, setTab] = useState<TabView>(initialTab);
+  const [bioSubTab, setBioSubTab] = useState<BioSubTab>('laudo');
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [currentBio, setCurrentBio] = useState(assessment.bioimpedance);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const bio = currentBio || assessment.bioimpedance;
-  const skin = assessment.skinfolds;
-  const circ = assessment.circumferences;
+  // Carrega todas as avaliações conectadas a este aluno
+  const [studentAssessments, setStudentAssessments] = useState<PhysicalAssessment[]>(() => {
+    const list = getAssessmentsForStudent(studentName || studentId || 'Samuel Ferreira');
+    if (initialAssessment && !list.some((a) => a.id === initialAssessment.id)) {
+      return [...list, initialAssessment];
+    }
+    return list;
+  });
+
+  const [activeAssessmentId, setActiveAssessmentId] = useState<string>(() => {
+    if (initialAssessment) return initialAssessment.id;
+    return studentAssessments[studentAssessments.length - 1]?.id || samuelAssessment.id;
+  });
+
+  const currentAssessment =
+    studentAssessments.find((a) => a.id === activeAssessmentId) ||
+    studentAssessments[studentAssessments.length - 1] ||
+    samuelAssessment;
+
+  const bio = currentAssessment.bioimpedance;
+  const skin = currentAssessment.skinfolds;
+  const circ = currentAssessment.circumferences;
+
+  // Estado dos inputs no Modo Manual da Balança
+  const [manualPeso, setManualPeso] = useState(String(bio?.pesoKg || '91.2'));
+  const [manualPercGordura, setManualPercGordura] = useState(String(bio?.percGordura || '21.2'));
+  const [manualMassaMuscular, setManualMassaMuscular] = useState(String(bio?.massaMuscularEsqueleticaKg || '38.7'));
+  const [manualAgua, setManualAgua] = useState(String(bio?.aguaTotalKg || '52.6'));
+  const [manualVisceral, setManualVisceral] = useState(String(bio?.gorduraVisceralNivel || '8'));
+  const [manualBmr, setManualBmr] = useState(String(bio?.bmrKcal || '1785'));
+  const [manualAltura, setManualAltura] = useState(String(bio?.alturaCm || '177'));
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
   const handleConfirmData = (extracted: {
     pesoKg: number;
@@ -130,30 +169,105 @@ export function AssessmentReport({
     aguaTotalKg: number;
     massaLivreGorduraKg: number;
   }) => {
-    if (bio) {
-      setCurrentBio({
-        ...bio,
-        pesoKg: extracted.pesoKg,
-        percGordura: extracted.percGordura,
-        massaMuscularEsqueleticaKg: extracted.massaMuscularEsqueleticaKg,
-        massaMuscularTotalKg: Math.round(extracted.massaMuscularEsqueleticaKg * 1.55 * 10) / 10,
-        aguaTotalKg: extracted.aguaTotalKg,
-        massaLivreGorduraKg: extracted.massaLivreGorduraKg,
-        massaGordaKg: Math.round((extracted.pesoKg * extracted.percGordura) / 10) / 10,
-      });
-    }
+    if (!bio) return;
+    const updatedBio: BioimpedanceAssessment = {
+      ...bio,
+      pesoKg: extracted.pesoKg,
+      percGordura: extracted.percGordura,
+      massaMuscularEsqueleticaKg: extracted.massaMuscularEsqueleticaKg,
+      massaMuscularTotalKg: Math.round(extracted.massaMuscularEsqueleticaKg * 1.55 * 10) / 10,
+      aguaTotalKg: extracted.aguaTotalKg,
+      massaLivreGorduraKg: extracted.massaLivreGorduraKg,
+      massaGordaKg: Math.round((extracted.pesoKg * extracted.percGordura) / 10) / 10,
+    };
+
+    const updatedAssessment: PhysicalAssessment = {
+      ...currentAssessment,
+      bioimpedance: updatedBio,
+    };
+
+    saveOrUpdateAssessment(updatedAssessment);
+    setStudentAssessments((prev) =>
+      prev.map((a) => (a.id === updatedAssessment.id ? updatedAssessment : a))
+    );
+
+    // Atualiza campos manuais também
+    setManualPeso(String(extracted.pesoKg));
+    setManualPercGordura(String(extracted.percGordura));
+    setManualMassaMuscular(String(extracted.massaMuscularEsqueleticaKg));
+    setManualAgua(String(extracted.aguaTotalKg));
+
+    if (onAssessmentChange) onAssessmentChange(updatedAssessment);
+    showToast('Dados da balança lidos e sincronizados com sucesso!');
+    setBioSubTab('laudo');
   };
+
+  const handleSaveManualBio = () => {
+    if (!bio) return;
+    const pesoNum = parseFloat(manualPeso.replace(',', '.')) || bio.pesoKg;
+    const gorduraNum = parseFloat(manualPercGordura.replace(',', '.')) || bio.percGordura;
+    const musculoNum = parseFloat(manualMassaMuscular.replace(',', '.')) || bio.massaMuscularEsqueleticaKg;
+    const aguaNum = parseFloat(manualAgua.replace(',', '.')) || bio.aguaTotalKg;
+    const visceralNum = parseInt(manualVisceral, 10) || bio.gorduraVisceralNivel;
+    const bmrNum = parseInt(manualBmr, 10) || bio.bmrKcal;
+    const alturaNum = parseFloat(manualAltura.replace(',', '.')) || bio.alturaCm;
+
+    const alturaMetros = alturaNum / 100;
+    const novoImc = Math.round((pesoNum / (alturaMetros * alturaMetros)) * 10) / 10;
+    const novaMassaGorda = Math.round(((pesoNum * gorduraNum) / 100) * 10) / 10;
+
+    const updatedBio: BioimpedanceAssessment = {
+      ...bio,
+      pesoKg: pesoNum,
+      alturaCm: alturaNum,
+      percGordura: gorduraNum,
+      massaMuscularEsqueleticaKg: musculoNum,
+      massaMuscularTotalKg: Math.round(musculoNum * 1.55 * 10) / 10,
+      aguaTotalKg: aguaNum,
+      gorduraVisceralNivel: visceralNum,
+      bmrKcal: bmrNum,
+      imc: novoImc,
+      massaGordaKg: novaMassaGorda,
+      dataHora: `${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`,
+    };
+
+    const updatedAssessment: PhysicalAssessment = {
+      ...currentAssessment,
+      bioimpedance: updatedBio,
+    };
+
+    saveOrUpdateAssessment(updatedAssessment);
+    setStudentAssessments((prev) =>
+      prev.map((a) => (a.id === updatedAssessment.id ? updatedAssessment : a))
+    );
+
+    if (onAssessmentChange) onAssessmentChange(updatedAssessment);
+    showToast('Dados manuais da balança salvos com sucesso!');
+    setBioSubTab('laudo');
+  };
+
+  const handleUpdatePhotos = (assessmentId: string, updatedPhotos: AssessmentPhotos) => {
+    updateAssessmentPhotos(assessmentId, updatedPhotos);
+    setStudentAssessments((prev) =>
+      prev.map((a) => (a.id === assessmentId ? { ...a, photos: updatedPhotos } : a))
+    );
+    showToast('Fotos da avaliação atualizadas com sucesso!');
+  };
+
+  const activeDateFormatted =
+    currentAssessment.photos?.data || new Date(currentAssessment.data).toLocaleDateString('pt-BR');
 
   return (
     <View style={{ gap: 16 }}>
-      {/* CABEÇALHO DO LAUDO */}
+      {/* CABEÇALHO DO LAUDO CONECTADO AO ALUNO */}
       <Card>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
           <View>
-            <Label style={{ color: t.accent }}>Laudo Biomecânico & Clínico</Label>
+            <Label style={{ color: t.accent }}>Prontuário de Avaliação Biomecânica</Label>
             <Title size={26}>{studentName}</Title>
           </View>
-          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <View
               style={{
                 paddingHorizontal: 12,
@@ -165,28 +279,78 @@ export function AssessmentReport({
               }}
             >
               <Body style={{ color: t.accent, fontWeight: '700', fontSize: 13 } as any}>
-                Bioimpedância 19/09/2026
+                Avaliação: {activeDateFormatted}
               </Body>
             </View>
+
             <Button
-              title="📄 Subir Laudo Balança (PDF/Foto)"
+              title="📄 Balança (PDF/Foto)"
               onPress={() => setShowUploadModal(true)}
               variant="neonOutline"
             />
           </View>
         </View>
-        <Body muted style={{ fontSize: 13 } as any}>
-          Equipamento: Balança Clínica Unique Health de Alta Precisão (8 eletrodos / multifrequencial).
+
+        {/* SELETOR DE HISTÓRICO DE AVALIAÇÕES DO ALUNO */}
+        {studentAssessments.length > 1 && (
+          <View style={{ marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderColor: t.border }}>
+            <Label style={{ marginBottom: 4 }}>Histórico de Avaliações Registradas deste Aluno:</Label>
+            <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+              {studentAssessments.map((a) => {
+                const isSelected = a.id === activeAssessmentId;
+                const d = a.photos?.data || new Date(a.data).toLocaleDateString('pt-BR');
+                const p = a.bioimpedance?.pesoKg ? `${a.bioimpedance.pesoKg}kg` : '';
+                return (
+                  <Chip
+                    key={a.id}
+                    label={`${d} (${p})`}
+                    selected={isSelected}
+                    onPress={() => {
+                      setActiveAssessmentId(a.id);
+                      if (a.bioimpedance) {
+                        setManualPeso(String(a.bioimpedance.pesoKg));
+                        setManualPercGordura(String(a.bioimpedance.percGordura));
+                        setManualMassaMuscular(String(a.bioimpedance.massaMuscularEsqueleticaKg));
+                        setManualAgua(String(a.bioimpedance.aguaTotalKg));
+                      }
+                    }}
+                  />
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        {toastMessage && (
+          <View
+            style={{
+              backgroundColor: 'rgba(198, 244, 50, 0.15)',
+              padding: 10,
+              borderRadius: radius.md,
+              borderWidth: 1,
+              borderColor: t.accent,
+              marginTop: 8,
+            }}
+          >
+            <Body style={{ color: t.accent, fontWeight: '700', fontSize: 13 } as any}>
+              ✓ {toastMessage}
+            </Body>
+          </View>
+        )}
+
+        <Body muted style={{ fontSize: 12, marginTop: 4 } as any}>
+          Equipamento: Balança Clínica de Bioimpedância Multifrequencial (8 eletrodos) · Dados vinculados ao aluno.
         </Body>
       </Card>
 
+      {/* MODAL DE OCR DA BALANÇA */}
       <AssessmentUploadModal
         visible={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onConfirmData={handleConfirmData}
       />
 
-      {/* SELETOR DE ABAS DO LAUDO */}
+      {/* SELETOR DE ABAS PRINCIPAIS DO LAUDO */}
       <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
         <Chip
           label="Topografia 3D"
@@ -194,12 +358,17 @@ export function AssessmentReport({
           onPress={() => setTab('mapa3d')}
         />
         <Chip
-          label="Fotos Corporais"
+          label="Fotos da Avaliação"
           selected={tab === 'fotos'}
           onPress={() => setTab('fotos')}
         />
         <Chip
-          label="Bioimpedância"
+          label="📸 Comparativo Antes x Depois"
+          selected={tab === 'comparativo'}
+          onPress={() => setTab('comparativo')}
+        />
+        <Chip
+          label="Dados da Balança (Bioimpedância)"
           selected={tab === 'bioimpedancia'}
           onPress={() => setTab('bioimpedancia')}
         />
@@ -215,105 +384,253 @@ export function AssessmentReport({
         />
       </View>
 
-      {/* ABA 1: TOPOGRAFIA ANATÔMICA 3D SEGMENTAR */}
+      {/* ABA 1: TOPOGRAFIA 3D */}
       {tab === 'mapa3d' && bio && <Body3DSegmentMap bio={bio} />}
 
-      {/* ABA 2: FOTOS CORPORAIS EM ALTA RESOLUÇÃO */}
-      {tab === 'fotos' && <AssessmentPhotoGallery photos={assessment.photos} />}
+      {/* ABA 2: FOTOS DA AVALIAÇÃO COM UPLOAD */}
+      {tab === 'fotos' && (
+        <AssessmentPhotoGallery
+          photos={currentAssessment.photos}
+          onPhotosUpdate={(updatedPhotos) => handleUpdatePhotos(currentAssessment.id, updatedPhotos)}
+        />
+      )}
 
-      {/* ABA 3: LAUDO CLÍNICO DE BIOIMPEDÂNCIA */}
+      {/* ABA 3: COMPARATIVO ANTES X DEPOIS ENTRE CADA AVALIAÇÃO */}
+      {tab === 'comparativo' && (
+        <AssessmentComparison
+          assessments={studentAssessments}
+          studentName={studentName}
+          onUpdateAssessmentPhotos={handleUpdatePhotos}
+        />
+      )}
+
+      {/* ABA 4: DADOS DA BALANÇA (COM SUB-ABAS MANUAL VS PDF/FOTO) */}
       {tab === 'bioimpedancia' && bio && (
         <View style={{ gap: 14 }}>
-          {/* Cartões Rápidos de Destaque */}
-          <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
-            <View style={{ flex: 1, minWidth: 130 }}>
-              <Card>
-                <Label>Peso Atual</Label>
-                <Title size={26} style={{ color: '#FFFFFF' }}>{bio.pesoKg} kg</Title>
-                <Body muted style={{ fontSize: 12 } as any}>IMC: {bio.imc} ({bio.nivelObesidade})</Body>
-              </Card>
-            </View>
-
-            <View style={{ flex: 1, minWidth: 130 }}>
-              <Card>
-                <Label style={{ color: t.fatColor }}>% Gordura</Label>
-                <Title size={26} style={{ color: t.fatColor }}>{bio.percGordura}%</Title>
-                <Body muted style={{ fontSize: 12 } as any}>{bio.massaGordaKg} kg de gordura</Body>
-              </Card>
-            </View>
-
-            <View style={{ flex: 1, minWidth: 130 }}>
-              <Card>
-                <Label style={{ color: t.accent }}>Massa Muscular</Label>
-                <Title size={26} style={{ color: t.accent }}>{bio.massaMuscularEsqueleticaKg} kg</Title>
-                <Body muted style={{ fontSize: 12 } as any}>{bio.taxaMusculoEsqueleticoPerc}% do corpo</Body>
-              </Card>
-            </View>
-          </View>
-
+          {/* Seletor entre Visão do Laudo, Edição Manual ou Leitura por Imagem/PDF */}
           <Card>
-            <Title size={19}>Composição do Corpo Humano</Title>
-            <MetricBar
-              label="Água Corporal Total"
-              value={bio.aguaTotalKg}
-              unit="kg"
-              min={bio.aguaTotalMin}
-              max={bio.aguaTotalMax}
-              status="excelente"
-            />
-            <MetricBar
-              label="• Água Intracelular"
-              value={bio.aguaIntracelularKg}
-              unit="kg"
-              min={bio.aguaIntracelularMin}
-              max={bio.aguaIntracelularMax}
-              status="excelente"
-            />
-            <MetricBar
-              label="• Água Extracelular"
-              value={bio.aguaExtracelularKg}
-              unit="kg"
-              min={bio.aguaExtracelularMin}
-              max={bio.aguaExtracelularMax}
-              status="excelente"
-            />
-            <MetricBar
-              label="Massa Gorda"
-              value={bio.massaGordaKg}
-              unit="kg"
-              min={bio.massaGordaMin}
-              max={bio.massaGordaMax}
-              status="acima"
-            />
-            <MetricBar
-              label="Massa Proteica"
-              value={bio.massaProteicaKg}
-              unit="kg"
-              min={bio.massaProteicaMin}
-              max={bio.massaProteicaMax}
-              status="excelente"
-            />
-            <MetricBar
-              label="Minerais / Massa Óssea"
-              value={bio.mineraisKg}
-              unit="kg"
-              min={bio.mineraisMin}
-              max={bio.mineraisMax}
-              status="excelente"
-            />
+            <Label style={{ color: t.accent }}>Forma de Entrada dos Dados da Balança</Label>
+            <View style={{ flexDirection: 'row', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+              <Chip
+                label="📊 Visão do Laudo"
+                selected={bioSubTab === 'laudo'}
+                onPress={() => setBioSubTab('laudo')}
+              />
+              <Chip
+                label="✍️ Inserção / Edição Manual"
+                selected={bioSubTab === 'manual'}
+                onPress={() => setBioSubTab('manual')}
+              />
+              <Chip
+                label="📄 Leitura Automática (PDF / Foto)"
+                selected={bioSubTab === 'upload'}
+                onPress={() => setBioSubTab('upload')}
+              />
+            </View>
           </Card>
 
-          {/* Cartão de Parecer Profissional */}
-          <Card>
-            <Label style={{ color: t.accent }}>Parecer Técnico do Treinador</Label>
-            <Body style={{ fontSize: 14, lineHeight: 22 } as any}>
-              {assessment.notasProfissional}
-            </Body>
-          </Card>
+          {/* SUB-ABA: MODO MANUAL DE PREENCHIMENTO */}
+          {bioSubTab === 'manual' && (
+            <Card>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Title size={20}>✍️ Edição Manual dos Dados da Balança</Title>
+                <Body muted style={{ fontSize: 12 } as any}>Altere os valores e salve</Body>
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
+                <View style={{ flex: 1, minWidth: 140 }}>
+                  <TextInputField
+                    label="Peso Corporal (kg) *"
+                    value={manualPeso}
+                    onChangeText={setManualPeso}
+                    keyboardType="numeric"
+                    placeholder="91.2"
+                  />
+                </View>
+                <View style={{ flex: 1, minWidth: 140 }}>
+                  <TextInputField
+                    label="% Gordura Corporal (%) *"
+                    value={manualPercGordura}
+                    onChangeText={setManualPercGordura}
+                    keyboardType="numeric"
+                    placeholder="21.2"
+                  />
+                </View>
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
+                <View style={{ flex: 1, minWidth: 140 }}>
+                  <TextInputField
+                    label="Massa Muscular Esquelética (kg) *"
+                    value={manualMassaMuscular}
+                    onChangeText={setManualMassaMuscular}
+                    keyboardType="numeric"
+                    placeholder="38.7"
+                  />
+                </View>
+                <View style={{ flex: 1, minWidth: 140 }}>
+                  <TextInputField
+                    label="Água Corporal Total (kg) *"
+                    value={manualAgua}
+                    onChangeText={setManualAgua}
+                    keyboardType="numeric"
+                    placeholder="52.6"
+                  />
+                </View>
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
+                <View style={{ flex: 1, minWidth: 140 }}>
+                  <TextInputField
+                    label="Gordura Visceral (Nível) *"
+                    value={manualVisceral}
+                    onChangeText={setManualVisceral}
+                    keyboardType="numeric"
+                    placeholder="8"
+                  />
+                </View>
+                <View style={{ flex: 1, minWidth: 140 }}>
+                  <TextInputField
+                    label="Taxa Metabólica Basal BMR (kcal)"
+                    value={manualBmr}
+                    onChangeText={setManualBmr}
+                    keyboardType="numeric"
+                    placeholder="1785"
+                  />
+                </View>
+                <View style={{ flex: 1, minWidth: 140 }}>
+                  <TextInputField
+                    label="Altura do Aluno (cm)"
+                    value={manualAltura}
+                    onChangeText={setManualAltura}
+                    keyboardType="numeric"
+                    placeholder="177"
+                  />
+                </View>
+              </View>
+
+              <View style={{ marginTop: 12 }}>
+                <Button
+                  title="💾 Salvar Dados Manuais da Balança"
+                  onPress={handleSaveManualBio}
+                />
+              </View>
+            </Card>
+          )}
+
+          {/* SUB-ABA: MODO UPLOAD INTELIGENTE */}
+          {bioSubTab === 'upload' && (
+            <Card>
+              <Title size={20}>📄 Leitura Inteligente por PDF ou Foto da Balança</Title>
+              <Body muted style={{ fontSize: 13, marginTop: 4 } as any}>
+                Carregue o arquivo PDF exportado ou uma foto nítida do visor da balança de bioimpedância (InBody, Unique Health, Xiaomi, Tanita). Nosso sistema extrai todos os valores e preenche o laudo automaticamente!
+              </Body>
+
+              <View style={{ marginTop: 12, gap: 8 }}>
+                <Button
+                  title="Abrir Leitor de PDF / Foto da Balança ⚡"
+                  onPress={() => setShowUploadModal(true)}
+                />
+              </View>
+            </Card>
+          )}
+
+          {/* SUB-ABA: LAUDO COMPLETO */}
+          {bioSubTab === 'laudo' && (
+            <>
+              {/* Cartões Rápidos */}
+              <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
+                <View style={{ flex: 1, minWidth: 130 }}>
+                  <Card>
+                    <Label>Peso Atual</Label>
+                    <Title size={26} style={{ color: '#FFFFFF' }}>{bio.pesoKg} kg</Title>
+                    <Body muted style={{ fontSize: 12 } as any}>IMC: {bio.imc} ({bio.nivelObesidade})</Body>
+                  </Card>
+                </View>
+
+                <View style={{ flex: 1, minWidth: 130 }}>
+                  <Card>
+                    <Label style={{ color: t.fatColor }}>% Gordura</Label>
+                    <Title size={26} style={{ color: t.fatColor }}>{bio.percGordura}%</Title>
+                    <Body muted style={{ fontSize: 12 } as any}>{bio.massaGordaKg} kg de gordura</Body>
+                  </Card>
+                </View>
+
+                <View style={{ flex: 1, minWidth: 130 }}>
+                  <Card>
+                    <Label style={{ color: t.accent }}>Massa Muscular</Label>
+                    <Title size={26} style={{ color: t.accent }}>{bio.massaMuscularEsqueleticaKg} kg</Title>
+                    <Body muted style={{ fontSize: 12 } as any}>{bio.taxaMusculoEsqueleticoPerc}% do corpo</Body>
+                  </Card>
+                </View>
+              </View>
+
+              {/* Composição Corporal */}
+              <Card>
+                <Title size={19}>Composição do Corpo Humano</Title>
+                <MetricBar
+                  label="Água Corporal Total"
+                  value={bio.aguaTotalKg}
+                  unit="kg"
+                  min={bio.aguaTotalMin}
+                  max={bio.aguaTotalMax}
+                  status="excelente"
+                />
+                <MetricBar
+                  label="• Água Intracelular"
+                  value={bio.aguaIntracelularKg}
+                  unit="kg"
+                  min={bio.aguaIntracelularMin}
+                  max={bio.aguaIntracelularMax}
+                  status="excelente"
+                />
+                <MetricBar
+                  label="• Água Extracelular"
+                  value={bio.aguaExtracelularKg}
+                  unit="kg"
+                  min={bio.aguaExtracelularMin}
+                  max={bio.aguaExtracelularMax}
+                  status="excelente"
+                />
+                <MetricBar
+                  label="Massa Gorda"
+                  value={bio.massaGordaKg}
+                  unit="kg"
+                  min={bio.massaGordaMin}
+                  max={bio.massaGordaMax}
+                  status="acima"
+                />
+                <MetricBar
+                  label="Massa Proteica"
+                  value={bio.massaProteicaKg}
+                  unit="kg"
+                  min={bio.massaProteicaMin}
+                  max={bio.massaProteicaMax}
+                  status="excelente"
+                />
+                <MetricBar
+                  label="Minerais / Massa Óssea"
+                  value={bio.mineraisKg}
+                  unit="kg"
+                  min={bio.mineraisMin}
+                  max={bio.mineraisMax}
+                  status="excelente"
+                />
+              </Card>
+
+              {/* Parecer Profissional */}
+              <Card>
+                <Label style={{ color: t.accent }}>Parecer Técnico do Treinador</Label>
+                <Body style={{ fontSize: 14, lineHeight: 22 } as any}>
+                  {currentAssessment.notasProfissional || 'Avaliação biométrica regular realizada com sucesso.'}
+                </Body>
+              </Card>
+            </>
+          )}
         </View>
       )}
 
-      {/* ABA 4: DOBRAS CUTÂNEAS */}
+      {/* ABA 5: DOBRAS CUTÂNEAS */}
       {tab === 'dobras' && (
         <View style={{ gap: 14 }}>
           {skin && (
@@ -389,7 +706,7 @@ export function AssessmentReport({
         </View>
       )}
 
-      {/* ABA 5: EVOLUÇÃO E GRÁFICOS */}
+      {/* ABA 6: EVOLUÇÃO E GRÁFICOS */}
       {tab === 'evolucao' && (
         <View style={{ gap: 14 }}>
           <EvolutionComparison />
