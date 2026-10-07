@@ -24,16 +24,22 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
 
   const isTrainer = profile?.role === 'trainer';
 
-  // Itens de navegação profissionais para Desktop com Dieta e Treino estritamente separados
-  const navItems: NavItem[] = [
-    { label: 'Hoje & Treino', icon: '🏋️‍♂️', route: '/hoje' },
-    { label: 'Dieta & Macros', icon: '🥗', route: '/dieta' },
-    { label: 'Avaliação & 3D', icon: '📈', route: '/progresso' },
-    { label: 'Seu Treinador', icon: '👤', route: '/treinador' },
-    { label: 'Radar do Personal', icon: '📡', route: '/radar', badge: 'PRO' },
-    { label: 'Gestão de Alunos', icon: '👥', route: '/alunos', badge: 'PRO' },
-    { label: 'Banco de Treinos', icon: '📚', route: '/biblioteca', badge: 'PRO' },
+  // Menus estritamente específicos para o Treinador (Sem misturar com visão de aluno)
+  const trainerNavItems: NavItem[] = [
+    { label: 'Radar & Alertas do Personal', icon: '📡', route: '/radar', badge: 'ALERTAS' },
+    { label: 'Alunos & Prontuários 360°', icon: '👥', route: '/alunos', badge: 'GESTÃO' },
+    { label: 'Central de Treinos & Prescrição', icon: '📚', route: '/biblioteca', badge: 'PRO' },
   ];
+
+  // Menus estritamente específicos para o Aluno
+  const studentNavItems: NavItem[] = [
+    { label: 'Treino de Hoje', icon: '🏋️‍♂️', route: '/hoje' },
+    { label: 'Dieta & Macros', icon: '🥗', route: '/dieta' },
+    { label: 'Avaliação & Fotos', icon: '📈', route: '/progresso' },
+    { label: 'Meu Treinador', icon: '👤', route: '/treinador' },
+  ];
+
+  const activeNavItems = isTrainer ? trainerNavItems : studentNavItems;
 
   const handleToggleRole = () => {
     if (isTrainer) {
@@ -56,7 +62,7 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
       {/* 1. SIDEBAR LATERAL ESQUERDA FIXA */}
       <View
         style={{
-          width: 270,
+          width: 275,
           backgroundColor: '#0C1017',
           borderRightWidth: 1,
           borderRightColor: t.border,
@@ -84,10 +90,10 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
             </View>
             <View>
               <Text style={{ color: '#FFFFFF', fontSize: 17, fontWeight: '800', letterSpacing: -0.3 }}>
-                {trainer.name}
+                Personal Trainer
               </Text>
               <Text style={{ color: t.accent, fontSize: 10, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
-                Elite Coaching OS
+                {isTrainer ? 'Painel do Treinador' : 'Portal do Aluno'}
               </Text>
             </View>
           </Pressable>
@@ -96,7 +102,7 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
           <Pressable
             onPress={handleToggleRole}
             style={({ pressed }) => ({
-              backgroundColor: isTrainer ? 'rgba(198, 244, 50, 0.15)' : t.surfaceElevated,
+              backgroundColor: isTrainer ? 'rgba(198, 244, 50, 0.12)' : t.surfaceElevated,
               borderRadius: 12,
               padding: 10,
               borderWidth: 1,
@@ -109,10 +115,10 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
           >
             <View style={{ gap: 2 }}>
               <Text style={{ color: t.muted, fontSize: 10, fontWeight: '700', textTransform: 'uppercase' }}>
-                MODO ATIVO
+                VISÃO ATUAL
               </Text>
               <Text style={{ color: isTrainer ? t.accent : '#FFFFFF', fontSize: 13, fontWeight: '800' }}>
-                {isTrainer ? '⚡ Painel Treinador' : '👤 Visão Aluno'}
+                {isTrainer ? '⚡ Painel do Treinador' : '👤 Área do Aluno'}
               </Text>
             </View>
             <View
@@ -124,12 +130,12 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
               }}
             >
               <Text style={{ color: isTrainer ? t.accentText : t.muted, fontSize: 10, fontWeight: '800' }}>
-                Trocar ⇄
+                Alternar ⇄
               </Text>
             </View>
           </Pressable>
 
-          {/* Links de Navegação */}
+          {/* Links de Navegação Exclusivos */}
           <View style={{ gap: 4 }}>
             <Text
               style={{
@@ -142,10 +148,10 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
                 paddingHorizontal: 10,
               }}
             >
-              Módulos do Sistema
+              {isTrainer ? 'Menu do Personal' : 'Menu do Aluno'}
             </Text>
 
-            {navItems.map((item, index) => {
+            {activeNavItems.map((item, index) => {
               const isActive = pathname.includes(item.route.replace('/', ''));
               return (
                 <Pressable

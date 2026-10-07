@@ -1,7 +1,7 @@
 import type { StudentSnapshot } from '../domain/radar';
 import type { Exercise, PhysicalAssessment, Template } from '../domain/types';
 
-export const trainer = { name: 'Júlio Balestrin', brandColor: '#C6F432' };
+export const trainer = { name: 'Personal Trainer', brandColor: '#C6F432' };
 
 // Catálogo de Exercícios com vídeos biomecânicos neutros e de alta definição (sem logos ou marcas comerciais)
 export const exercises: Exercise[] = [
@@ -491,8 +491,8 @@ export const approvedAlternatives: Record<string, string[]> = {
 // TREINOS PRÉ-CALIBRADOS OFICIAIS DO PDF: PROJETO 60 DIAS (JÚLIO BALESTRIN)
 // ========================================================================
 export const template: Template = {
-  id: 'projeto-60-dias-balestrin',
-  name: 'Projeto 60 Dias — Júlio Balestrin (Iniciante 1)',
+  id: 'ficha-iniciante-abc',
+  name: 'Periodização ABC — Hipertrofia & Força',
   weeks: 4,
   sessions: [
     // DIA 1 — PERNAS

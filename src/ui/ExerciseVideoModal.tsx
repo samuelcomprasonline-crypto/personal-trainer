@@ -65,18 +65,18 @@ export function ExerciseVideoModal({
             </Pressable>
           </View>
 
-          {/* Quadro de Vídeo Estritamente Proporcional 16:9 (Sem barras laterais) */}
+          {/* Quadro de Vídeo Estritamente Proporcional 16:9 (Perfeitamente Centralizado) */}
           <View style={styles.videoFrame}>
             {isPlaying && Platform.OS === 'web' && exercise.youtubeId ? (
               <iframe
-                src={`https://www.youtube-nocookie.com/embed/${exercise.youtubeId}?autoplay=1&rel=0&modestbranding=1&controls=1&showinfo=0`}
+                src={`https://www.youtube.com/embed/${exercise.youtubeId}?autoplay=1&rel=0&modestbranding=1&controls=1`}
                 style={{
                   width: '100%',
                   height: '100%',
                   border: 'none',
                   display: 'block',
                 }}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               />
             ) : (
@@ -109,10 +109,22 @@ export function ExerciseVideoModal({
                 </View>
 
                 <View style={styles.durationPill}>
-                  <Text style={styles.durationText}>Ver Execução HD</Text>
+                  <Text style={styles.durationText}>▶ Clique para Iniciar Execução HD</Text>
                 </View>
               </Pressable>
             )}
+          </View>
+
+          {/* Aviso e Ação Direta para o YouTube */}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, paddingHorizontal: 4 }}>
+            <Text style={{ color: colors.textMuted, fontSize: 11 }}>
+              {isPlaying ? '▶ Reproduzindo tutorial explicativo' : 'Tutorial focado apenas no movimento biomecânico'}
+            </Text>
+            <Pressable onPress={handleOpenYouTubeApp}>
+              <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700' }}>
+                Abrir no YouTube Oficial ↗
+              </Text>
+            </Pressable>
           </View>
 
           {/* Informações Técnicas e Instruções */}
@@ -133,7 +145,7 @@ export function ExerciseVideoModal({
                 pressed && { opacity: 0.8 },
               ]}
             >
-              <Text style={styles.btnSecondaryText}>Abrir no YouTube ↗</Text>
+              <Text style={styles.btnSecondaryText}>Assistir em Tela Cheia ↗</Text>
             </Pressable>
 
             <Pressable
@@ -155,10 +167,12 @@ export function ExerciseVideoModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(5, 8, 12, 0.88)',
+    backgroundColor: 'rgba(5, 8, 12, 0.92)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.md,
+    width: '100%',
+    height: '100%',
   },
   backdrop: {
     position: 'absolute',
@@ -169,7 +183,9 @@ const styles = StyleSheet.create({
   },
   modalCard: {
     width: '100%',
-    maxWidth: 680,
+    maxWidth: 640,
+    alignSelf: 'center',
+    marginHorizontal: 'auto',
     backgroundColor: colors.surface,
     borderRadius: radius.xxl,
     borderWidth: 1,
@@ -177,9 +193,9 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.6,
+    shadowOpacity: 0.7,
     shadowRadius: 32,
-    elevation: 20,
+    elevation: 25,
     zIndex: 10,
   },
   header: {
