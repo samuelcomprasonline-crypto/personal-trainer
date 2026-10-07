@@ -5,31 +5,42 @@ import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from './theme';
 import { WebDashboardLayout } from './WebDashboardLayout';
 
-export function Screen({ children }: { children: ReactNode }) {
+export function Screen({
+  children,
+  hideNav = false,
+}: {
+  children: ReactNode;
+  hideNav?: boolean;
+}) {
   const t = useTheme();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
 
-  return (
-    <WebDashboardLayout>
-      <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top', 'left', 'right']}>
-        <ScrollView
-          contentContainerStyle={{
-            padding: isDesktop ? 32 : 18,
-            paddingBottom: 80,
-            gap: 18,
-            maxWidth: isDesktop ? 1320 : 640,
-            width: '100%',
-            alignSelf: 'center',
-          }}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          {children}
-        </ScrollView>
-      </SafeAreaView>
-    </WebDashboardLayout>
+  const content = (
+    <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top', 'left', 'right']}>
+      <ScrollView
+        contentContainerStyle={{
+          padding: isDesktop ? (hideNav ? 40 : 32) : 18,
+          paddingBottom: 80,
+          gap: 18,
+          maxWidth: isDesktop ? (hideNav ? 560 : 1320) : 640,
+          width: '100%',
+          alignSelf: 'center',
+          justifyContent: hideNav ? 'center' : 'flex-start',
+        }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {children}
+      </ScrollView>
+    </SafeAreaView>
   );
+
+  if (hideNav) {
+    return content;
+  }
+
+  return <WebDashboardLayout>{content}</WebDashboardLayout>;
 }
 
 export function Title({

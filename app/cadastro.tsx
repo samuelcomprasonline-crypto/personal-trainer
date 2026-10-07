@@ -59,7 +59,7 @@ export default function CadastroScreen() {
   };
 
   return (
-    <Screen>
+    <Screen hideNav>
       <Pressable
         accessibilityRole="button"
         onPress={() => router.back()}

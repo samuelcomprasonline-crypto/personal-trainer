@@ -93,7 +93,7 @@ export default function Entrada() {
   };
 
   return (
-    <Screen>
+    <Screen hideNav>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 16, paddingBottom: 40 }}>
         {/* 1. CABEÇALHO DO ESTÚDIO */}
         <View style={styles.brandHeader}>

@@ -52,8 +52,12 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
     }
   };
 
-  if (!isDesktop) {
-    // No celular, renderiza apenas o conteúdo original
+  const isAuthRoute =
+    pathname === '/' || pathname === '/login' || pathname === '/cadastro';
+
+  // Se não for desktop, ou se estiver em tela de autenticação, ou se o usuário não estiver logado:
+  // Renderiza APENAS o conteúdo (sem sidebar lateral, sem links de treinos/dieta ao lado)
+  if (!isDesktop || isAuthRoute || !profile) {
     return <>{children}</>;
   }
 

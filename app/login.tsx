@@ -34,7 +34,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <Screen>
+    <Screen hideNav>
       <Pressable
         accessibilityRole="button"
         onPress={() => router.replace('/')}
