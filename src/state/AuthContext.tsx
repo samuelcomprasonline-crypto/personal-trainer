@@ -261,7 +261,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       id: role === 'trainer' ? 'demo-trainer' : 'demo-student',
       email: role === 'trainer' ? 'personal@consultoria.com' : 'samuel@aluno.com',
       role,
-      name: role === 'trainer' ? 'Helia Carriel Personal' : 'Samuel Ferreira',
+      name: role === 'trainer' ? 'Aurora Personal' : 'Samuel Ferreira',
       trainerId: role === 'student' ? 'demo-trainer' : undefined,
       brandColor: '#C6F432',
       createdAt: new Date().toISOString(),

@@ -91,7 +91,7 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
             </View>
             <View>
               <Text style={{ color: '#FFFFFF', fontSize: 17, fontWeight: '800', letterSpacing: -0.3 }}>
-                Personal Trainer
+                AURORA STUDIO
               </Text>
               <Text style={{ color: t.accent, fontSize: 10, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
                 {isTrainer ? 'Painel do Treinador' : 'Portal do Aluno'}

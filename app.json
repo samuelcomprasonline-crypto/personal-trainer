@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Personal Trainer",
-    "slug": "tmp-app",
+    "name": "Aurora",
+    "slug": "aurora",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -26,9 +26,6 @@
       "expo-status-bar",
       "expo-font"
     ],
-    "scheme": "personaltrainer",
-    "experiments": {
-      "baseUrl": "/personal-trainer"
-    }
+    "scheme": "aurora"
   }
 }

@@ -20,7 +20,7 @@ export default function Entrada() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [inviteCode, setInviteCode] = useState('');
-  const [studioName, setStudioName] = useState('Helia Carriel Personal Studio');
+  const [studioName, setStudioName] = useState('Aurora Personal Studio');
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -111,7 +111,7 @@ export default function Entrada() {
           </View>
           <View style={{ flex: 1 }}>
             <Title size={26} style={{ letterSpacing: -0.5 }}>
-              Helia Carriel
+              AURORA
             </Title>
             <Text style={{ color: t.accent, fontSize: 13, fontWeight: '800', letterSpacing: 0.5 }}>
               PERSONAL STUDIO • PLATAFORMA VIP
@@ -273,7 +273,7 @@ export default function Entrada() {
                   label="Nome da Sua Marca / Estúdio"
                   value={studioName}
                   onChangeText={setStudioName}
-                  placeholder="Helia Carriel Personal Studio"
+                  placeholder="Aurora Personal Studio"
                 />
               ) : (
                 <TextInputField
