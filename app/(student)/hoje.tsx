@@ -8,6 +8,7 @@ import type { Exercise } from '../../src/domain/types';
 import { useAppState } from '../../src/state/AppState';
 import { useAuth } from '../../src/state/AuthContext';
 import { ExerciseVideoModal } from '../../src/ui/ExerciseVideoModal';
+import { Screen } from '../../src/ui/components';
 import { useTheme } from '../../src/ui/theme';
 
 export default function Hoje() {
@@ -47,11 +48,8 @@ export default function Hoje() {
   const neonLime = '#C6F432';
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: '#0A0E14' }}
-      contentContainerStyle={{ padding: isWide ? 28 : 16, gap: 20 }}
-      showsVerticalScrollIndicator={false}
-    >
+    <Screen>
+      <View style={{ gap: 20, width: '100%' }}>
       {/* 1. TOPO DO DASHBOARD (BEM-VINDO + DIAS DA SEMANA + NOTIFICAÇÃO + AVATAR) */}
       <View
         style={{
@@ -668,6 +666,7 @@ export default function Hoje() {
         visible={selectedVideoExercise !== null}
         onClose={() => setSelectedVideoExercise(null)}
       />
-    </ScrollView>
+      </View>
+    </Screen>
   );
 }
