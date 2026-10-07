@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { generateInviteCode, normalizeInviteCode, validateInvite } from '../domain/invite';
 import type { StudentInvite, UserProfile, UserRole } from '../domain/types';
@@ -40,17 +41,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (!error && data) {
-        setProfile({
+        const p: UserProfile = {
           id: data.id,
           email: data.email,
           role: data.role as UserRole,
           name: data.name,
           trainerId: data.trainer_id ?? undefined,
-          brandColor: data.brand_color ?? '#8C6A4F',
+          brandColor: data.brand_color ?? '#C6F432',
           logoUrl: data.logo_url ?? undefined,
           phone: data.phone ?? undefined,
           createdAt: data.created_at,
-        });
+        };
+        setProfile(p);
+        await AsyncStorage.setItem('@personal_trainer_user_profile', JSON.stringify(p));
       }
     } catch (e) {
       console.warn('Erro ao carregar perfil do Supabase:', e);
@@ -58,12 +61,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // 1. Tenta restaurar perfil localmente primeiro
+    AsyncStorage.getItem('@personal_trainer_user_profile').then((raw) => {
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          setProfile(parsed);
+          setUser({ id: parsed.id, email: parsed.email });
+        } catch {}
+      }
+    });
+
     if (!isSupabaseConfigured) {
       setLoading(false);
       return;
     }
 
-    // Obter sessão atual
+    // Obter sessão atual do Supabase
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
@@ -79,11 +93,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(session.user);
           setIsDemo(false);
           await fetchProfile(session.user.id);
-        } else {
-          setUser(null);
-          if (!isDemo) {
-            setProfile(null);
-          }
+        } else if (!isDemo) {
+          AsyncStorage.getItem('@personal_trainer_user_profile').then((raw) => {
+            if (!raw) {
+              setUser(null);
+              setProfile(null);
+            }
+          });
         }
         setLoading(false);
       }
@@ -112,6 +128,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.user) {
       setUser(data.user);
       setIsDemo(false);
+      const meta = data.user.user_metadata || {};
+      const fallbackProf: UserProfile = {
+        id: data.user.id,
+        email: data.user.email || email,
+        role: (meta.role || 'trainer') as UserRole,
+        name: meta.name || (email.split('@')[0]),
+        trainerId: meta.trainer_id,
+        brandColor: '#C6F432',
+        createdAt: new Date().toISOString(),
+      };
+      setProfile(fallbackProf);
+      try {
+        await AsyncStorage.setItem('@personal_trainer_user_profile', JSON.stringify(fallbackProf));
+      } catch {}
       await fetchProfile(data.user.id);
     }
     return {};
@@ -178,14 +208,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('code', normalizeInviteCode(params.inviteCode));
     }
 
+    if (data.user) {
+      setUser(data.user);
+      setIsDemo(false);
+      const newProf: UserProfile = {
+        id: data.user.id,
+        email: data.user.email || params.email,
+        role: params.role,
+        name: params.name.trim(),
+        trainerId: linkedTrainerId ?? undefined,
+        brandColor: '#C6F432',
+        createdAt: new Date().toISOString(),
+      };
+      setProfile(newProf);
+      try {
+        await AsyncStorage.setItem('@personal_trainer_user_profile', JSON.stringify(newProf));
+      } catch {}
+      try {
+        await supabase.from('profiles').upsert({
+          id: data.user.id,
+          email: params.email,
+          name: params.name.trim(),
+          role: params.role,
+          trainer_id: linkedTrainerId,
+        });
+      } catch {}
+    }
+
     setLoading(false);
     return {};
   };
 
   const signOut = async () => {
-    if (isSupabaseConfigured) {
-      await supabase.auth.signOut();
+    try {
+      if (isSupabaseConfigured) {
+        await supabase.auth.signOut();
+      }
+    } catch (e) {
+      console.warn('Erro ao deslogar no Supabase:', e);
     }
+    try {
+      await AsyncStorage.removeItem('@personal_trainer_user_profile');
+    } catch {}
     setUser(null);
     setProfile(null);
     setIsDemo(false);
@@ -193,16 +257,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const enterDemoMode = (role: UserRole) => {
     setIsDemo(true);
-    setUser({ id: 'demo-user-id', email: role === 'trainer' ? 'lucas@estudio.com' : 'samuel@aluno.com' });
-    setProfile({
+    const demoProf: UserProfile = {
       id: role === 'trainer' ? 'demo-trainer' : 'demo-student',
-      email: role === 'trainer' ? 'lucas@estudio.com' : 'samuel@aluno.com',
+      email: role === 'trainer' ? 'personal@consultoria.com' : 'samuel@aluno.com',
       role,
-      name: role === 'trainer' ? 'Lucas Silva' : 'Samuel Ferreira',
+      name: role === 'trainer' ? 'Helia Carriel Personal' : 'Samuel Ferreira',
       trainerId: role === 'student' ? 'demo-trainer' : undefined,
-      brandColor: '#8C6A4F',
+      brandColor: '#C6F432',
       createdAt: new Date().toISOString(),
-    });
+    };
+    setUser({ id: demoProf.id, email: demoProf.email });
+    setProfile(demoProf);
+    try {
+      AsyncStorage.setItem('@personal_trainer_user_profile', JSON.stringify(demoProf));
+    } catch {}
   };
 
   const createInvite = async (

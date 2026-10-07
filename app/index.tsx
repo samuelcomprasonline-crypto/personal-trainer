@@ -1,233 +1,329 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { trainer } from '../src/data/seed';
+import type { UserRole } from '../src/domain/types';
 import { useAuth } from '../src/state/AuthContext';
 import { Body, Button, Card, Chip, Label, Screen, TextInputField, Title } from '../src/ui/components';
-import { colors, radius, spacing, typography, useTheme } from '../src/ui/theme';
+import { colors, radius, spacing, useTheme } from '../src/ui/theme';
 
 export default function Entrada() {
   const t = useTheme();
-  const { enterDemoMode } = useAuth();
-  const [selectedRole, setSelectedRole] = useState<'student' | 'trainer'>('student');
-  const [studentInput, setStudentInput] = useState('samuel@aluno.com');
-  const [trainerInput, setTrainerInput] = useState('personal@consultoria.com');
+  const { user, profile, loading, signIn, signUp, enterDemoMode } = useAuth();
 
-  const handleEnterAsStudent = () => {
-    enterDemoMode('student');
-    router.replace('/hoje');
+  // Abas do Portal: Login vs Cadastro
+  const [authMode, setAuthMode] = useState<'login' | 'cadastro'>('login');
+  const [role, setRole] = useState<UserRole>('trainer');
+
+  // Campos de Formulário
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
+  const [studioName, setStudioName] = useState('Helia Carriel Personal Studio');
+
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Redirecionamento automático caso já esteja autenticado
+  useEffect(() => {
+    if (profile) {
+      if (profile.role === 'trainer') {
+        router.replace('/radar');
+      } else {
+        router.replace('/hoje');
+      }
+    }
+  }, [profile]);
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      setErrorMessage('Por favor, informe seu e-mail e senha.');
+      return;
+    }
+
+    setSubmitting(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    const result = await signIn(email, password);
+    setSubmitting(false);
+
+    if (result.error) {
+      setErrorMessage(result.error);
+      return;
+    }
+
+    setSuccessMessage('Acesso autorizado! Redirecionando...');
+    setTimeout(() => {
+      router.replace(role === 'trainer' ? '/radar' : '/hoje');
+    }, 600);
   };
 
-  const handleEnterAsTrainer = () => {
-    enterDemoMode('trainer');
-    router.replace('/radar');
+  const handleRegister = async () => {
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setErrorMessage('Por favor, preencha nome, e-mail e senha.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setErrorMessage('A senha deve conter no mínimo 6 caracteres.');
+      return;
+    }
+
+    setSubmitting(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    const result = await signUp({
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      pass: password,
+      role,
+      inviteCode: role === 'student' ? inviteCode.trim() : undefined,
+    });
+    setSubmitting(false);
+
+    if (result.error) {
+      setErrorMessage(result.error);
+      return;
+    }
+
+    setSuccessMessage('Conta criada com sucesso! Acessando sua área...');
+    setTimeout(() => {
+      router.replace(role === 'trainer' ? '/radar' : '/hoje');
+    }, 800);
+  };
+
+  const handleQuickDemo = (demoRole: UserRole) => {
+    enterDemoMode(demoRole);
+    router.replace(demoRole === 'trainer' ? '/radar' : '/hoje');
   };
 
   return (
     <Screen>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 16, paddingBottom: 30 }}>
-        {/* 1. CABEÇALHO DA MARCA DO APP */}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 16, paddingBottom: 40 }}>
+        {/* 1. CABEÇALHO DO ESTÚDIO */}
         <View style={styles.brandHeader}>
           <View style={styles.logoContainer}>
-            <Text style={{ fontSize: 26 }}>🏋️</Text>
+            <Text style={{ fontSize: 28 }}>⚡</Text>
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Title size={26} style={{ letterSpacing: -0.5 }}>
-              Personal Trainer
+              Helia Carriel
             </Title>
-            <Label style={{ fontSize: 11, color: t.accent }}>
-              Plataforma de Treinamento, Nutrição & Avaliação
-            </Label>
+            <Text style={{ color: t.accent, fontSize: 13, fontWeight: '800', letterSpacing: 0.5 }}>
+              PERSONAL STUDIO • PLATAFORMA VIP
+            </Text>
           </View>
         </View>
 
-        {/* 2. SELETOR DE LOGIN INICIAL (DIFERENCIA QUEM É ALUNO E QUEM É TREINADOR) */}
-        <View style={styles.roleSelectorBox}>
-          <Text style={styles.roleSelectorTitle}>Como deseja acessar o aplicativo?</Text>
-          <View style={styles.roleButtonsRow}>
+        {/* 2. CARD PRINCIPAL DE AUTENTICAÇÃO */}
+        <Card style={{ padding: 18, gap: 14 }}>
+          {/* Seletor de Modo: Entrar vs Criar Conta */}
+          <View style={styles.tabToggleRow}>
             <Pressable
-              onPress={() => setSelectedRole('student')}
-              style={[
-                styles.roleButton,
-                selectedRole === 'student' && styles.roleButtonActive,
-              ]}
-            >
-              <Text style={{ fontSize: 20 }}>👤</Text>
-              <View>
-                <Text
-                  style={[
-                    styles.roleButtonText,
-                    selectedRole === 'student' && styles.roleButtonTextActive,
-                  ]}
-                >
-                  Sou Aluno
-                </Text>
-                <Text style={styles.roleButtonSub}>Ver meus treinos e dieta</Text>
-              </View>
-            </Pressable>
-
-            <Pressable
-              onPress={() => setSelectedRole('trainer')}
-              style={[
-                styles.roleButton,
-                selectedRole === 'trainer' && styles.roleButtonActive,
-              ]}
-            >
-              <Text style={{ fontSize: 20 }}>⚡</Text>
-              <View>
-                <Text
-                  style={[
-                    styles.roleButtonText,
-                    selectedRole === 'trainer' && styles.roleButtonTextActive,
-                  ]}
-                >
-                  Sou Treinador
-                </Text>
-                <Text style={styles.roleButtonSub}>Painel de gestão e alunos</Text>
-              </View>
-            </Pressable>
-          </View>
-        </View>
-
-        {/* 3. FORMULÁRIO ESPECÍFICO CONFORME O PERFIL ESCOLHIDO */}
-        {selectedRole === 'student' ? (
-          /* CARD DE LOGIN DO ALUNO */
-          <Card>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View>
-                <Label style={{ color: t.accent }}>PORTAL DO ALUNO</Label>
-                <Title size={22}>Acessar seus Treinos</Title>
-              </View>
-              <View style={styles.badgePill}>
-                <Text style={styles.badgePillText}>ÁREA DO ALUNO</Text>
-              </View>
-            </View>
-
-            <Body muted style={{ fontSize: 13, marginTop: 4 } as any}>
-              Informe seu e-mail cadastrado ou código individual gerado pelo seu personal trainer.
-            </Body>
-
-            <View style={{ marginVertical: 10, gap: 10 }}>
-              <TextInputField
-                label="E-mail ou Código de Ativação *"
-                value={studentInput}
-                onChangeText={setStudentInput}
-                placeholder="Ex: aluno@email.com ou PRO-8492"
-                autoCapitalize="none"
-              />
-            </View>
-
-            <View style={{ gap: 8, marginTop: 4 }}>
-              <Button
-                title="Entrar no Portal do Aluno 👤"
-                onPress={handleEnterAsStudent}
-              />
-              <Button
-                title="Acessar com Aluno de Demonstração (Samuel Ferreira) →"
-                variant="ghost"
-                onPress={handleEnterAsStudent}
-              />
-            </View>
-
-            {/* O que o aluno encontra */}
-            <View style={styles.featuresList}>
-              <Text style={styles.featuresTitle}>O que você encontra no seu portal:</Text>
-              <View style={styles.featureItem}>
-                <Text style={styles.featureIcon}>🏋️‍♂️</Text>
-                <Text style={styles.featureText}>Sua ficha de treino de hoje com vídeos explicativos</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <Text style={styles.featureIcon}>🥗</Text>
-                <Text style={styles.featureText}>Plano nutricional com cálculo automático por gramas</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <Text style={styles.featureIcon}>📈</Text>
-                <Text style={styles.featureText}>Topografia anatômica 3D, fotos da avaliação e bioimpedância</Text>
-              </View>
-            </View>
-          </Card>
-        ) : (
-          /* CARD DE LOGIN DO TREINADOR */
-          <Card>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View>
-                <Label style={{ color: t.accent }}>CENTRAL DO PERSONAL</Label>
-                <Title size={22}>Painel do Treinador</Title>
-              </View>
-              <View style={[styles.badgePill, { backgroundColor: 'rgba(198, 244, 50, 0.2)' }]}>
-                <Text style={styles.badgePillText}>ACESSO PROFISSIONAL</Text>
-              </View>
-            </View>
-
-            <Body muted style={{ fontSize: 13, marginTop: 4 } as any}>
-              Acesso exclusivo para o personal trainer gerenciar prontuários, prescrever periodizações e controlar mensalidades.
-            </Body>
-
-            <View style={{ marginVertical: 10, gap: 10 }}>
-              <TextInputField
-                label="E-mail do Treinador *"
-                value={trainerInput}
-                onChangeText={setTrainerInput}
-                placeholder="personal@consultoria.com"
-                autoCapitalize="none"
-              />
-            </View>
-
-            <View style={{ gap: 8, marginTop: 4 }}>
-              <Button
-                title="Acessar Painel do Treinador ⚡"
-                onPress={handleEnterAsTrainer}
-              />
-              <Button
-                title="Entrar no Painel de Demonstração do Treinador →"
-                variant="ghost"
-                onPress={handleEnterAsTrainer}
-              />
-            </View>
-
-            {/* O que o treinador encontra */}
-            <View style={styles.featuresList}>
-              <Text style={styles.featuresTitle}>Ferramentas da Central do Treinador:</Text>
-              <View style={styles.featureItem}>
-                <Text style={styles.featureIcon}>📡</Text>
-                <Text style={styles.featureText}>Radar clínico de alunos estagnados e com baixa frequência</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <Text style={styles.featureIcon}>👥</Text>
-                <Text style={styles.featureText}>Prontuário 360°, laudos clínicos e controle de mensalidades pagas</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <Text style={styles.featureIcon}>📚</Text>
-                <Text style={styles.featureText}>Banco de periodizações e cadastro de protocolos próprios</Text>
-              </View>
-            </View>
-          </Card>
-        )}
-
-        {/* 4. PRÉVIA RÁPIDA DE METODOLOGIA E CONTEÚDO */}
-        <View style={{ gap: 10 }}>
-          <Title size={18}>Exemplos de Treinos & Metodologias</Title>
-
-          <Card
-            onPress={handleEnterAsStudent}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14 }}
-          >
-            <Image
-              source={{
-                uri: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=300&auto=format&fit=crop&q=80',
+              onPress={() => {
+                setAuthMode('login');
+                setErrorMessage(null);
               }}
-              style={{ width: 64, height: 64, borderRadius: 16 }}
-            />
-            <View style={{ flex: 1, gap: 2 }}>
-              <Title size={16}>Ficha A, B, C — Hipertrofia & Força</Title>
-              <Body muted style={{ fontSize: 12 } as any}>
-                Divisão clássica • 12 exercícios • Séries com progressão de carga
-              </Body>
-              <Body style={{ color: t.accent, fontSize: 11, fontWeight: '700' } as any}>
-                ● Exercícios com vídeos biomecânicos explicativos
-              </Body>
+              style={[styles.tabToggleBtn, authMode === 'login' && styles.tabToggleBtnActive]}
+            >
+              <Text style={[styles.tabToggleText, authMode === 'login' && styles.tabToggleTextActive]}>
+                🔑 Entrar na Conta
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => {
+                setAuthMode('cadastro');
+                setErrorMessage(null);
+              }}
+              style={[styles.tabToggleBtn, authMode === 'cadastro' && styles.tabToggleBtnActive]}
+            >
+              <Text style={[styles.tabToggleText, authMode === 'cadastro' && styles.tabToggleTextActive]}>
+                📝 Criar Nova Conta
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Seletor de Perfil: Aluno vs Treinador */}
+          <View style={{ gap: 6 }}>
+            <Label>ESCOLHA SEU PERFIL DE ACESSO:</Label>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <Pressable
+                onPress={() => setRole('trainer')}
+                style={[styles.roleSelectCard, role === 'trainer' && styles.roleSelectCardActive]}
+              >
+                <Text style={{ fontSize: 22 }}>⚡</Text>
+                <View>
+                  <Text style={[styles.roleSelectTitle, role === 'trainer' && { color: '#FFFFFF' }]}>
+                    Treinador
+                  </Text>
+                  <Text style={styles.roleSelectSub}>Painel de Gestão & Alunos</Text>
+                </View>
+              </Pressable>
+
+              <Pressable
+                onPress={() => setRole('student')}
+                style={[styles.roleSelectCard, role === 'student' && styles.roleSelectCardActive]}
+              >
+                <Text style={{ fontSize: 22 }}>👤</Text>
+                <View>
+                  <Text style={[styles.roleSelectTitle, role === 'student' && { color: '#FFFFFF' }]}>
+                    Aluno VIP
+                  </Text>
+                  <Text style={styles.roleSelectSub}>Treinos, Dieta & Avaliação</Text>
+                </View>
+              </Pressable>
             </View>
-          </Card>
+          </View>
+
+          {/* MENSAGENS DE FEEDBACK */}
+          {errorMessage && (
+            <View style={styles.errorBox}>
+              <Text style={{ color: '#E11D48', fontSize: 13, fontWeight: '600' }}>
+                ⚠️ {errorMessage}
+              </Text>
+            </View>
+          )}
+
+          {successMessage && (
+            <View style={styles.successBox}>
+              <Text style={{ color: '#10B981', fontSize: 13, fontWeight: '700' }}>
+                ✓ {successMessage}
+              </Text>
+            </View>
+          )}
+
+          {/* FORMULÁRIO DINÂMICO CONFORME O MODO */}
+          {authMode === 'login' ? (
+            /* --- FORMULÁRIO DE LOGIN --- */
+            <View style={{ gap: 10 }}>
+              <TextInputField
+                label="Seu E-mail Cadastrado *"
+                value={email}
+                onChangeText={(v) => {
+                  setEmail(v);
+                  setErrorMessage(null);
+                }}
+                placeholder="exemplo@email.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+
+              <TextInputField
+                label="Sua Senha de Acesso *"
+                value={password}
+                onChangeText={(v) => {
+                  setPassword(v);
+                  setErrorMessage(null);
+                }}
+                placeholder="••••••••"
+                secureTextEntry
+              />
+
+              <View style={{ marginTop: 6 }}>
+                <Button
+                  title={submitting ? 'Verificando Credenciais...' : 'Acessar Plataforma ➔'}
+                  onPress={handleLogin}
+                  disabled={submitting}
+                />
+              </View>
+            </View>
+          ) : (
+            /* --- FORMULÁRIO DE CADASTRO --- */
+            <View style={{ gap: 10 }}>
+              <TextInputField
+                label="Nome Completo *"
+                value={name}
+                onChangeText={(v) => {
+                  setName(v);
+                  setErrorMessage(null);
+                }}
+                placeholder="Ex: Helia Carriel ou Samuel Ferreira"
+              />
+
+              <TextInputField
+                label="E-mail *"
+                value={email}
+                onChangeText={(v) => {
+                  setEmail(v);
+                  setErrorMessage(null);
+                }}
+                placeholder="seuemail@exemplo.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+
+              <TextInputField
+                label="Criar Senha de Acesso (Mín. 6 dígitos) *"
+                value={password}
+                onChangeText={(v) => {
+                  setPassword(v);
+                  setErrorMessage(null);
+                }}
+                placeholder="••••••••"
+                secureTextEntry
+              />
+
+              {role === 'trainer' ? (
+                <TextInputField
+                  label="Nome da Sua Marca / Estúdio"
+                  value={studioName}
+                  onChangeText={setStudioName}
+                  placeholder="Helia Carriel Personal Studio"
+                />
+              ) : (
+                <TextInputField
+                  label="Código do Convite do Personal (Opcional)"
+                  value={inviteCode}
+                  onChangeText={setInviteCode}
+                  placeholder="Ex: TREINO-8492"
+                  autoCapitalize="characters"
+                />
+              )}
+
+              <View style={{ marginTop: 6 }}>
+                <Button
+                  title={submitting ? 'Criando Conta...' : 'Cadastrar e Entrar 🚀'}
+                  onPress={handleRegister}
+                  disabled={submitting}
+                />
+              </View>
+            </View>
+          )}
+
+          {/* DIVISOR SUTIL */}
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={{ color: t.muted, fontSize: 11, fontWeight: '600', paddingHorizontal: 8 }}>
+              OU TESTE RAPIDAMENTE
+            </Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* BOTÕES DE ACESSO RÁPIDO PARA TESTE SEM SENHA */}
+          <View style={{ gap: 8 }}>
+            <Button
+              title="⚡ Entrar no Painel do Treinador (Demonstração)"
+              variant="neonOutline"
+              onPress={() => handleQuickDemo('trainer')}
+            />
+            <Button
+              title="👤 Entrar como Aluno VIP (Demonstração)"
+              variant="ghost"
+              onPress={() => handleQuickDemo('student')}
+            />
+          </View>
+        </Card>
+
+        {/* 3. RODAPÉ DE RECURSOS DO ESTÚDIO */}
+        <View style={styles.footerFeatures}>
+          <Text style={{ color: '#94A3B8', fontSize: 12, textAlign: 'center', fontWeight: '600' }}>
+            🔒 Acesso Seguro com Criptografia e Sincronização em Nuvem Supabase
+          </Text>
         </View>
       </ScrollView>
     </Screen>
@@ -238,102 +334,95 @@ const styles = StyleSheet.create({
   brandHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginTop: 4,
+    gap: 14,
+    marginTop: 6,
+    paddingHorizontal: 4,
   },
   logoContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: colors.primary,
+    width: 52,
+    height: 52,
+    borderRadius: 18,
+    backgroundColor: '#0F172A',
+    borderWidth: 1,
+    borderColor: '#334155',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  roleSelectorBox: {
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: radius.xl,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  roleSelectorTitle: {
-    color: colors.textSecondary,
-    fontSize: typography.small,
-    fontWeight: '700',
-    marginBottom: spacing.sm,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  roleButtonsRow: {
+  tabToggleRow: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    backgroundColor: '#080C16',
+    borderRadius: 14,
+    padding: 4,
+    borderWidth: 1,
+    borderColor: '#1E293B',
   },
-  roleButton: {
+  tabToggleBtn: {
     flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  tabToggleBtnActive: {
+    backgroundColor: '#1E293B',
+  },
+  tabToggleText: {
+    color: '#64748B',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  tabToggleTextActive: {
+    color: '#FFFFFF',
+  },
+  roleSelectCard: {
+    flex: 1,
+    backgroundColor: '#080C16',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#1E293B',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: colors.surfaceElevated,
-    padding: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
-  roleButtonActive: {
-    backgroundColor: 'rgba(198, 244, 50, 0.12)',
-    borderColor: colors.primary,
+  roleSelectCardActive: {
+    borderColor: '#00F0FF',
+    backgroundColor: 'rgba(0, 240, 255, 0.08)',
   },
-  roleButtonText: {
-    color: colors.text,
-    fontSize: typography.body,
+  roleSelectTitle: {
+    color: '#94A3B8',
+    fontSize: 14,
     fontWeight: '800',
   },
-  roleButtonTextActive: {
-    color: colors.primary,
-  },
-  roleButtonSub: {
-    color: colors.textMuted,
-    fontSize: 11,
-    marginTop: 2,
-  },
-  badgePill: {
-    backgroundColor: 'rgba(198, 244, 50, 0.12)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: 'rgba(198, 244, 50, 0.3)',
-  },
-  badgePillText: {
-    color: colors.primary,
+  roleSelectSub: {
+    color: '#64748B',
     fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 0.6,
   },
-  featuresList: {
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginTop: spacing.md,
-    gap: 8,
-  },
-  featuresTitle: {
-    color: colors.textSecondary,
-    fontSize: 12,
-    fontWeight: '700',
-    marginBottom: 2,
-  },
-  featureItem: {
+  dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    marginVertical: 4,
   },
-  featureIcon: {
-    fontSize: 16,
-  },
-  featureText: {
-    color: colors.text,
-    fontSize: 12,
+  dividerLine: {
     flex: 1,
+    height: 1,
+    backgroundColor: '#1E293B',
+  },
+  errorBox: {
+    backgroundColor: 'rgba(225, 29, 72, 0.12)',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(225, 29, 72, 0.25)',
+  },
+  successBox: {
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.25)',
+  },
+  footerFeatures: {
+    alignItems: 'center',
+    paddingVertical: 10,
   },
 });

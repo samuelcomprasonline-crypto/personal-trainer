@@ -13,18 +13,20 @@ export default function Biblioteca() {
   const [programsList, setProgramsList] = useState<WorkoutProgram[]>([...workoutProgramsCatalog]);
   const [tab, setTab] = useState<'programas' | 'metodos' | 'exercicios'>('programas');
   const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
+  const [selectedArea, setSelectedArea] = useState<string>('todos');
   const [search, setSearch] = useState('');
   const [selectedVideo, setSelectedVideo] = useState<Exercise | null>(null);
   const [showNewProgramModal, setShowNewProgramModal] = useState(false);
   const [appliedProgramNotice, setAppliedProgramNotice] = useState<string | null>(null);
 
-  const filteredExercises = exercises.filter((e) => {
+  const displayedExercises = exercises.filter((e) => {
+    const matchesArea = selectedArea === 'todos' || !selectedArea ? true : e.targetArea === selectedArea;
     const matchesMuscle = selectedMuscle ? e.primaryMuscle === selectedMuscle : true;
     const matchesSearch = search.trim()
       ? e.name.toLowerCase().includes(search.toLowerCase()) ||
         (muscleLabel[e.primaryMuscle] ?? '').toLowerCase().includes(search.toLowerCase())
       : true;
-    return matchesMuscle && matchesSearch;
+    return matchesArea && matchesMuscle && matchesSearch;
   });
 
   const handleApplyProgram = (program: WorkoutProgram) => {
@@ -242,8 +244,91 @@ export default function Biblioteca() {
 
         {/* ABA 3: EXERCÍCIOS & BIOMECÂNICA EM VÍDEO DO YOUTUBE */}
         {tab === 'exercicios' && (
-          <View style={{ gap: 12 }}>
-            {/* CAMPO DE BUSCA */}
+          <View style={{ gap: 14 }}>
+            {/* 1. CARDS DE MÉTRICAS GERAIS (ESTILO DO PRINT DE HISTÓRICO) */}
+            <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+              <View
+                style={{
+                  flex: 1,
+                  minWidth: 140,
+                  backgroundColor: '#0F172A',
+                  padding: 12,
+                  borderRadius: 16,
+                  borderWidth: 1,
+                  borderColor: '#1E293B',
+                  gap: 4,
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 16 }}>📅</Text>
+                  <Text style={{ color: '#94A3B8', fontSize: 10, fontWeight: '700' }}>TOTAL EXERCÍCIOS</Text>
+                </View>
+                <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '800' }}>25</Text>
+                <Text style={{ color: '#64748B', fontSize: 11 }}>No Banco de Dados</Text>
+              </View>
+
+              <View
+                style={{
+                  flex: 1,
+                  minWidth: 140,
+                  backgroundColor: '#0F172A',
+                  padding: 12,
+                  borderRadius: 16,
+                  borderWidth: 1,
+                  borderColor: '#1E293B',
+                  gap: 4,
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 16 }}>🏋️</Text>
+                  <Text style={{ color: '#94A3B8', fontSize: 10, fontWeight: '700' }}>TOTAL REPETIÇÕES</Text>
+                </View>
+                <Text style={{ color: '#10B981', fontSize: 20, fontWeight: '800' }}>1.248</Text>
+                <Text style={{ color: '#64748B', fontSize: 11 }}>Ciclo de 4 Semanas</Text>
+              </View>
+
+              <View
+                style={{
+                  flex: 1,
+                  minWidth: 140,
+                  backgroundColor: '#0F172A',
+                  padding: 12,
+                  borderRadius: 16,
+                  borderWidth: 1,
+                  borderColor: '#1E293B',
+                  gap: 4,
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 16 }}>🔥</Text>
+                  <Text style={{ color: '#94A3B8', fontSize: 10, fontWeight: '700' }}>TOTAL CALORIAS</Text>
+                </View>
+                <Text style={{ color: '#F97316', fontSize: 20, fontWeight: '800' }}>2.640</Text>
+                <Text style={{ color: '#64748B', fontSize: 11 }}>Kcal Estimadas</Text>
+              </View>
+
+              <View
+                style={{
+                  flex: 1,
+                  minWidth: 140,
+                  backgroundColor: '#0F172A',
+                  padding: 12,
+                  borderRadius: 16,
+                  borderWidth: 1,
+                  borderColor: '#1E293B',
+                  gap: 4,
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 16 }}>⏱️</Text>
+                  <Text style={{ color: '#94A3B8', fontSize: 10, fontWeight: '700' }}>TEMPO TOTAL</Text>
+                </View>
+                <Text style={{ color: '#A855F7', fontSize: 20, fontWeight: '800' }}>18h 42m</Text>
+                <Text style={{ color: '#64748B', fontSize: 11 }}>Duração Acumulada</Text>
+              </View>
+            </View>
+
+            {/* 2. CAMPO DE BUSCA */}
             <View
               style={{
                 flexDirection: 'row',
@@ -261,7 +346,7 @@ export default function Biblioteca() {
               <TextInput
                 value={search}
                 onChangeText={setSearch}
-                placeholder="Buscar por nome ou músculo..."
+                placeholder="Buscar exercício por nome, músculo ou padrão..."
                 placeholderTextColor={t.muted}
                 style={{
                   flex: 1,
@@ -276,87 +361,232 @@ export default function Biblioteca() {
               ) : null}
             </View>
 
-            {/* FILTROS EM PÍLULAS */}
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-              <Chip
-                label="Todos"
-                selected={selectedMuscle === null}
-                onPress={() => setSelectedMuscle(null)}
-              />
-              {Object.entries(muscleLabel).map(([key, label]) => (
+            {/* 3. FILTROS POR ÁREAS DE TREINAMENTO (CONFORME SOLICITADO PELO USUÁRIO) */}
+            <View style={{ gap: 6 }}>
+              <Label style={{ fontSize: 11, color: t.accent }}>ÁREA DE TREINAMENTO:</Label>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
                 <Chip
-                  key={key}
-                  label={label}
-                  selected={selectedMuscle === key}
-                  onPress={() => setSelectedMuscle(key)}
+                  label="🌟 Todos"
+                  selected={selectedArea === 'todos'}
+                  onPress={() => setSelectedArea('todos')}
                 />
-              ))}
+                <Chip
+                  label="🏋️ Peitoral"
+                  selected={selectedArea === 'peito'}
+                  onPress={() => setSelectedArea('peito')}
+                />
+                <Chip
+                  label="🧗 Costas & Dorsais"
+                  selected={selectedArea === 'costas'}
+                  onPress={() => setSelectedArea('costas')}
+                />
+                <Chip
+                  label="🦵 Membros Inferiores (Pernas)"
+                  selected={selectedArea === 'pernas'}
+                  onPress={() => setSelectedArea('pernas')}
+                />
+                <Chip
+                  label="🛡️ Ombros & Deltóides"
+                  selected={selectedArea === 'ombros'}
+                  onPress={() => setSelectedArea('ombros')}
+                />
+                <Chip
+                  label="💪 Braços (Bíceps & Tríceps)"
+                  selected={selectedArea === 'bracos'}
+                  onPress={() => setSelectedArea('bracos')}
+                />
+                <Chip
+                  label="🧘 Core & Abdômen"
+                  selected={selectedArea === 'core'}
+                  onPress={() => setSelectedArea('core')}
+                />
+              </ScrollView>
             </View>
 
-            {/* LISTA DE EXERCÍCIOS */}
+            {/* 4. LISTA DE EXERCÍCIOS COM TABELA DE REPETIÇÕES, CALORIAS E DURAÇÃO */}
             <View style={{ gap: 10 }}>
-              {filteredExercises.map((e) => (
-                <Pressable
-                  key={e.id}
-                  onPress={() => setSelectedVideo(e)}
-                  style={({ pressed }) => ({
-                    backgroundColor: t.surface,
-                    borderRadius: 18,
-                    padding: 12,
-                    borderWidth: 1,
-                    borderColor: t.border,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 12,
-                    opacity: pressed ? 0.88 : 1,
-                  })}
-                >
-                  <View style={{ width: 68, height: 68, borderRadius: 14, overflow: 'hidden', position: 'relative' }}>
-                    <Image
-                      source={{ uri: e.thumbnailUrl }}
-                      style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
-                    />
-                    <View
-                      style={{
-                        position: 'absolute',
-                        bottom: 4,
-                        right: 4,
-                        width: 22,
-                        height: 22,
-                        borderRadius: 11,
-                        backgroundColor: '#FF0000',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>▶</Text>
-                    </View>
-                  </View>
-
-                  <View style={{ flex: 1, gap: 3 }}>
-                    <Title size={17}>{e.name}</Title>
-                    <Body muted style={{ fontSize: 13 } as any}>
-                      {muscleLabel[e.primaryMuscle] ?? e.primaryMuscle} • {equipmentLabel[e.equipment] ?? e.equipment}
-                    </Body>
-                    <Body style={{ color: t.accent, fontSize: 11, fontWeight: '600' } as any}>
-                      Ver tutorial no YouTube ↗
-                    </Body>
-                  </View>
-
-                  <View
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 16,
-                      backgroundColor: t.surfaceElevated,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+              {displayedExercises.map((e, index) => {
+                const hourFormatted = `${17 + (index % 5)}:${(15 + (index * 7) % 45).toString().padStart(2, '0')}`;
+                return (
+                  <Pressable
+                    key={e.id}
+                    onPress={() => setSelectedVideo(e)}
+                    style={({ pressed }) => ({
+                      backgroundColor: '#0B0F19',
+                      borderRadius: 18,
+                      padding: 12,
+                      borderWidth: 1,
+                      borderColor: '#1E293B',
+                      gap: 10,
+                      opacity: pressed ? 0.88 : 1,
+                    })}
                   >
-                    <Text style={{ color: t.muted, fontSize: 14 }}>›</Text>
-                  </View>
-                </Pressable>
-              ))}
+                    {/* Linha superior: Data & Hora e Status */}
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Text style={{ color: '#94A3B8', fontSize: 11, fontWeight: '600' }}>
+                        Hoje • {hourFormatted}
+                      </Text>
+                      <View
+                        style={{
+                          backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                          paddingHorizontal: 8,
+                          paddingVertical: 3,
+                          borderRadius: 999,
+                          borderWidth: 1,
+                          borderColor: 'rgba(16, 185, 129, 0.3)',
+                        }}
+                      >
+                        <Text style={{ color: '#10B981', fontSize: 10, fontWeight: '700' }}>
+                          ✓ BOA FORMA • BIOMECÂNICA OK
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Linha central: Foto + Nome + Métricas (Reps, Calorias, Duração) */}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      {/* Foto Demonstrativa de Postura / Execução */}
+                      <View
+                        style={{
+                          width: 72,
+                          height: 72,
+                          borderRadius: 14,
+                          overflow: 'hidden',
+                          position: 'relative',
+                          backgroundColor: '#1E293B',
+                          borderWidth: 1,
+                          borderColor: '#334155',
+                        }}
+                      >
+                        <Image
+                          source={{ uri: e.photoUrl || e.thumbnailUrl }}
+                          style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
+                        />
+                        <View
+                          style={{
+                            position: 'absolute',
+                            bottom: 4,
+                            right: 4,
+                            width: 22,
+                            height: 22,
+                            borderRadius: 11,
+                            backgroundColor: '#E11D48',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: 'bold' }}>▶</Text>
+                        </View>
+                      </View>
+
+                      {/* Nome do Exercício & Equipamento */}
+                      <View style={{ flex: 1.2, gap: 2 }}>
+                        <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '800' }} numberOfLines={1}>
+                          {e.name}
+                        </Text>
+                        <Text style={{ color: '#94A3B8', fontSize: 12 }}>
+                          {muscleLabel[e.primaryMuscle] ?? e.primaryMuscle}
+                        </Text>
+                        <Text style={{ color: t.accent, fontSize: 11, fontWeight: '600' }}>
+                          {equipmentLabel[e.equipment] ?? e.equipment}
+                        </Text>
+                      </View>
+
+                      {/* Métricas destacadas conforme o print do usuário */}
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                        {/* Repetições */}
+                        <View style={{ alignItems: 'center', minWidth: 46 }}>
+                          <Text style={{ color: '#10B981', fontSize: 14, fontWeight: '800' }}>
+                            {e.defaultReps || '4x15'}
+                          </Text>
+                          <Text style={{ color: '#64748B', fontSize: 9, fontWeight: '700' }}>REPS</Text>
+                        </View>
+
+                        {/* Calorias */}
+                        <View style={{ alignItems: 'center', minWidth: 46 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                            <Text style={{ fontSize: 11 }}>🔥</Text>
+                            <Text style={{ color: '#F97316', fontSize: 13, fontWeight: '800' }}>
+                              {e.estimatedCalories || 90}
+                            </Text>
+                          </View>
+                          <Text style={{ color: '#64748B', fontSize: 9, fontWeight: '700' }}>KCAL</Text>
+                        </View>
+
+                        {/* Duração */}
+                        <View style={{ alignItems: 'center', minWidth: 46 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                            <Text style={{ fontSize: 11 }}>⏱️</Text>
+                            <Text style={{ color: '#A855F7', fontSize: 12, fontWeight: '800' }}>
+                              {e.estimatedDurationMin || '05:30'}
+                            </Text>
+                          </View>
+                          <Text style={{ color: '#64748B', fontSize: 9, fontWeight: '700' }}>TEMPO</Text>
+                        </View>
+                      </View>
+
+                      {/* Seta indicativa */}
+                      <View
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: 14,
+                          backgroundColor: '#1E293B',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Text style={{ color: '#94A3B8', fontSize: 14 }}>›</Text>
+                      </View>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            {/* 5. RESUMO SEMANAL (WEEKLY SUMMARY) IDÊNTICO AO PRINT */}
+            <View
+              style={{
+                backgroundColor: '#0F172A',
+                borderRadius: 18,
+                padding: 14,
+                borderWidth: 1,
+                borderColor: '#1E293B',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 10,
+                marginTop: 6,
+              }}
+            >
+              <View>
+                <Text style={{ color: '#38BDF8', fontSize: 12, fontWeight: '700' }}>📊 RESUMO DO BLOCO ATUAL</Text>
+                <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '600' }}>Ciclo Hipertrofia & Força</Text>
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
+                <View style={{ alignItems: 'center' }}>
+                  <Text style={{ color: '#38BDF8', fontSize: 15, fontWeight: '800' }}>{displayedExercises.length}</Text>
+                  <Text style={{ color: '#64748B', fontSize: 9, fontWeight: '700' }}>EXERCÍCIOS</Text>
+                </View>
+
+                <View style={{ alignItems: 'center' }}>
+                  <Text style={{ color: '#10B981', fontSize: 15, fontWeight: '800' }}>{displayedExercises.length * 15 * 4}</Text>
+                  <Text style={{ color: '#64748B', fontSize: 9, fontWeight: '700' }}>REPS</Text>
+                </View>
+
+                <View style={{ alignItems: 'center' }}>
+                  <Text style={{ color: '#F97316', fontSize: 15, fontWeight: '800' }}>
+                    {displayedExercises.reduce((acc, curr) => acc + (curr.estimatedCalories || 90), 0)}
+                  </Text>
+                  <Text style={{ color: '#64748B', fontSize: 9, fontWeight: '700' }}>KCAL</Text>
+                </View>
+
+                <View style={{ alignItems: 'center' }}>
+                  <Text style={{ color: '#A855F7', fontSize: 15, fontWeight: '800' }}>00:52:30</Text>
+                  <Text style={{ color: '#64748B', fontSize: 9, fontWeight: '700' }}>DURAÇÃO</Text>
+                </View>
+              </View>
             </View>
           </View>
         )}

@@ -232,7 +232,10 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
           </View>
 
           <Pressable
-            onPress={() => signOut()}
+            onPress={async () => {
+              await signOut();
+              router.replace('/');
+            }}
             style={{
               backgroundColor: t.surfaceElevated,
               paddingVertical: 7,

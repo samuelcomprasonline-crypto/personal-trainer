@@ -18,6 +18,11 @@ import { NewAssessmentModal } from '../../src/ui/NewAssessmentModal';
 import { NewInviteModal } from '../../src/ui/NewInviteModal';
 import { useTheme } from '../../src/ui/theme';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const STORAGE_CUSTOM_STUDENTS = '@personal_trainer_custom_students';
+const STORAGE_HIDE_DEMO = '@personal_trainer_hide_demo';
+
 export default function Alunos() {
   const t = useTheme();
   const { logs } = useAppState();
@@ -29,18 +34,36 @@ export default function Alunos() {
   me.paymentStatus = 'pago';
   me.assignedProgramName = 'Projeto 60 Dias Balestrin — Iniciante 1';
 
-  const [studentsList, setStudentsList] = useState<StudentSnapshot[]>([me, ...otherStudents]);
+  const [hideDemo, setHideDemo] = useState(true);
+  const [customStudents, setCustomStudents] = useState<StudentSnapshot[]>([]);
   const [selectedStudentName, setSelectedStudentName] = useState<string | null>(null);
   const [studentTab, setStudentTab] = useState<'laudo' | 'treino' | 'nutricao' | 'recuperacao' | 'financeiro'>('laudo');
   const [showNewModal, setShowNewModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Carrega alunos personalizados e preferência de modo limpo
+  useEffect(() => {
+    async function loadStoredData() {
+      try {
+        const storedCustom = await AsyncStorage.getItem(STORAGE_CUSTOM_STUDENTS);
+        if (storedCustom) {
+          setCustomStudents(JSON.parse(storedCustom));
+        }
+        const storedHide = await AsyncStorage.getItem(STORAGE_HIDE_DEMO);
+        if (storedHide !== null) {
+          setHideDemo(storedHide === 'true');
+        }
+      } catch {}
+    }
+    loadStoredData();
+  }, []);
+
   // Sincroniza e busca alunos cadastrados no Supabase
   useEffect(() => {
     pullStudentsFromCloud().then((cloudStudents) => {
       if (cloudStudents.length > 0) {
-        setStudentsList((prev) => {
+        setCustomStudents((prev) => {
           const existingIds = new Set(prev.map((s) => s.studentId));
           const newFromCloud: StudentSnapshot[] = cloudStudents
             .filter((cs) => !existingIds.has(cs.studentId))
@@ -57,11 +80,18 @@ export default function Alunos() {
               paymentStatus: cs.paymentStatus,
               assignedProgramName: 'Projeto 60 Dias Balestrin — Iniciante 1',
             }));
-          return [...newFromCloud, ...prev];
+          const merged = [...newFromCloud, ...prev];
+          AsyncStorage.setItem(STORAGE_CUSTOM_STUDENTS, JSON.stringify(merged)).catch(() => {});
+          return merged;
         });
       }
     }).catch(() => {});
   }, []);
+
+  const demoList: StudentSnapshot[] = [me, ...otherStudents];
+  const studentsList: StudentSnapshot[] = hideDemo
+    ? customStudents
+    : [...customStudents, ...demoList.filter((d) => !customStudents.some((c) => c.name === d.name))];
 
   const activeStudent = studentsList.find((s) => s.name === selectedStudentName) || studentsList[0];
 
@@ -85,22 +115,26 @@ export default function Alunos() {
 
   const handleApplyProgramToStudent = (prog: WorkoutProgram) => {
     if (!selectedStudentName) return;
-    setStudentsList((prev) =>
-      prev.map((s) => (s.name === selectedStudentName ? { ...s, assignedProgramName: prog.name } : s))
-    );
+    setCustomStudents((prev) => {
+      const updated = prev.map((s) => (s.name === selectedStudentName ? { ...s, assignedProgramName: prog.name } : s));
+      AsyncStorage.setItem(STORAGE_CUSTOM_STUDENTS, JSON.stringify(updated)).catch(() => {});
+      return updated;
+    });
     showToast(`Programa "${prog.name}" aplicado e ativado no app de ${selectedStudentName}!`);
   };
 
   const handleTogglePaymentStatus = (studentName: string) => {
-    setStudentsList((prev) =>
-      prev.map((s) => {
+    setCustomStudents((prev) => {
+      const updated = prev.map((s) => {
         if (s.name === studentName) {
-          const nextStatus = s.paymentStatus === 'pago' ? 'pendente' : 'pago';
+          const nextStatus: 'pago' | 'pendente' = s.paymentStatus === 'pago' ? 'pendente' : 'pago';
           return { ...s, paymentStatus: nextStatus };
         }
         return s;
-      })
-    );
+      });
+      AsyncStorage.setItem(STORAGE_CUSTOM_STUDENTS, JSON.stringify(updated)).catch(() => {});
+      return updated;
+    });
     showToast(`Status financeiro atualizado!`);
   };
 
@@ -140,106 +174,198 @@ export default function Alunos() {
           />
         </View>
 
-        {/* LISTA DE ALUNOS COM CARDS FINANCEIROS COMPLETOS */}
-        <View style={{ gap: 12 }}>
-          {studentsList.map((s) => {
-            const isPaid = s.paymentStatus === 'pago';
-            return (
-              <Card key={s.studentId} onPress={() => setSelectedStudentName(s.name)}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Title size={20}>{s.name}</Title>
-                  <View
-                    style={{
-                      backgroundColor: `${t.accent}15`,
-                      paddingHorizontal: 10,
-                      paddingVertical: 4,
-                      borderRadius: 999,
-                    }}
-                  >
-                    <Body muted style={{ color: t.accent, fontSize: 13, fontWeight: '600' } as any}>
-                      Abrir Prontuário 360° →
-                    </Body>
-                  </View>
-                </View>
+        {/* BARRA DE CONTROLE DO MODO LIMPO / PRODUÇÃO */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: hideDemo ? t.accent : '#F59E0B' }} />
+            <Body style={{ fontSize: 13, fontWeight: '700', color: hideDemo ? t.accent : '#F59E0B' } as any}>
+              {hideDemo ? 'Modo Produção (Sistema Limpo)' : 'Exibindo Alunos de Teste (Demo)'}
+            </Body>
+          </View>
 
-                {/* Resumo Financeiro & Treino */}
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    gap: 8,
-                    marginTop: 8,
-                    paddingTop: 8,
-                    borderTopWidth: 1,
-                    borderColor: t.border,
-                  }}
-                >
-                  <View
-                    style={{
-                      backgroundColor: isPaid ? 'rgba(198, 244, 50, 0.15)' : 'rgba(234, 179, 8, 0.15)',
-                      paddingHorizontal: 8,
-                      paddingVertical: 3,
-                      borderRadius: 6,
-                    }}
-                  >
-                    <Body
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Pressable
+              onPress={async () => {
+                const next = !hideDemo;
+                setHideDemo(next);
+                await AsyncStorage.setItem(STORAGE_HIDE_DEMO, String(next));
+                showToast(next ? 'Alunos demo ocultados. Sistema limpo!' : 'Alunos demo restaurados para testes.');
+              }}
+              style={{
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                borderRadius: 8,
+                backgroundColor: t.surfaceElevated,
+                borderWidth: 1,
+                borderColor: t.border,
+              }}
+            >
+              <Body style={{ fontSize: 12, fontWeight: '600' } as any}>
+                {hideDemo ? '👁️ Ver Alunos Demo' : '🧹 Ocultar Alunos Demo'}
+              </Body>
+            </Pressable>
+
+            {customStudents.length > 0 && (
+              <Pressable
+                onPress={async () => {
+                  setCustomStudents([]);
+                  await AsyncStorage.removeItem(STORAGE_CUSTOM_STUDENTS);
+                  showToast('Lista de alunos personalizados zerada!');
+                }}
+                style={{
+                  paddingHorizontal: 10,
+                  paddingVertical: 5,
+                  borderRadius: 8,
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(239, 68, 68, 0.3)',
+                }}
+              >
+                <Body style={{ fontSize: 12, fontWeight: '600', color: '#EF4444' } as any}>
+                  Zerar Alunos
+                </Body>
+              </Pressable>
+            )}
+          </View>
+        </View>
+
+        {/* LISTA DE ALUNOS OU EMPTY STATE LIMPO */}
+        {studentsList.length === 0 ? (
+          <Card style={{ alignItems: 'center', paddingVertical: 32, gap: 12, borderWidth: 1, borderColor: t.border }}>
+            <View
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: 30,
+                backgroundColor: `${t.accent}15`,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderWidth: 1,
+                borderColor: `${t.accent}40`,
+              }}
+            >
+              <Text style={{ fontSize: 26 }}>⚡</Text>
+            </View>
+            <Title size={20} style={{ textAlign: 'center' }}>Sistema Limpo e Pronto para Cadastros</Title>
+            <Body muted style={{ textAlign: 'center', maxWidth: 380 }}>
+              Nenhum aluno cadastrado ainda. Comece cadastrando os primeiros alunos reais da consultoria para acompanhamento de treinos, prontuários 360° e cobranças.
+            </Body>
+            <View style={{ gap: 8, width: '100%', maxWidth: 320, marginTop: 8 }}>
+              <Button
+                title="+ Cadastrar Primeiro Aluno Real ⚡"
+                onPress={() => setShowInviteModal(true)}
+              />
+              <Button
+                title="Carregar Dados de Demonstração (Testes)"
+                variant="ghost"
+                onPress={async () => {
+                  setHideDemo(false);
+                  await AsyncStorage.setItem(STORAGE_HIDE_DEMO, 'false');
+                }}
+              />
+            </View>
+          </Card>
+        ) : (
+          <View style={{ gap: 12 }}>
+            {studentsList.map((s) => {
+              const isPaid = s.paymentStatus === 'pago';
+              return (
+                <Card key={s.studentId} onPress={() => setSelectedStudentName(s.name)}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Title size={20}>{s.name}</Title>
+                    <View
                       style={{
-                        color: isPaid ? t.accent : '#EAB308',
-                        fontSize: 11,
-                        fontWeight: '800',
-                      } as any}
+                        backgroundColor: `${t.accent}15`,
+                        paddingHorizontal: 10,
+                        paddingVertical: 4,
+                        borderRadius: 999,
+                      }}
                     >
-                      {isPaid ? 'MENSALIDADE PAGA ✓' : 'PAGAMENTO PENDENTE ⚠️'}
-                    </Body>
+                      <Body muted style={{ color: t.accent, fontSize: 13, fontWeight: '600' } as any}>
+                        Abrir Prontuário 360° →
+                      </Body>
+                    </View>
                   </View>
 
-                  <Body style={{ fontSize: 12, fontWeight: '700' } as any}>
-                    R$ {s.monthlyPrice || 250},00 ({s.planType || 'Mensal'})
-                  </Body>
-
-                  <Body muted style={{ fontSize: 12 } as any}>
-                    • Vencimento: todo dia {s.dueDay || 10}
-                  </Body>
-
-                  {!isPaid && (
-                    <Pressable
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        const msg = buildBillingWhatsAppMessage({
-                          studentName: s.name,
-                          productName: `${s.planType || 'Mensalidade'} (${s.assignedProgramName || 'Consultoria'})`,
-                          amount: s.monthlyPrice || 250,
-                          dueDate: `dia ${s.dueDay || 10}`,
-                        });
-                        Linking.openURL(`https://wa.me/?text=${encodeURIComponent(msg)}`);
-                      }}
-                      style={({ pressed }) => ({
-                        backgroundColor: '#25D36620',
+                  {/* Resumo Financeiro & Treino */}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      flexWrap: 'wrap',
+                      alignItems: 'center',
+                      gap: 8,
+                      marginTop: 8,
+                      paddingTop: 8,
+                      borderTopWidth: 1,
+                      borderColor: t.border,
+                    }}
+                  >
+                    <View
+                      style={{
+                        backgroundColor: isPaid ? 'rgba(198, 244, 50, 0.15)' : 'rgba(234, 179, 8, 0.15)',
                         paddingHorizontal: 8,
                         paddingVertical: 3,
                         borderRadius: 6,
-                        borderWidth: 1,
-                        borderColor: '#25D366',
-                        opacity: pressed ? 0.7 : 1,
-                      })}
+                      }}
                     >
-                      <Text style={{ color: '#25D366', fontSize: 11, fontWeight: '800' }}>
-                        💬 Cobrar via WhatsApp
-                      </Text>
-                    </Pressable>
-                  )}
-                </View>
+                      <Body
+                        style={{
+                          color: isPaid ? t.accent : '#EAB308',
+                          fontSize: 11,
+                          fontWeight: '800',
+                        } as any}
+                      >
+                        {isPaid ? 'MENSALIDADE PAGA ✓' : 'PAGAMENTO PENDENTE ⚠️'}
+                      </Body>
+                    </View>
 
-                <View style={{ marginTop: 6 }}>
-                  <Body muted style={{ fontSize: 12 } as any}>
-                    🏋️ Treino Ativo: <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>{s.assignedProgramName || 'Projeto 60 Dias Balestrin'}</Text>
-                  </Body>
-                </View>
-              </Card>
-            );
-          })}
-        </View>
+                    <Body style={{ fontSize: 12, fontWeight: '700' } as any}>
+                      R$ {s.monthlyPrice || 250},00 ({s.planType || 'Mensal'})
+                    </Body>
+
+                    <Body muted style={{ fontSize: 12 } as any}>
+                      • Vencimento: todo dia {s.dueDay || 10}
+                    </Body>
+
+                    {!isPaid && (
+                      <Pressable
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          const msg = buildBillingWhatsAppMessage({
+                            studentName: s.name,
+                            productName: `${s.planType || 'Mensalidade'} (${s.assignedProgramName || 'Consultoria'})`,
+                            amount: s.monthlyPrice || 250,
+                            dueDate: `dia ${s.dueDay || 10}`,
+                          });
+                          Linking.openURL(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+                        }}
+                        style={({ pressed }) => ({
+                          backgroundColor: '#25D36620',
+                          paddingHorizontal: 8,
+                          paddingVertical: 3,
+                          borderRadius: 6,
+                          borderWidth: 1,
+                          borderColor: '#25D366',
+                          opacity: pressed ? 0.7 : 1,
+                        })}
+                      >
+                        <Text style={{ color: '#25D366', fontSize: 11, fontWeight: '800' }}>
+                          💬 Cobrar via WhatsApp
+                        </Text>
+                      </Pressable>
+                    )}
+                  </View>
+
+                  <View style={{ marginTop: 6 }}>
+                    <Body muted style={{ fontSize: 12 } as any}>
+                      🏋️ Treino Ativo: <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>{s.assignedProgramName || 'Projeto 60 Dias Balestrin'}</Text>
+                    </Body>
+                  </View>
+                </Card>
+              );
+            })}
+          </View>
+        )}
 
         <View style={{ marginTop: 12, gap: 8 }}>
           <Button
@@ -258,9 +384,11 @@ export default function Alunos() {
         visible={showInviteModal}
         onClose={() => setShowInviteModal(false)}
         onStudentAdded={(newS) => {
-          setStudentsList((prev) => [newS, ...prev]);
+          const updated = [newS, ...customStudents];
+          setCustomStudents(updated);
+          AsyncStorage.setItem(STORAGE_CUSTOM_STUDENTS, JSON.stringify(updated)).catch(() => {});
           syncStudentToCloud(newS).catch(() => {});
-          showToast(`Aluno ${newS.name} salvo localmente e sincronizado na nuvem!`);
+          showToast(`Aluno ${newS.name} cadastrado com sucesso!`);
         }}
       />
 

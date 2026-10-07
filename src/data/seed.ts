@@ -481,6 +481,308 @@ export const equipmentLabel: Record<string, string> = {
   bodyweight: 'Peso Corporal',
 };
 
+export const targetAreaLabel: Record<string, { label: string; icon: string }> = {
+  todos: { label: 'Todos os Exercícios', icon: '🌟' },
+  peito: { label: 'Peitoral', icon: '🏋️' },
+  costas: { label: 'Costas & Dorsais', icon: '🧗' },
+  pernas: { label: 'Membros Inferiores (Pernas)', icon: '🦵' },
+  ombros: { label: 'Ombros & Deltóides', icon: '🛡️' },
+  bracos: { label: 'Braços (Bíceps & Tríceps)', icon: '💪' },
+  core: { label: 'Abdômen & Core', icon: '🧘' },
+};
+
+// Fotos de alta definição e metadados de execução biomecânica
+const exerciseMetaMap: Record<string, {
+  photoUrl: string;
+  targetArea: 'peito' | 'costas' | 'pernas' | 'ombros' | 'bracos' | 'core';
+  estimatedCalories: number;
+  estimatedDurationMin: string;
+  defaultReps: string;
+}> = {
+  // Pernas
+  'esteira-aquecimento': {
+    photoUrl: 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'pernas',
+    estimatedCalories: 65,
+    estimatedDurationMin: '05:00',
+    defaultReps: '5 min',
+  },
+  'cadeira-adutora': {
+    photoUrl: 'https://images.unsplash.com/photo-1434608519344-49d77a699e1d?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'pernas',
+    estimatedCalories: 85,
+    estimatedDurationMin: '04:30',
+    defaultReps: '4x15',
+  },
+  'cadeira-abdutora': {
+    photoUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'pernas',
+    estimatedCalories: 88,
+    estimatedDurationMin: '04:30',
+    defaultReps: '4x15',
+  },
+  'elevacao-pelvica': {
+    photoUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'pernas',
+    estimatedCalories: 110,
+    estimatedDurationMin: '05:45',
+    defaultReps: '4x15',
+  },
+  'extensora': {
+    photoUrl: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'pernas',
+    estimatedCalories: 95,
+    estimatedDurationMin: '05:15',
+    defaultReps: '4x15',
+  },
+  'mesa-flexora': {
+    photoUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'pernas',
+    estimatedCalories: 92,
+    estimatedDurationMin: '05:10',
+    defaultReps: '4x15',
+  },
+  'leg-press': {
+    photoUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'pernas',
+    estimatedCalories: 135,
+    estimatedDurationMin: '06:30',
+    defaultReps: '4x15',
+  },
+  'agachamento-bola': {
+    photoUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'pernas',
+    estimatedCalories: 105,
+    estimatedDurationMin: '05:50',
+    defaultReps: '4x15',
+  },
+  'panturrilha-em-pe': {
+    photoUrl: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'pernas',
+    estimatedCalories: 75,
+    estimatedDurationMin: '04:15',
+    defaultReps: '4x15',
+  },
+  'panturrilha-sentado': {
+    photoUrl: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'pernas',
+    estimatedCalories: 72,
+    estimatedDurationMin: '04:00',
+    defaultReps: '4x15',
+  },
+  'hack': {
+    photoUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'pernas',
+    estimatedCalories: 125,
+    estimatedDurationMin: '06:00',
+    defaultReps: '4x15',
+  },
+  'bulgaro': {
+    photoUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'pernas',
+    estimatedCalories: 115,
+    estimatedDurationMin: '05:30',
+    defaultReps: '3x12',
+  },
+
+  // Peito
+  'crucifixo-inclinado': {
+    photoUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'peito',
+    estimatedCalories: 95,
+    estimatedDurationMin: '05:20',
+    defaultReps: '4x15',
+  },
+  'supino-inclinado-smith': {
+    photoUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'peito',
+    estimatedCalories: 120,
+    estimatedDurationMin: '06:00',
+    defaultReps: '4x15',
+  },
+  'supino-reto-smith': {
+    photoUrl: 'https://images.unsplash.com/photo-1581009137042-c552e485697a?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'peito',
+    estimatedCalories: 125,
+    estimatedDurationMin: '06:15',
+    defaultReps: '4x15',
+  },
+  'flexao-solo': {
+    photoUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'peito',
+    estimatedCalories: 90,
+    estimatedDurationMin: '04:45',
+    defaultReps: '4x15',
+  },
+  'supino': {
+    photoUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'peito',
+    estimatedCalories: 130,
+    estimatedDurationMin: '06:30',
+    defaultReps: '4x12',
+  },
+
+  // Costas
+  'puxador-alto-pronado': {
+    photoUrl: 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'costas',
+    estimatedCalories: 110,
+    estimatedDurationMin: '05:30',
+    defaultReps: '4x15',
+  },
+  'puxador-alto-triangulo': {
+    photoUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'costas',
+    estimatedCalories: 105,
+    estimatedDurationMin: '05:15',
+    defaultReps: '4x15',
+  },
+  'remada-curvada-pronada': {
+    photoUrl: 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'costas',
+    estimatedCalories: 118,
+    estimatedDurationMin: '05:40',
+    defaultReps: '3x15',
+  },
+  'remada-unilateral': {
+    photoUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'costas',
+    estimatedCalories: 98,
+    estimatedDurationMin: '05:10',
+    defaultReps: '3x15',
+  },
+  'remada-baixa-triangulo': {
+    photoUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'costas',
+    estimatedCalories: 108,
+    estimatedDurationMin: '05:25',
+    defaultReps: '4x15',
+  },
+  'hiperextensao-lombar': {
+    photoUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'costas',
+    estimatedCalories: 80,
+    estimatedDurationMin: '04:20',
+    defaultReps: '4x15',
+  },
+  'remada': {
+    photoUrl: 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'costas',
+    estimatedCalories: 112,
+    estimatedDurationMin: '05:30',
+    defaultReps: '4x15',
+  },
+
+  // Ombros
+  'desenvolvimento-halter': {
+    photoUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'ombros',
+    estimatedCalories: 102,
+    estimatedDurationMin: '05:15',
+    defaultReps: '4x15',
+  },
+  'elevacao-frontal': {
+    photoUrl: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'ombros',
+    estimatedCalories: 84,
+    estimatedDurationMin: '04:30',
+    defaultReps: '4x15',
+  },
+  'elevacao-lateral': {
+    photoUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'ombros',
+    estimatedCalories: 88,
+    estimatedDurationMin: '04:45',
+    defaultReps: '4x15',
+  },
+  'crucifixo-inverso-maquina': {
+    photoUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'ombros',
+    estimatedCalories: 86,
+    estimatedDurationMin: '04:30',
+    defaultReps: '4x15',
+  },
+
+  // Braços
+  'rosca-direta-w': {
+    photoUrl: 'https://images.unsplash.com/photo-1581009137042-c552e485697a?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'bracos',
+    estimatedCalories: 90,
+    estimatedDurationMin: '04:45',
+    defaultReps: '4x15',
+  },
+  'rosca-alternada': {
+    photoUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'bracos',
+    estimatedCalories: 88,
+    estimatedDurationMin: '04:40',
+    defaultReps: '4x15',
+  },
+  'rosca-inversa-w': {
+    photoUrl: 'https://images.unsplash.com/photo-1581009137042-c552e485697a?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'bracos',
+    estimatedCalories: 82,
+    estimatedDurationMin: '04:15',
+    defaultReps: '3x15',
+  },
+  'triceps-corda': {
+    photoUrl: 'https://images.unsplash.com/photo-1530822847156-5df684ec5ee1?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'bracos',
+    estimatedCalories: 94,
+    estimatedDurationMin: '05:00',
+    defaultReps: '4x15',
+  },
+  'triceps-testa': {
+    photoUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'bracos',
+    estimatedCalories: 86,
+    estimatedDurationMin: '04:30',
+    defaultReps: '3x15',
+  },
+  'triceps-frances': {
+    photoUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'bracos',
+    estimatedCalories: 88,
+    estimatedDurationMin: '04:45',
+    defaultReps: '4x15',
+  },
+
+  // Core
+  'prancha-abdominal': {
+    photoUrl: 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'core',
+    estimatedCalories: 96,
+    estimatedDurationMin: '04:00',
+    defaultReps: '4x1 min',
+  },
+  'abdominal-banco-reto': {
+    photoUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&auto=format&fit=crop&q=80',
+    targetArea: 'core',
+    estimatedCalories: 78,
+    estimatedDurationMin: '03:45',
+    defaultReps: '3x20',
+  },
+};
+
+// Aplica metadados enriquecidos aos exercícios
+exercises.forEach((ex) => {
+  const meta = exerciseMetaMap[ex.id];
+  if (meta) {
+    ex.photoUrl = meta.photoUrl;
+    ex.targetArea = meta.targetArea;
+    ex.estimatedCalories = meta.estimatedCalories;
+    ex.estimatedDurationMin = meta.estimatedDurationMin;
+    ex.defaultReps = meta.defaultReps;
+  } else {
+    // Fallback inteligente
+    ex.photoUrl = ex.thumbnailUrl || 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=500&auto=format&fit=crop&q=80';
+    ex.targetArea = 'peito';
+    ex.estimatedCalories = 90;
+    ex.estimatedDurationMin = '05:00';
+    ex.defaultReps = '4x15';
+  }
+});
+
 export const approvedAlternatives: Record<string, string[]> = {
   'leg-press': ['hack', 'agachamento-bola'],
   'supino-reto-smith': ['supino', 'flexao-solo'],

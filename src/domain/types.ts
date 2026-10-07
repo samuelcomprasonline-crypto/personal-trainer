@@ -10,7 +10,12 @@ export type Exercise = {
   videoUrl?: string; // Link direto do YouTube
   youtubeId?: string; // ID do vídeo no YouTube (ex: "IODxDxX7oi4")
   thumbnailUrl?: string;
+  photoUrl?: string; // Foto de postura / execução em alta definição
   instructions?: string;
+  targetArea?: 'peito' | 'costas' | 'pernas' | 'ombros' | 'bracos' | 'core';
+  estimatedCalories?: number;
+  estimatedDurationMin?: string;
+  defaultReps?: string;
 };
 
 export type TemplateItem = {
