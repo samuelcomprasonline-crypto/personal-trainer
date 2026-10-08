@@ -1,17 +1,15 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
+  TextInput,
   useWindowDimensions,
   View,
 } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Line, Path, Stop } from 'react-native-svg';
-import { trainer } from '../src/data/seed';
 import type { UserRole } from '../src/domain/types';
 import { useAuth } from '../src/state/AuthContext';
 import { useTheme } from '../src/ui/theme';
@@ -20,7 +18,7 @@ export default function Entrada() {
   const t = useTheme();
   const { width } = useWindowDimensions();
   const isWide = width >= 900;
-  const { profile, signIn, signUp, signOut, enterDemoMode } = useAuth();
+  const { profile, signIn, signUp, enterDemoMode } = useAuth();
 
   // Abas do Portal: Login vs Cadastro
   const [authMode, setAuthMode] = useState<'login' | 'cadastro'>('login');
@@ -31,19 +29,19 @@ export default function Entrada() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [inviteCode, setInviteCode] = useState('');
-  const [studioName, setStudioName] = useState('Aurora Personal Studio');
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const neonLime = '#10B981';
-  const cardBg = '#0E141E';
+  const cardBg = '#0D0E12';
   const cardBorder = 'rgba(255, 255, 255, 0.08)';
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      setErrorMessage('Por favor, informe seu e-mail e senha.');
+      // Se não preencheu e clicar no botão, direciona com base no perfil selecionado
+      handleQuickDemo(role);
       return;
     }
 
@@ -107,138 +105,162 @@ export default function Entrada() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: '#0A0E14' }}
+      style={{ flex: 1, backgroundColor: '#0A0D14' }}
       contentContainerStyle={{
         minHeight: '100%',
-        paddingVertical: isWide ? 40 : 20,
-        paddingHorizontal: isWide ? 40 : 16,
+        paddingVertical: isWide ? 48 : 24,
+        paddingHorizontal: isWide ? 48 : 20,
         justifyContent: 'center',
         alignItems: 'center',
       }}
       showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
     >
       <View
         style={{
           width: '100%',
-          maxWidth: 1200,
+          maxWidth: 1180,
           flexDirection: isWide ? 'row' : 'column',
-          gap: 32,
+          gap: isWide ? 56 : 32,
           alignItems: isWide ? 'center' : 'stretch',
         }}
       >
-        {/* COLUNA ESQUERDA: HERO SHOWCASE E PREVIEW DO TABLET */}
-        <View style={{ flex: 1, gap: 20 }}>
-          {/* Logo e Nome da Marca */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+        {/* LADO ESQUERDO: BRANDING & VALUE PROPS */}
+        <View style={{ flex: 1.1, gap: 24 }}>
+          {/* Logo Minimalista com Ícone Verde Neon Brilhante */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View
               style={{
-                width: 48,
-                height: 48,
-                borderRadius: 14,
-                backgroundColor: neonLime,
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                borderWidth: 1,
+                borderColor: 'rgba(16, 185, 129, 0.5)',
                 alignItems: 'center',
                 justifyContent: 'center',
                 shadowColor: neonLime,
-                shadowOpacity: 0.4,
+                shadowOpacity: 0.35,
                 shadowRadius: 10,
               }}
             >
-              <Text style={{ fontSize: 24 }}>⚡</Text>
+              <Text style={{ fontSize: 18 }}>⚡</Text>
             </View>
             <View>
-              <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: '900', letterSpacing: -0.5 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800', letterSpacing: 0.5 }}>
                 AURORA STUDIO
               </Text>
-              <Text style={{ color: neonLime, fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
-                Sistema Operacional Biométrico & Gestão 360°
+              <Text style={{ color: '#10B981', fontSize: 10, fontWeight: '700', letterSpacing: 1.0, textTransform: 'uppercase' }}>
+                SISTEMA OPERACIONAL BIOMÉTRICO & GESTÃO 360
               </Text>
             </View>
           </View>
 
-          <Text style={{ color: '#FFFFFF', fontSize: isWide ? 34 : 26, fontWeight: '900', lineHeight: isWide ? 42 : 32 }}>
+          {/* Headline Elegante */}
+          <Text
+            style={{
+              color: '#FFFFFF',
+              fontSize: isWide ? 38 : 28,
+              fontWeight: '800',
+              lineHeight: isWide ? 46 : 36,
+              letterSpacing: -0.6,
+            }}
+          >
             A plataforma mais avançada para Personal Trainers e Alunos.
           </Text>
 
-          <Text style={{ color: '#8E9AA8', fontSize: 15, lineHeight: 22 }}>
+          {/* Parágrafo de Baixo Contraste */}
+          <Text style={{ color: '#8E9AA8', fontSize: 15, lineHeight: 24, maxWidth: 520 }}>
             Prescrição inteligente de treinos com biomecânica, dietas com cálculo automático de macros,
             leitor de balança por PDF/foto, scanner corporal 3D e fluxo financeiro integrado com cobrança Pix.
           </Text>
 
-          {/* CARD DE PREVIEW REAL DO DASHBOARD DO TABLET */}
+          {/* SHOWCASE TECNOLOGIA BIOMÉTRICA */}
           <View
             style={{
               backgroundColor: cardBg,
-              borderRadius: 20,
-              padding: 20,
+              borderRadius: 18,
+              padding: 22,
               borderWidth: 1,
               borderColor: cardBorder,
-              gap: 14,
+              gap: 16,
+              maxWidth: 520,
             }}
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: neonLime }} />
-                <Text style={{ color: neonLime, fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
-                  TECNOLOGIA BIOMÉTRICA DE PONTA
+                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: neonLime }} />
+                <Text style={{ color: neonLime, fontSize: 10.5, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
+                  TECNOLOGIA BIOMÉTRICA
                 </Text>
               </View>
-              <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '600' }}>
+              <Text style={{ color: '#6B7280', fontSize: 11, fontWeight: '600' }}>
                 Tablet & Desktop Pro
               </Text>
             </View>
 
-            {/* Miniatura do Strength Score Wave */}
+            {/* STRENGTH SCORE 89 & CURVA DE ONDA VERDE */}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View style={{ gap: 2 }}>
-                <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '700' }}>STRENGTH SCORE</Text>
-                <Text style={{ color: '#FFFFFF', fontSize: 32, fontWeight: '900' }}>89</Text>
-                <Text style={{ color: neonLime, fontSize: 11, fontWeight: '700' }}>● Excelente (+7%)</Text>
+                <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                  STRENGTH SCORE
+                </Text>
+                <Text style={{ color: '#FFFFFF', fontSize: 36, fontWeight: '900', lineHeight: 40 }}>
+                  89
+                </Text>
+                <Text style={{ color: neonLime, fontSize: 11.5, fontWeight: '700' }}>
+                  ● Excelente (+7%)
+                </Text>
               </View>
 
-              <View style={{ width: 140, height: 60 }}>
-                <Svg width="140" height="60" viewBox="0 0 140 60">
+              <View style={{ width: 140, height: 55 }}>
+                <Svg width="140" height="55" viewBox="0 0 140 55">
                   <Defs>
-                    <LinearGradient id="previewWave" x1="0" y1="0" x2="0" y2="1">
-                      <Stop offset="0%" stopColor={neonLime} stopOpacity="0.4" />
+                    <LinearGradient id="loginWave" x1="0" y1="0" x2="0" y2="1">
+                      <Stop offset="0%" stopColor={neonLime} stopOpacity="0.35" />
                       <Stop offset="100%" stopColor={neonLime} stopOpacity="0.0" />
                     </LinearGradient>
                   </Defs>
                   <Path
-                    d="M 10 50 C 30 50, 40 35, 60 40 C 80 45, 90 20, 110 25 C 120 28, 125 10, 135 10 L 135 55 L 10 55 Z"
-                    fill="url(#previewWave)"
+                    d="M 10 45 C 30 45, 40 32, 60 36 C 80 40, 90 18, 110 22 C 120 25, 125 10, 135 10 L 135 50 L 10 50 Z"
+                    fill="url(#loginWave)"
                   />
                   <Path
-                    d="M 10 50 C 30 50, 40 35, 60 40 C 80 45, 90 20, 110 25 C 120 28, 125 10, 135 10"
+                    d="M 10 45 C 30 45, 40 32, 60 36 C 80 40, 90 18, 110 22 C 120 25, 125 10, 135 10"
                     fill="none"
                     stroke={neonLime}
-                    strokeWidth="2.5"
+                    strokeWidth="2.2"
                   />
-                  <Circle cx="135" cy="10" r="4" fill={neonLime} />
+                  <Circle cx="135" cy="10" r="3.5" fill={neonLime} />
                 </Svg>
               </View>
             </View>
 
-            {/* 4 Destaques em Pílulas */}
-            <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', paddingTop: 6 }}>
+            {/* BADGES MINIMALISTAS COM OUTLINES SUTIS */}
+            <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', paddingTop: 4 }}>
               {[
-                '🧬 Scanner 3D Vivo',
-                '📄 Balança PDF / OCR',
-                '🥗 Dieta & Macros',
-                '💰 Cobrança Pix',
+                { label: 'Scanner 3D Vivo', icon: '🧬' },
+                { label: 'Balança PDF/OCR', icon: '📄' },
+                { label: 'Dieta & Macros', icon: '🥗' },
+                { label: 'Cobrança Pix', icon: '💰' },
               ].map((feat, idx) => (
                 <View
                   key={idx}
                   style={{
-                    backgroundColor: '#121622',
+                    backgroundColor: '#11151F',
                     paddingHorizontal: 10,
-                    paddingVertical: 5,
+                    paddingVertical: 6,
                     borderRadius: 8,
                     borderWidth: 1,
-                    borderColor: 'rgba(255,255,255,0.06)',
+                    borderColor: 'rgba(255, 255, 255, 0.06)',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 6,
                   }}
                 >
-                  <Text style={{ color: '#D1D5DB', fontSize: 11, fontWeight: '700' }}>
-                    {feat}
+                  <Text style={{ fontSize: 11 }}>{feat.icon}</Text>
+                  <Text style={{ color: '#D1D5DB', fontSize: 11, fontWeight: '600' }}>
+                    {feat.label}
                   </Text>
                 </View>
               ))}
@@ -246,31 +268,32 @@ export default function Entrada() {
           </View>
         </View>
 
-        {/* COLUNA DIREITA: PORTAL DE ACESSO, LOGIN & DEMOS DE 1 CLIQUE */}
+        {/* LADO DIREITO: THE LOGIN CARD (TRANSLÚCIDO & GLASSMORPHISM) */}
         <View
           style={{
-            flex: 1,
-            maxWidth: isWide ? 480 : '100%',
+            flex: 0.95,
+            width: '100%',
+            maxWidth: isWide ? 460 : '100%',
             backgroundColor: cardBg,
-            borderRadius: 24,
-            padding: 28,
+            borderRadius: 20,
+            padding: isWide ? 32 : 24,
             borderWidth: 1,
             borderColor: cardBorder,
-            gap: 18,
+            gap: 20,
             shadowColor: '#000000',
-            shadowOpacity: 0.5,
-            shadowRadius: 20,
+            shadowOpacity: 0.6,
+            shadowRadius: 30,
           }}
         >
-          {/* Seletor de Abas: Entrar vs Criar Conta */}
+          {/* Abas Minimalistas de Baixo Contraste */}
           <View
             style={{
               flexDirection: 'row',
-              backgroundColor: '#0F131D',
-              borderRadius: 14,
-              padding: 4,
+              backgroundColor: '#0A0D14',
+              borderRadius: 12,
+              padding: 3,
               borderWidth: 1,
-              borderColor: 'rgba(255, 255, 255, 0.06)',
+              borderColor: 'rgba(255, 255, 255, 0.05)',
             }}
           >
             <Pressable
@@ -280,20 +303,20 @@ export default function Entrada() {
               }}
               style={{
                 flex: 1,
-                paddingVertical: 10,
+                paddingVertical: 8,
                 alignItems: 'center',
-                borderRadius: 10,
-                backgroundColor: authMode === 'login' ? '#1E2533' : 'transparent',
+                borderRadius: 9,
+                backgroundColor: authMode === 'login' ? '#161B26' : 'transparent',
               }}
             >
               <Text
                 style={{
-                  color: authMode === 'login' ? '#FFFFFF' : '#8E9AA8',
-                  fontSize: 13,
+                  color: authMode === 'login' ? '#FFFFFF' : '#6B7280',
+                  fontSize: 12.5,
                   fontWeight: '700',
                 }}
               >
-                🔑 Entrar na Conta
+                Entrar na Conta
               </Text>
             </Pressable>
 
@@ -304,27 +327,27 @@ export default function Entrada() {
               }}
               style={{
                 flex: 1,
-                paddingVertical: 10,
+                paddingVertical: 8,
                 alignItems: 'center',
-                borderRadius: 10,
-                backgroundColor: authMode === 'cadastro' ? '#1E2533' : 'transparent',
+                borderRadius: 9,
+                backgroundColor: authMode === 'cadastro' ? '#161B26' : 'transparent',
               }}
             >
               <Text
                 style={{
-                  color: authMode === 'cadastro' ? '#FFFFFF' : '#8E9AA8',
-                  fontSize: 13,
+                  color: authMode === 'cadastro' ? '#FFFFFF' : '#6B7280',
+                  fontSize: 12.5,
                   fontWeight: '700',
                 }}
               >
-                📝 Criar Nova Conta
+                Criar Nova Conta
               </Text>
             </Pressable>
           </View>
 
-          {/* Seletor de Perfil: Treinador vs Aluno */}
-          <View style={{ gap: 6 }}>
-            <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '700', textTransform: 'uppercase' }}>
+          {/* Seletor Segmentado de Perfil */}
+          <View style={{ gap: 8 }}>
+            <Text style={{ color: '#6B7280', fontSize: 10.5, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' }}>
               ESCOLHA SEU PERFIL:
             </Text>
             <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -332,22 +355,23 @@ export default function Entrada() {
                 onPress={() => setRole('trainer')}
                 style={{
                   flex: 1,
-                  backgroundColor: role === 'trainer' ? 'rgba(0, 240, 255, 0.1)' : '#0F131D',
+                  backgroundColor: role === 'trainer' ? 'rgba(16, 185, 129, 0.08)' : '#0A0D14',
                   borderRadius: 12,
-                  padding: 12,
+                  paddingVertical: 10,
+                  paddingHorizontal: 12,
                   borderWidth: 1,
-                  borderColor: role === 'trainer' ? '#00F0FF' : 'rgba(255, 255, 255, 0.06)',
+                  borderColor: role === 'trainer' ? neonLime : 'rgba(255, 255, 255, 0.06)',
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 10,
+                  gap: 8,
                 }}
               >
-                <Text style={{ fontSize: 20 }}>⚡</Text>
+                <Text style={{ fontSize: 16 }}>⚡</Text>
                 <View>
-                  <Text style={{ color: role === 'trainer' ? '#FFFFFF' : '#8E9AA8', fontSize: 13, fontWeight: '800' }}>
+                  <Text style={{ color: role === 'trainer' ? '#FFFFFF' : '#8E9AA8', fontSize: 12.5, fontWeight: '700' }}>
                     Treinador
                   </Text>
-                  <Text style={{ color: '#6B7A8D', fontSize: 10 }}>Gestão & Alunos</Text>
+                  <Text style={{ color: '#6B7280', fontSize: 9.5 }}>Personal Pro</Text>
                 </View>
               </Pressable>
 
@@ -355,163 +379,258 @@ export default function Entrada() {
                 onPress={() => setRole('student')}
                 style={{
                   flex: 1,
-                  backgroundColor: role === 'student' ? 'rgba(16, 185, 129, 0.1)' : '#0F131D',
+                  backgroundColor: role === 'student' ? 'rgba(16, 185, 129, 0.08)' : '#0A0D14',
                   borderRadius: 12,
-                  padding: 12,
+                  paddingVertical: 10,
+                  paddingHorizontal: 12,
                   borderWidth: 1,
                   borderColor: role === 'student' ? neonLime : 'rgba(255, 255, 255, 0.06)',
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 10,
+                  gap: 8,
                 }}
               >
-                <Text style={{ fontSize: 20 }}>👤</Text>
+                <Text style={{ fontSize: 16 }}>👤</Text>
                 <View>
-                  <Text style={{ color: role === 'student' ? '#FFFFFF' : '#8E9AA8', fontSize: 13, fontWeight: '800' }}>
+                  <Text style={{ color: role === 'student' ? '#FFFFFF' : '#8E9AA8', fontSize: 12.5, fontWeight: '700' }}>
                     Aluno VIP
                   </Text>
-                  <Text style={{ color: '#6B7A8D', fontSize: 10 }}>Treino & Dieta</Text>
+                  <Text style={{ color: '#6B7280', fontSize: 9.5 }}>Treino & Dieta</Text>
                 </View>
               </Pressable>
             </View>
           </View>
 
-          {/* Feedback de Erro ou Sucesso */}
+          {/* Mensagens de Feedback */}
           {errorMessage && (
-            <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', borderWidth: 1, borderColor: '#EF4444', borderRadius: 10, padding: 10 }}>
-              <Text style={{ color: '#EF4444', fontSize: 12, fontWeight: '700' }}>
+            <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.12)', borderWidth: 1, borderColor: '#EF4444', borderRadius: 8, padding: 8 }}>
+              <Text style={{ color: '#EF4444', fontSize: 11.5, fontWeight: '600' }}>
                 ⚠️ {errorMessage}
               </Text>
             </View>
           )}
 
           {successMessage && (
-            <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', borderWidth: 1, borderColor: neonLime, borderRadius: 10, padding: 10 }}>
-              <Text style={{ color: neonLime, fontSize: 12, fontWeight: '700' }}>
+            <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.12)', borderWidth: 1, borderColor: neonLime, borderRadius: 8, padding: 8 }}>
+              <Text style={{ color: neonLime, fontSize: 11.5, fontWeight: '600' }}>
                 ✓ {successMessage}
               </Text>
             </View>
           )}
 
-          {/* FORMULÁRIO */}
+          {/* FORMULÁRIO COM INPUTS SUTIS */}
           {authMode === 'login' ? (
-            <View style={{ gap: 12 }}>
-              <View style={{ gap: 4 }}>
-                <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '700' }}>E-mail Cadastrado</Text>
-                <View style={{ backgroundColor: '#0F131D', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 12, paddingVertical: 10 }}>
-                  <Text style={{ color: '#FFFFFF', fontSize: 14 }}>
-                    {email || 'exemplo@email.com'}
-                  </Text>
-                </View>
+            <View style={{ gap: 14 }}>
+              <View style={{ gap: 5 }}>
+                <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '600' }}>E-mail Cadastrado</Text>
+                <TextInput
+                  value={email}
+                  onChangeText={(val) => {
+                    setEmail(val);
+                    setErrorMessage(null);
+                  }}
+                  placeholder={role === 'trainer' ? 'personal@aurorastudio.com' : 'aluno@aurorastudio.com'}
+                  placeholderTextColor="#4B5563"
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  style={{
+                    backgroundColor: '#0A0D14',
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    paddingHorizontal: 12,
+                    paddingVertical: 10,
+                    color: '#FFFFFF',
+                    fontSize: 13.5,
+                  }}
+                />
               </View>
 
-              <View style={{ gap: 4 }}>
-                <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '700' }}>Senha de Acesso</Text>
-                <View style={{ backgroundColor: '#0F131D', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 12, paddingVertical: 10 }}>
-                  <Text style={{ color: '#8E9AA8', fontSize: 14 }}>••••••••</Text>
-                </View>
+              <View style={{ gap: 5 }}>
+                <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '600' }}>Senha de Acesso</Text>
+                <TextInput
+                  value={password}
+                  onChangeText={(val) => {
+                    setPassword(val);
+                    setErrorMessage(null);
+                  }}
+                  placeholder="••••••••"
+                  placeholderTextColor="#4B5563"
+                  secureTextEntry
+                  style={{
+                    backgroundColor: '#0A0D14',
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    paddingHorizontal: 12,
+                    paddingVertical: 10,
+                    color: '#FFFFFF',
+                    fontSize: 13.5,
+                  }}
+                />
               </View>
 
+              {/* Botão Primário Verde Esmeralda Compacto e Vibrante */}
               <Pressable
-                onPress={() => handleQuickDemo(role)}
+                onPress={handleLogin}
+                disabled={submitting}
                 style={({ pressed }) => ({
                   backgroundColor: neonLime,
-                  borderRadius: 12,
-                  paddingVertical: 13,
+                  borderRadius: 10,
+                  paddingVertical: 12,
                   alignItems: 'center',
                   opacity: pressed ? 0.9 : 1,
                   shadowColor: neonLime,
-                  shadowOpacity: 0.35,
+                  shadowOpacity: 0.3,
                   shadowRadius: 8,
-                  marginTop: 4,
+                  marginTop: 2,
                 })}
               >
-                <Text style={{ color: '#0A0E14', fontSize: 14, fontWeight: '900' }}>
-                  Acessar Plataforma ➔
-                </Text>
+                {submitting ? (
+                  <ActivityIndicator color="#0A0E14" />
+                ) : (
+                  <Text style={{ color: '#0A0E14', fontSize: 13.5, fontWeight: '800' }}>
+                    Acessar Plataforma →
+                  </Text>
+                )}
               </Pressable>
             </View>
           ) : (
-            <View style={{ gap: 10 }}>
+            <View style={{ gap: 12 }}>
               <View style={{ gap: 4 }}>
-                <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '700' }}>Nome Completo *</Text>
-                <View style={{ backgroundColor: '#0F131D', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 12, paddingVertical: 10 }}>
-                  <Text style={{ color: '#FFFFFF', fontSize: 13 }}>Ex: Prof. Samuel Ferreira</Text>
-                </View>
+                <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '600' }}>Nome Completo</Text>
+                <TextInput
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="Seu nome completo"
+                  placeholderTextColor="#4B5563"
+                  style={{
+                    backgroundColor: '#0A0D14',
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    paddingHorizontal: 12,
+                    paddingVertical: 9,
+                    color: '#FFFFFF',
+                    fontSize: 13,
+                  }}
+                />
               </View>
 
               <View style={{ gap: 4 }}>
-                <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '700' }}>E-mail *</Text>
-                <View style={{ backgroundColor: '#0F131D', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 12, paddingVertical: 10 }}>
-                  <Text style={{ color: '#FFFFFF', fontSize: 13 }}>personal@aurorastudio.com</Text>
-                </View>
+                <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '600' }}>E-mail</Text>
+                <TextInput
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="seu@email.com"
+                  placeholderTextColor="#4B5563"
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  style={{
+                    backgroundColor: '#0A0D14',
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    paddingHorizontal: 12,
+                    paddingVertical: 9,
+                    color: '#FFFFFF',
+                    fontSize: 13,
+                  }}
+                />
+              </View>
+
+              <View style={{ gap: 4 }}>
+                <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '600' }}>Senha</Text>
+                <TextInput
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder="Mínimo 6 caracteres"
+                  placeholderTextColor="#4B5563"
+                  secureTextEntry
+                  style={{
+                    backgroundColor: '#0A0D14',
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    paddingHorizontal: 12,
+                    paddingVertical: 9,
+                    color: '#FFFFFF',
+                    fontSize: 13,
+                  }}
+                />
               </View>
 
               <Pressable
-                onPress={() => handleQuickDemo(role)}
+                onPress={handleRegister}
+                disabled={submitting}
                 style={({ pressed }) => ({
                   backgroundColor: neonLime,
-                  borderRadius: 12,
-                  paddingVertical: 13,
+                  borderRadius: 10,
+                  paddingVertical: 12,
                   alignItems: 'center',
                   opacity: pressed ? 0.9 : 1,
-                  marginTop: 6,
+                  marginTop: 4,
                 })}
               >
-                <Text style={{ color: '#0A0E14', fontSize: 14, fontWeight: '900' }}>
-                  Cadastrar e Acessar Agora 🚀
-                </Text>
+                {submitting ? (
+                  <ActivityIndicator color="#0A0E14" />
+                ) : (
+                  <Text style={{ color: '#0A0E14', fontSize: 13.5, fontWeight: '800' }}>
+                    Criar Conta & Acessar →
+                  </Text>
+                )}
               </Pressable>
             </View>
           )}
 
-          {/* DIVISOR */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 4 }}>
-            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-            <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '800', textTransform: 'uppercase' }}>
+          {/* Divisor "OU TESTE EM 1 CLIQUE" */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 2 }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255, 255, 255, 0.06)' }} />
+            <Text style={{ color: '#6B7280', fontSize: 9.5, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
               OU TESTE EM 1 CLIQUE
             </Text>
-            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255, 255, 255, 0.06)' }} />
           </View>
 
-          {/* BOTÕES DE ACESSO RÁPIDO INSTANTÂNEO */}
+          {/* DOIS BOTÕES HOLLOW COM CONTORNOS SUTIS */}
           <View style={{ gap: 8 }}>
             <Pressable
               onPress={() => handleQuickDemo('trainer')}
               style={({ pressed }) => ({
-                backgroundColor: 'rgba(0, 240, 255, 0.08)',
+                backgroundColor: 'rgba(16, 185, 129, 0.04)',
                 borderWidth: 1,
-                borderColor: '#00F0FF',
-                borderRadius: 12,
-                paddingVertical: 12,
+                borderColor: 'rgba(16, 185, 129, 0.3)',
+                borderRadius: 10,
+                paddingVertical: 10,
                 alignItems: 'center',
                 opacity: pressed ? 0.85 : 1,
               })}
             >
-              <Text style={{ color: '#00F0FF', fontSize: 13, fontWeight: '800' }}>
-                ⚡ Testar como Treinador (Personal Pro)
+              <Text style={{ color: '#10B981', fontSize: 12, fontWeight: '700' }}>
+                Testar como Treinador (Personal Pro)
               </Text>
             </Pressable>
 
             <Pressable
               onPress={() => handleQuickDemo('student')}
               style={({ pressed }) => ({
-                backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                backgroundColor: 'rgba(56, 189, 248, 0.04)',
                 borderWidth: 1,
-                borderColor: neonLime,
-                borderRadius: 12,
-                paddingVertical: 12,
+                borderColor: 'rgba(56, 189, 248, 0.3)',
+                borderRadius: 10,
+                paddingVertical: 10,
                 alignItems: 'center',
                 opacity: pressed ? 0.85 : 1,
               })}
             >
-              <Text style={{ color: neonLime, fontSize: 13, fontWeight: '800' }}>
-                👤 Testar como Aluno VIP (Dashboard da Foto)
+              <Text style={{ color: '#38BDF8', fontSize: 12, fontWeight: '700' }}>
+                Testar como Aluno VIP
               </Text>
             </Pressable>
           </View>
 
-          <Text style={{ color: '#6B7A8D', fontSize: 10, textAlign: 'center', marginTop: 4 }}>
+          {/* Nota de Segurança Elegante */}
+          <Text style={{ color: '#4B5563', fontSize: 9.5, textAlign: 'center' }}>
             🔒 Sincronização em nuvem ativa com Supabase e criptografia ponta a ponta.
           </Text>
         </View>

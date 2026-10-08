@@ -71,7 +71,7 @@ export default function Hoje() {
     { label: 'DOM', day: 26, active: false },
   ];
 
-  const studentName = profile?.name ? profile.name.split(' ')[0] : 'Alex';
+  const studentName = profile?.name ? profile.name.split(' ')[0] : 'Samuel';
   const slot = nextSlot(template, logs);
   const session = slot ? template.sessions.find((s) => s.id === slot.sessionId)! : null;
 
@@ -84,45 +84,40 @@ export default function Hoje() {
   const pullupImg = require('../../assets/exercise_pullup.jpg');
 
   // Cores do tema Titanium & Emerald Cirúrgico
-  const cardBg = '#0E141E';
+  const cardBg = '#0D0E12';
   const cardBorder = 'rgba(255, 255, 255, 0.07)';
   const neonLime = '#10B981';
 
   return (
     <Screen>
-      <View style={{ gap: 20, width: '100%' }}>
-      {/* 1. TOPO DO DASHBOARD (BEM-VINDO + DIAS DA SEMANA + NOTIFICAÇÃO + AVATAR) */}
-      <View
-        style={{
-          flexDirection: isWide ? 'row' : 'column',
-          justifyContent: 'space-between',
-          alignItems: isWide ? 'center' : 'flex-start',
-          gap: 16,
-          paddingBottom: 6,
-        }}
-      >
-        {/* Saudação do Aluno */}
-        <View style={{ gap: 2 }}>
-          <Text style={{ color: '#8E9AA8', fontSize: 13, fontWeight: '500' }}>
-            Bem-vindo de volta,
-          </Text>
-          <Text style={{ color: '#FFFFFF', fontSize: 28, fontWeight: '900', letterSpacing: -0.5 }}>
-            {studentName}
-          </Text>
-          <Text style={{ color: '#8E9AA8', fontSize: 13, fontWeight: '500' }}>
-            Pronto para superar seus limites hoje?
-          </Text>
-        </View>
+      <View style={{ gap: 22, width: '100%' }}>
+        {/* 1. TOPO DO DASHBOARD: SAUDAÇÃO & CALENDÁRIO SEMANAL */}
+        <View
+          style={{
+            flexDirection: isWide ? 'row' : 'column',
+            justifyContent: 'space-between',
+            alignItems: isWide ? 'center' : 'flex-start',
+            gap: 16,
+            paddingBottom: 4,
+          }}
+        >
+          {/* Saudação Elegante */}
+          <View style={{ gap: 2 }}>
+            <Text style={{ color: '#FFFFFF', fontSize: 26, fontWeight: '800', letterSpacing: -0.4 }}>
+              Bem-vindo de volta, {studentName}
+            </Text>
+            <Text style={{ color: '#8E9AA8', fontSize: 13, fontWeight: '500' }}>
+              Aluno VIP • Pronto para superar seus limites hoje?
+            </Text>
+          </View>
 
-        {/* Lado Direito: Seletor de Dias da Semana + Ícones */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
           {/* Faixa dos dias da semana (Pill Strip) */}
           <View
             style={{
               flexDirection: 'row',
-              backgroundColor: '#121622',
-              borderRadius: 16,
-              padding: 6,
+              backgroundColor: '#111520',
+              borderRadius: 14,
+              padding: 5,
               borderWidth: 1,
               borderColor: cardBorder,
               gap: 4,
@@ -134,9 +129,9 @@ export default function Hoje() {
                 style={{
                   alignItems: 'center',
                   justifyContent: 'center',
-                  paddingVertical: 6,
+                  paddingVertical: 5,
                   paddingHorizontal: 10,
-                  borderRadius: 12,
+                  borderRadius: 10,
                   backgroundColor: d.active ? neonLime : 'transparent',
                 }}
               >
@@ -152,9 +147,9 @@ export default function Hoje() {
                 <Text
                   style={{
                     color: d.active ? '#0A0E14' : '#FFFFFF',
-                    fontSize: 13,
+                    fontSize: 12.5,
                     fontWeight: '800',
-                    marginTop: 2,
+                    marginTop: 1,
                   }}
                 >
                   {d.day}
@@ -162,491 +157,410 @@ export default function Hoje() {
               </View>
             ))}
           </View>
-
-          {/* Sino de Notificação */}
-          <View
-            style={{
-              width: 42,
-              height: 42,
-              borderRadius: 21,
-              backgroundColor: '#141824',
-              borderWidth: 1,
-              borderColor: cardBorder,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Text style={{ fontSize: 16 }}>🔔</Text>
-          </View>
-
-          {/* Avatar com Iniciais */}
-          <View
-            style={{
-              width: 42,
-              height: 42,
-              borderRadius: 21,
-              backgroundColor: '#1C2433',
-              borderWidth: 2,
-              borderColor: neonLime,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Text style={{ color: neonLime, fontSize: 14, fontWeight: '900' }}>
-              {studentName.substring(0, 2).toUpperCase()}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* 2. LINHA SUPERIOR DE CARDS (STRENGTH SCORE + WEEKLY PROGRESS) */}
-      <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 18 }}>
-        {/* CARD 1: STRENGTH SCORE (89 EXCELENTE + ONDA VERDE NEON) */}
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: cardBg,
-            borderRadius: 20,
-            padding: 20,
-            borderWidth: 1,
-            borderColor: cardBorder,
-            justifyContent: 'space-between',
-            minHeight: 185,
-          }}
-        >
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <View style={{ gap: 4 }}>
-              <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
-                SCORE DE FORÇA & METABOLISMO
-              </Text>
-              <Text style={{ color: '#FFFFFF', fontSize: 44, fontWeight: '900', lineHeight: 46 }}>
-                89
-              </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
-                <Text style={{ color: neonLime, fontSize: 13, fontWeight: '800' }}>
-                  Excelente
-                </Text>
-                <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '600' }}>
-                  +7% vs último mês
-                </Text>
-              </View>
-            </View>
-
-            {/* Gráfico de Onda Fluida Verde Neon (SVG) com escala 0-100 */}
-            <View style={{ width: 170, height: 100, position: 'relative' }}>
-              <Svg width="170" height="100" viewBox="0 0 170 100">
-                <Defs>
-                  <LinearGradient id="waveGlow" x1="0" y1="0" x2="0" y2="1">
-                    <Stop offset="0%" stopColor={neonLime} stopOpacity="0.45" />
-                    <Stop offset="100%" stopColor={neonLime} stopOpacity="0.0" />
-                  </LinearGradient>
-                </Defs>
-
-                {/* Grade sutil */}
-                <Line x1="15" y1="20" x2="165" y2="20" stroke="rgba(255,255,255,0.05)" strokeDasharray="2,3" />
-                <Line x1="15" y1="50" x2="165" y2="50" stroke="rgba(255,255,255,0.05)" strokeDasharray="2,3" />
-                <Line x1="15" y1="80" x2="165" y2="80" stroke="rgba(255,255,255,0.05)" strokeDasharray="2,3" />
-
-                {/* Área preenchida com gradiente */}
-                <Path
-                  d="M 15 85 C 35 85, 45 60, 65 65 C 85 70, 95 40, 115 45 C 135 50, 145 20, 165 20 L 165 95 L 15 95 Z"
-                  fill="url(#waveGlow)"
-                />
-
-                {/* Linha de onda verde neon */}
-                <Path
-                  d="M 15 85 C 35 85, 45 60, 65 65 C 85 70, 95 40, 115 45 C 135 50, 145 20, 165 20"
-                  fill="none"
-                  stroke={neonLime}
-                  strokeWidth="3"
-                />
-
-                {/* Ponto de ápice com anel de luz */}
-                <Circle cx="165" cy="20" r="5" fill={neonLime} />
-                <Circle cx="165" cy="20" r="8" fill="none" stroke={neonLime} strokeWidth="1.5" strokeOpacity="0.5" />
-              </Svg>
-            </View>
-          </View>
         </View>
 
-        {/* CARD 2: WEEKLY PROGRESS (4/6 TREINOS + BARRA VERDE + VOLUME TOTAL) */}
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: cardBg,
-            borderRadius: 20,
-            padding: 20,
-            borderWidth: 1,
-            borderColor: cardBorder,
-            justifyContent: 'space-between',
-            minHeight: 185,
-            gap: 16,
-          }}
-        >
-          <View style={{ gap: 6 }}>
-            <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
-              PROGRESSO SEMANAL
-            </Text>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 32, fontWeight: '900' }}>
-                4
-              </Text>
-              <Text style={{ color: '#8E9AA8', fontSize: 20, fontWeight: '700' }}>
-                / 6
-              </Text>
-              <Text style={{ color: '#8E9AA8', fontSize: 13, fontWeight: '500', marginLeft: 4 }}>
-                Treinos Concluídos
-              </Text>
-            </View>
-
-            {/* Barra de Progresso Verde Neon (67%) */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 }}>
+        {/* 2. LAYOUT PRINCIPAL: COLUNA 2 (MEIO - PROGRESSO & BIOMETRIA) vs COLUNA 3 (DIREITA - TREINO & ATIVIDADE) */}
+        <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 20 }}>
+          {/* COLUNA 2: MIDDLE - PROGRESS, BIOMETRICS & ACTIVITY (55%) */}
+          <View style={{ flex: isWide ? 1.25 : 1, gap: 18 }}>
+            {/* CARDS DE PROGRESSO: SCORE DE FORÇA + PROGRESSO SEMANAL */}
+            <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 14 }}>
+              {/* CARD: SCORE DE FORÇA & METABOLISMO (89 EXCELENTE + CURVA VERDE) */}
               <View
                 style={{
                   flex: 1,
-                  height: 8,
-                  backgroundColor: '#1E2533',
-                  borderRadius: 4,
-                  overflow: 'hidden',
-                }}
-              >
-                <View
-                  style={{
-                    width: '67%',
-                    height: '100%',
-                    backgroundColor: neonLime,
-                    borderRadius: 4,
-                  }}
-                />
-              </View>
-              <Text style={{ color: '#8E9AA8', fontSize: 12, fontWeight: '700' }}>
-                67%
-              </Text>
-            </View>
-          </View>
-
-          {/* Divisão de Estatísticas (Volume Total e Tempo) */}
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 10, borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
-            <View style={{ gap: 2 }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }}>
-                12.450 kg
-              </Text>
-              <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '500' }}>
-                Volume Total
-              </Text>
-            </View>
-
-            <View style={{ gap: 2, alignItems: 'flex-end' }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }}>
-                6h 25m
-              </Text>
-              <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '500' }}>
-                Tempo Ativo
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* NOVO: WIDGET DE HIDRATAÇÃO RÁPIDA (QUICK WATER TRACKER) */}
-      <View
-        style={{
-          backgroundColor: '#0F1626',
-          borderRadius: 18,
-          padding: 18,
-          borderWidth: 1,
-          borderColor: 'rgba(0, 240, 255, 0.25)',
-          gap: 12,
-        }}
-      >
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: 12,
-                backgroundColor: 'rgba(0, 240, 255, 0.15)',
-                borderWidth: 1,
-                borderColor: '#00F0FF',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Text style={{ fontSize: 18 }}>💧</Text>
-            </View>
-            <View>
-              <Text style={{ color: '#00F0FF', fontSize: 10, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
-                CONTROLE DE HIDRATAÇÃO BIOMÉTRICA
-              </Text>
-              <Text style={{ color: '#FFFFFF', fontSize: 17, fontWeight: '900' }}>
-                {waterMl.toLocaleString('pt-BR')} ml <Text style={{ color: '#8E9AA8', fontSize: 13, fontWeight: '500' }}>de {targetWaterMl.toLocaleString('pt-BR')} ml meta</Text>
-              </Text>
-            </View>
-          </View>
-
-          {/* Botões Rápidos de Registro */}
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <Pressable
-              onPress={() => handleAddWater(250)}
-              style={({ pressed }) => ({
-                backgroundColor: 'rgba(0, 240, 255, 0.1)',
-                paddingHorizontal: 12,
-                paddingVertical: 7,
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: '#00F0FF',
-                opacity: pressed ? 0.8 : 1,
-              })}
-            >
-              <Text style={{ color: '#00F0FF', fontSize: 12, fontWeight: '800' }}>
-                +250ml 🥛 Copo
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => handleAddWater(500)}
-              style={({ pressed }) => ({
-                backgroundColor: '#00F0FF',
-                paddingHorizontal: 12,
-                paddingVertical: 7,
-                borderRadius: 10,
-                opacity: pressed ? 0.8 : 1,
-              })}
-            >
-              <Text style={{ color: '#0A0E14', fontSize: 12, fontWeight: '900' }}>
-                +500ml 🧴 Garrafa
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Barra de Progresso de Água */}
-        <View style={{ height: 8, backgroundColor: '#162238', borderRadius: 4, overflow: 'hidden' }}>
-          <View style={{ width: `${waterPercent}%`, height: '100%', backgroundColor: '#00F0FF', borderRadius: 4 }} />
-        </View>
-      </View>
-
-      {/* 3. LINHA DO MEIO: TODAY'S WORKOUT vs RECENT ACTIVITY */}
-      <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 18 }}>
-        {/* CARD 3: TODAY'S WORKOUT (EXERCÍCIOS COM CHECKBOX + BOTÃO VERDE NEON) */}
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: cardBg,
-            borderRadius: 20,
-            padding: 22,
-            borderWidth: 1,
-            borderColor: cardBorder,
-            gap: 16,
-          }}
-        >
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <View style={{ gap: 4 }}>
-              <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
-                TREINO DO DIA
-              </Text>
-              <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '900' }}>
-                {session?.name ?? 'Upper Push • Peitoral & Deltoides'}
-              </Text>
-            </View>
-          </View>
-
-          {swapSuccessNotice && (
-            <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', borderWidth: 1, borderColor: neonLime, borderRadius: 10, padding: 10 }}>
-              <Text style={{ color: neonLime, fontSize: 12, fontWeight: '700' }}>
-                ✓ {swapSuccessNotice}
-              </Text>
-            </View>
-          )}
-
-          {/* Lista Dinâmica de Exercícios com Ação de Troca Rápida */}
-          <View style={{ gap: 10 }}>
-            {todayExercises.map((item, idx) => (
-              <View
-                key={idx}
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingVertical: 10,
-                  paddingHorizontal: 12,
-                  borderRadius: 12,
-                  backgroundColor: item.done ? 'rgba(16, 185, 129, 0.04)' : '#10141F',
+                  backgroundColor: cardBg,
+                  borderRadius: 16,
+                  padding: 18,
                   borderWidth: 1,
-                  borderColor: item.done ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.03)',
+                  borderColor: cardBorder,
+                  justifyContent: 'space-between',
+                  minHeight: 175,
                 }}
               >
-                <Pressable
-                  onPress={() => {
-                    const ex = exerciseById(item.exId);
-                    if (ex) setSelectedVideoExercise(ex);
-                  }}
-                  style={{ flex: 1, gap: 2 }}
-                >
-                  <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '600' }}>
-                    {item.name}
-                  </Text>
-                  <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
-                    {item.setsReps} • Ver execução técnica ↗
-                  </Text>
-                </Pressable>
-
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  {/* Botão de Troca Rápida de Aparelho Ocupado */}
-                  <Pressable
-                    onPress={() => {
-                      const ex = exerciseById(item.exId);
-                      if (ex) setExerciseToSwap(ex);
-                    }}
-                    style={{
-                      paddingHorizontal: 8,
-                      paddingVertical: 4,
-                      borderRadius: 6,
-                      backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                      borderWidth: 1,
-                      borderColor: 'rgba(255, 255, 255, 0.1)',
-                    }}
-                  >
-                    <Text style={{ color: '#9CA3AF', fontSize: 10, fontWeight: '700' }}>
-                      🔄 Trocar
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <View style={{ gap: 3 }}>
+                    <Text style={{ color: '#8E9AA8', fontSize: 10.5, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                      SCORE DE FORÇA & METABOLISMO
                     </Text>
-                  </Pressable>
+                    <Text style={{ color: '#FFFFFF', fontSize: 40, fontWeight: '900', lineHeight: 42 }}>
+                      89
+                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
+                      <Text style={{ color: neonLime, fontSize: 12, fontWeight: '800' }}>
+                        Excelente
+                      </Text>
+                      <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
+                        +7% vs último mês
+                      </Text>
+                    </View>
+                  </View>
 
-                  <View
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: 10,
-                      backgroundColor: item.done ? neonLime : 'transparent',
-                      borderWidth: item.done ? 0 : 2,
-                      borderColor: '#4A5568',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {item.done && (
-                      <Text style={{ color: '#0A0E14', fontSize: 11, fontWeight: '900' }}>✓</Text>
-                    )}
+                  {/* Gráfico de Curva Verde com Glow Fino */}
+                  <View style={{ width: 130, height: 80 }}>
+                    <Svg width="130" height="80" viewBox="0 0 130 80">
+                      <Defs>
+                        <LinearGradient id="waveGlowMid" x1="0" y1="0" x2="0" y2="1">
+                          <Stop offset="0%" stopColor={neonLime} stopOpacity="0.4" />
+                          <Stop offset="100%" stopColor={neonLime} stopOpacity="0.0" />
+                        </LinearGradient>
+                      </Defs>
+                      <Path
+                        d="M 10 70 C 25 70, 35 48, 55 52 C 75 56, 85 30, 100 34 C 112 38, 120 15, 125 15 L 125 75 L 10 75 Z"
+                        fill="url(#waveGlowMid)"
+                      />
+                      <Path
+                        d="M 10 70 C 25 70, 35 48, 55 52 C 75 56, 85 30, 100 34 C 112 38, 120 15, 125 15"
+                        fill="none"
+                        stroke={neonLime}
+                        strokeWidth="2.5"
+                      />
+                      <Circle cx="125" cy="15" r="4" fill={neonLime} />
+                      <Circle cx="125" cy="15" r="7" fill="none" stroke={neonLime} strokeWidth="1.2" strokeOpacity="0.4" />
+                    </Svg>
                   </View>
                 </View>
               </View>
-            ))}
-          </View>
 
-          {/* Botão de Iniciar Treino Verde Neon Vibrante (Idêntico ao "Start Workout") */}
-          <Pressable
-            onPress={openWorkout}
-            style={({ pressed }) => ({
-              backgroundColor: neonLime,
-              borderRadius: 14,
-              paddingVertical: 14,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              marginTop: 4,
-              shadowColor: neonLime,
-              shadowOpacity: 0.35,
-              shadowRadius: 10,
-              opacity: pressed ? 0.9 : 1,
-            })}
-          >
-            <Text style={{ color: '#0A0E14', fontSize: 15, fontWeight: '900' }}>
-              ▶ Iniciar Treino Agora
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* CARD 4: RECENT ACTIVITY (HISTÓRICO RECENTE COM VOLUMES E DATAS) */}
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: cardBg,
-            borderRadius: 20,
-            padding: 22,
-            borderWidth: 1,
-            borderColor: cardBorder,
-            justifyContent: 'space-between',
-            gap: 16,
-          }}
-        >
-          <View style={{ gap: 4 }}>
-            <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
-              ATIVIDADE RECENTE
-            </Text>
-          </View>
-
-          {/* Lista com ícones das sessões anteriores */}
-          <View style={{ gap: 12 }}>
-            {[
-              { title: 'Upper Push', date: 'Hoje', volume: '12.450 kg', icon: '🏋️' },
-              { title: 'Membros Inferiores (Pernas)', date: 'Ontem', volume: '15.750 kg', icon: '🦵' },
-              { title: 'Costas & Bíceps (Pull)', date: '21 Mai', volume: '11.200 kg', icon: '🧗' },
-              { title: 'Full Body Funcional', date: '19 Mai', volume: '10.500 kg', icon: '⚡' },
-            ].map((act, idx) => (
+              {/* CARD: PROGRESSO SEMANAL (4/6 TREINOS + BARRA LINEAR) */}
               <View
-                key={idx}
                 style={{
-                  flexDirection: 'row',
+                  flex: 1,
+                  backgroundColor: cardBg,
+                  borderRadius: 16,
+                  padding: 18,
+                  borderWidth: 1,
+                  borderColor: cardBorder,
                   justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingVertical: 10,
-                  borderBottomWidth: idx < 3 ? 1 : 0,
-                  borderColor: 'rgba(255, 255, 255, 0.05)',
+                  minHeight: 175,
+                  gap: 14,
                 }}
               >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View style={{ gap: 4 }}>
+                  <Text style={{ color: '#8E9AA8', fontSize: 10.5, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                    PROGRESSO SEMANAL
+                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 30, fontWeight: '900' }}>
+                      4
+                    </Text>
+                    <Text style={{ color: '#8E9AA8', fontSize: 18, fontWeight: '700' }}>
+                      / 6
+                    </Text>
+                    <Text style={{ color: '#8E9AA8', fontSize: 12, marginLeft: 4 }}>
+                      Treinos Concluídos
+                    </Text>
+                  </View>
+
+                  {/* Barra de Progresso Linear Verde (67%) */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        height: 7,
+                        backgroundColor: '#1E2533',
+                        borderRadius: 4,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: '67%',
+                          height: '100%',
+                          backgroundColor: neonLime,
+                          borderRadius: 4,
+                        }}
+                      />
+                    </View>
+                    <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '700' }}>
+                      67%
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Métricas: Volume Total e Tempo Ativo */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 8, borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
+                  <View style={{ gap: 1 }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800' }}>
+                      12.450 kg
+                    </Text>
+                    <Text style={{ color: '#8E9AA8', fontSize: 10.5 }}>
+                      Volume Total
+                    </Text>
+                  </View>
+
+                  <View style={{ gap: 1, alignItems: 'flex-end' }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800' }}>
+                      6h 25m
+                    </Text>
+                    <Text style={{ color: '#8E9AA8', fontSize: 10.5 }}>
+                      Tempo Ativo
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* CARD: CONTROLE DE HIDRATAÇÃO BIOMÉTRICA ISOLADO */}
+            <View
+              style={{
+                backgroundColor: cardBg,
+                borderRadius: 16,
+                padding: 18,
+                borderWidth: 1,
+                borderColor: 'rgba(56, 189, 248, 0.25)',
+                gap: 12,
+              }}
+            >
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                   <View
                     style={{
                       width: 36,
                       height: 36,
                       borderRadius: 10,
-                      backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                      backgroundColor: 'rgba(56, 189, 248, 0.12)',
                       borderWidth: 1,
-                      borderColor: 'rgba(16, 185, 129, 0.25)',
+                      borderColor: '#38BDF8',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
-                    <Text style={{ fontSize: 16 }}>{act.icon}</Text>
+                    <Text style={{ fontSize: 16 }}>💧</Text>
                   </View>
-                  <View style={{ gap: 2 }}>
-                    <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '700' }}>
-                      {act.title}
+                  <View>
+                    <Text style={{ color: '#38BDF8', fontSize: 10, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                      CONTROLE DE HIDRATAÇÃO BIOMÉTRICA
                     </Text>
-                    <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '500' }}>
-                      {act.date}
+                    <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '900' }}>
+                      {waterMl.toLocaleString('pt-BR')} ml <Text style={{ color: '#8E9AA8', fontSize: 12, fontWeight: '500' }}>de {targetWaterMl.toLocaleString('pt-BR')} ml meta</Text>
                     </Text>
                   </View>
                 </View>
 
-                <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '800' }}>
-                  {act.volume}
-                </Text>
+                {/* CTAs em Pílula +250ml Copo e +500ml Garrafa */}
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <Pressable
+                    onPress={() => handleAddWater(250)}
+                    style={({ pressed }) => ({
+                      backgroundColor: 'rgba(56, 189, 248, 0.08)',
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: 'rgba(56, 189, 248, 0.4)',
+                      opacity: pressed ? 0.8 : 1,
+                    })}
+                  >
+                    <Text style={{ color: '#38BDF8', fontSize: 11.5, fontWeight: '700' }}>
+                      +250ml Copo
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() => handleAddWater(500)}
+                    style={({ pressed }) => ({
+                      backgroundColor: '#38BDF8',
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                      borderRadius: 8,
+                      opacity: pressed ? 0.85 : 1,
+                    })}
+                  >
+                    <Text style={{ color: '#0A0E14', fontSize: 11.5, fontWeight: '800' }}>
+                      +500ml Garrafa
+                    </Text>
+                  </Pressable>
+                </View>
               </View>
-            ))}
+
+              {/* Barra de Progresso Azul Delicada */}
+              <View style={{ height: 7, backgroundColor: '#131D2D', borderRadius: 4, overflow: 'hidden' }}>
+                <View style={{ width: `${waterPercent}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: 4 }} />
+              </View>
+            </View>
           </View>
 
-          {/* Botão Ver Histórico Completo */}
-          <Pressable
-            onPress={() => router.navigate('/progresso')}
-            style={({ pressed }) => ({
-              backgroundColor: '#1E2533',
-              borderRadius: 12,
-              paddingVertical: 10,
-              alignItems: 'center',
-              borderWidth: 1,
-              borderColor: 'rgba(255, 255, 255, 0.06)',
-              opacity: pressed ? 0.85 : 1,
-            })}
-          >
-            <Text style={{ color: '#D1D5DB', fontSize: 12, fontWeight: '700' }}>
-              Ver Histórico Completo
-            </Text>
-          </Pressable>
+          {/* COLUNA 3: RIGHT SIDEBAR - WORKOUT DETAILS & ACTIVITY (45%) */}
+          <View style={{ flex: isWide ? 1.05 : 1, gap: 18 }}>
+            {/* SEÇÃO: TREINO DO DIA */}
+            <View
+              style={{
+                backgroundColor: cardBg,
+                borderRadius: 16,
+                padding: 18,
+                borderWidth: 1,
+                borderColor: cardBorder,
+                gap: 14,
+              }}
+            >
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View style={{ gap: 2 }}>
+                  <Text style={{ color: '#8E9AA8', fontSize: 10.5, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                    TREINO DO DIA - DIA 1
+                  </Text>
+                  <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }}>
+                    {session?.name ?? 'Upper Push • Peitoral & Deltoides'}
+                  </Text>
+                </View>
+              </View>
+
+              {swapSuccessNotice && (
+                <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.12)', borderWidth: 1, borderColor: neonLime, borderRadius: 8, padding: 8 }}>
+                  <Text style={{ color: neonLime, fontSize: 11.5, fontWeight: '700' }}>
+                    ✓ {swapSuccessNotice}
+                  </Text>
+                </View>
+              )}
+
+              {/* Lista Organizada de Exercícios com Checkmark Compacto e Botão Trocar */}
+              <View style={{ gap: 8 }}>
+                {todayExercises.slice(0, 4).map((item, idx) => (
+                  <View
+                    key={idx}
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      paddingVertical: 9,
+                      paddingHorizontal: 12,
+                      borderRadius: 10,
+                      backgroundColor: item.done ? 'rgba(16, 185, 129, 0.04)' : '#10141F',
+                      borderWidth: 1,
+                      borderColor: item.done ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                    }}
+                  >
+                    <Pressable
+                      onPress={() => {
+                        const ex = exerciseById(item.exId);
+                        if (ex) setSelectedVideoExercise(ex);
+                      }}
+                      style={{ flex: 1, gap: 2 }}
+                    >
+                      <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '600' }}>
+                        {item.name}
+                      </Text>
+                      <Text style={{ color: '#8E9AA8', fontSize: 10.5 }}>
+                        {item.setsReps}
+                      </Text>
+                    </Pressable>
+
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      {/* Botão Trocar */}
+                      <Pressable
+                        onPress={() => {
+                          const ex = exerciseById(item.exId);
+                          if (ex) setExerciseToSwap(ex);
+                        }}
+                        style={{
+                          paddingHorizontal: 7,
+                          paddingVertical: 3,
+                          borderRadius: 6,
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          borderWidth: 1,
+                          borderColor: 'rgba(255, 255, 255, 0.08)',
+                        }}
+                      >
+                        <Text style={{ color: '#9CA3AF', fontSize: 10, fontWeight: '700' }}>
+                          Trocar
+                        </Text>
+                      </Pressable>
+
+                      {/* Checkmark Compacto */}
+                      <View
+                        style={{
+                          width: 18,
+                          height: 18,
+                          borderRadius: 9,
+                          backgroundColor: item.done ? neonLime : 'transparent',
+                          borderWidth: item.done ? 0 : 1.5,
+                          borderColor: '#4A5568',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        {item.done && (
+                          <Text style={{ color: '#0A0E14', fontSize: 10, fontWeight: '900' }}>✓</Text>
+                        )}
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+
+              {/* Botão de Iniciar Treino Verde Esmeralda */}
+              <Pressable
+                onPress={openWorkout}
+                style={({ pressed }) => ({
+                  backgroundColor: neonLime,
+                  borderRadius: 12,
+                  paddingVertical: 12,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  opacity: pressed ? 0.9 : 1,
+                  shadowColor: neonLime,
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                })}
+              >
+                <Text style={{ color: '#0A0E14', fontSize: 13.5, fontWeight: '800' }}>
+                  ▶ Iniciar Treino Agora
+                </Text>
+              </Pressable>
+            </View>
+
+            {/* SEÇÃO: ATIVIDADE RECENTE */}
+            <View
+              style={{
+                backgroundColor: cardBg,
+                borderRadius: 16,
+                padding: 18,
+                borderWidth: 1,
+                borderColor: cardBorder,
+                gap: 12,
+              }}
+            >
+              <Text style={{ color: '#8E9AA8', fontSize: 10.5, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                ATIVIDADE RECENTE
+              </Text>
+
+              <View style={{ gap: 8 }}>
+                {[
+                  { title: 'Upper Push', date: 'Hoje', volume: '12.450 kg' },
+                  { title: 'Membros Inferiores', date: 'Ontem', volume: '15.750 kg' },
+                  { title: 'Costas & Bíceps', date: '21 Mai', volume: '11.200 kg' },
+                ].map((act, idx) => (
+                  <View
+                    key={idx}
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      paddingVertical: 8,
+                      borderBottomWidth: idx < 2 ? 1 : 0,
+                      borderColor: 'rgba(255, 255, 255, 0.04)',
+                    }}
+                  >
+                    <View style={{ gap: 2 }}>
+                      <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '600' }}>
+                        {act.title}
+                      </Text>
+                      <Text style={{ color: '#6B7280', fontSize: 10.5 }}>
+                        {act.date}
+                      </Text>
+                    </View>
+
+                    <Text style={{ color: '#D1D5DB', fontSize: 12, fontWeight: '700' }}>
+                      {act.volume}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
         </View>
-      </View>
 
       {/* 4. LINHA INFERIOR: EXERCISE LIBRARY vs ACHIEVEMENTS */}
       <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 18 }}>
