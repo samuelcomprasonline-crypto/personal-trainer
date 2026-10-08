@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, Image, useWindowDimensions, Modal, ScrollView } from 'react-native';
+import { View, Text, Pressable, useWindowDimensions, Modal, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import Svg, { Defs, LinearGradient, Stop, Line, Path, Circle } from 'react-native-svg';
 import { approvedAlternatives, exerciseById, exercises, studentEquipment, template, trainer } from '../../src/data/seed';
@@ -29,13 +29,13 @@ export default function Hoje() {
   const [exerciseToSwap, setExerciseToSwap] = useState<Exercise | null>(null);
   const [swapSuccessNotice, setSwapSuccessNotice] = useState<string | null>(null);
 
-  // Lista dinâmica de exercícios do treino de hoje
+  // Lista dinâmica de exercícios do treino de hoje (Treino Oficial de Pernas / Membros Inferiores)
   const [todayExercises, setTodayExercises] = useState([
-    { name: 'Supino Reto com Barra', setsReps: '4 x 6-8', done: true, exId: 'supino-reto' },
-    { name: 'Supino Inclinado com Halteres', setsReps: '4 x 8-10', done: true, exId: 'supino-inclinado' },
-    { name: 'Desenvolvimento Militar Halteres', setsReps: '3 x 8-10', done: false, exId: 'desenvolvimento-halteres' },
-    { name: 'Crucifixo na Polia Média', setsReps: '3 x 12-15', done: false, exId: 'crucifixo-polia' },
-    { name: 'Tríceps Pulley na Corda', setsReps: '3 x 12-15', done: false, exId: 'triceps-corda' },
+    { name: 'Leg Press - Pés Paralelos', setsReps: '4 x 15', done: true, exId: 'leg-press' },
+    { name: 'Cadeira Extensora', setsReps: '4 x 15', done: true, exId: 'extensora' },
+    { name: 'Mesa Flexora', setsReps: '4 x 15', done: false, exId: 'mesa-flexora' },
+    { name: 'Agachamento com Bola', setsReps: '4 x 15', done: false, exId: 'agachamento-bola' },
+    { name: 'Panturrilha em Pé', setsReps: '4 x 15', done: false, exId: 'panturrilha-em-pe' },
   ]);
 
   const handleAddWater = (amount: number) => {
@@ -76,12 +76,6 @@ export default function Hoje() {
   const session = slot ? template.sessions.find((s) => s.id === slot.sessionId)! : null;
 
   const openWorkout = () => router.push('/treino');
-
-  // Fotos dos 4 exercícios principais em alta resolução
-  const benchPressImg = require('../../assets/exercise_bench_press.jpg');
-  const deadliftImg = require('../../assets/exercise_deadlift.jpg');
-  const squatImg = require('../../assets/exercise_squat.jpg');
-  const pullupImg = require('../../assets/exercise_pullup.jpg');
 
   // Cores do tema Titanium & Emerald Cirúrgico
   const cardBg = '#0D0E12';
@@ -400,7 +394,7 @@ export default function Hoje() {
                     TREINO DO DIA - DIA 1
                   </Text>
                   <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }}>
-                    {session?.name ?? 'Upper Push • Peitoral & Deltoides'}
+                    {session?.name ?? 'DIA 1 — Pernas'}
                   </Text>
                 </View>
               </View>
@@ -413,9 +407,9 @@ export default function Hoje() {
                 </View>
               )}
 
-              {/* Lista Organizada de Exercícios com Checkmark Compacto e Botão Trocar */}
+              {/* Lista Organizada de Exercícios de Pernas com Checkmark Compacto e Botão Trocar */}
               <View style={{ gap: 8 }}>
-                {todayExercises.slice(0, 4).map((item, idx) => (
+                {todayExercises.map((item, idx) => (
                   <View
                     key={idx}
                     style={{
@@ -562,164 +556,7 @@ export default function Hoje() {
           </View>
         </View>
 
-      {/* 4. LINHA INFERIOR: EXERCISE LIBRARY vs ACHIEVEMENTS */}
-      <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 18 }}>
-        {/* CARD 5: EXERCISE LIBRARY (4 CARDS COM FOTOS REAIS EM ALTA RESOLUÇÃO) */}
-        <View
-          style={{
-            flex: isWide ? 2 : 1,
-            backgroundColor: cardBg,
-            borderRadius: 20,
-            padding: 22,
-            borderWidth: 1,
-            borderColor: cardBorder,
-            gap: 16,
-          }}
-        >
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
-              BIBLIOTECA DE EXERCÍCIOS
-            </Text>
-            <Pressable onPress={() => router.push('/progresso')}>
-              <Text style={{ color: neonLime, fontSize: 12, fontWeight: '700' }}>
-                Ver Todos ↗
-              </Text>
-            </Pressable>
-          </View>
 
-          {/* Grid dos 4 Exercícios com Fotos Reais */}
-          <View style={{ flexDirection: 'row', gap: 12, flexWrap: 'wrap' }}>
-            {[
-              { name: 'Supino Reto', target: 'Peitoral', img: benchPressImg, exId: 'supino-reto' },
-              { name: 'Levantamento Terra', target: 'Costas & Posterior', img: deadliftImg, exId: 'terra' },
-              { name: 'Agachamento Livre', target: 'Quadríceps', img: squatImg, exId: 'agachamento' },
-              { name: 'Barra Fixa', target: 'Dorsal & Bíceps', img: pullupImg, exId: 'barra-fixa' },
-            ].map((item, idx) => (
-              <Pressable
-                key={idx}
-                onPress={() => {
-                  const ex = exerciseById(item.exId);
-                  if (ex) setSelectedVideoExercise(ex);
-                }}
-                style={({ pressed }) => ({
-                  flex: 1,
-                  minWidth: 130,
-                  backgroundColor: '#0F131C',
-                  borderRadius: 14,
-                  overflow: 'hidden',
-                  borderWidth: 1,
-                  borderColor: 'rgba(255, 255, 255, 0.08)',
-                  opacity: pressed ? 0.88 : 1,
-                })}
-              >
-                <Image
-                  source={item.img}
-                  style={{ width: '100%', height: 110, resizeMode: 'cover' }}
-                />
-                <View style={{ padding: 10, gap: 2 }}>
-                  <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '800' }} numberOfLines={1}>
-                    {item.name}
-                  </Text>
-                  <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '600' }} numberOfLines={1}>
-                    {item.target}
-                  </Text>
-                </View>
-              </Pressable>
-            ))}
-          </View>
-
-          <Pressable
-            onPress={() => router.navigate('/progresso')}
-            style={({ pressed }) => ({
-              backgroundColor: '#1E2533',
-              borderRadius: 12,
-              paddingVertical: 10,
-              alignItems: 'center',
-              borderWidth: 1,
-              borderColor: 'rgba(255, 255, 255, 0.06)',
-              opacity: pressed ? 0.85 : 1,
-            })}
-          >
-            <Text style={{ color: '#D1D5DB', fontSize: 12, fontWeight: '700' }}>
-              Ver Biblioteca de Exercícios Completa
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* CARD 6: ACHIEVEMENTS (8 BADGES DESBLOQUEADOS + MEDALHAS HEXAGONAIS) */}
-        <View
-          style={{
-            flex: isWide ? 1 : 1,
-            backgroundColor: cardBg,
-            borderRadius: 20,
-            padding: 22,
-            borderWidth: 1,
-            borderColor: cardBorder,
-            justifyContent: 'space-between',
-            gap: 16,
-          }}
-        >
-          <View style={{ gap: 4 }}>
-            <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
-              CONQUISTAS & BADGES
-            </Text>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 32, fontWeight: '900' }}>
-                8
-              </Text>
-              <Text style={{ color: '#8E9AA8', fontSize: 13, fontWeight: '600' }}>
-                Medalhas Desbloqueadas
-              </Text>
-            </View>
-          </View>
-
-          {/* Insígnias Luminosas Hexagonais (Idênticas ao Tablet) */}
-          <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'space-between', paddingVertical: 10 }}>
-            {[
-              { icon: '🛡️', color: neonLime, label: 'Força' },
-              { icon: '🔥', color: '#FFB703', label: 'Queima' },
-              { icon: '⚡', color: '#00F0FF', label: 'Carga' },
-              { icon: '💎', color: '#A855F7', label: 'Mestre' },
-            ].map((badge, idx) => (
-              <View
-                key={idx}
-                style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 14,
-                  backgroundColor: '#121622',
-                  borderWidth: 1.5,
-                  borderColor: badge.color,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  shadowColor: badge.color,
-                  shadowOpacity: 0.35,
-                  shadowRadius: 8,
-                }}
-              >
-                <Text style={{ fontSize: 22 }}>{badge.icon}</Text>
-              </View>
-            ))}
-          </View>
-
-          <Pressable
-            onPress={() => router.navigate('/progresso')}
-            style={({ pressed }) => ({
-              backgroundColor: '#1E2533',
-              borderRadius: 12,
-              paddingVertical: 10,
-              alignItems: 'center',
-              borderWidth: 1,
-              borderColor: 'rgba(255, 255, 255, 0.06)',
-              opacity: pressed ? 0.85 : 1,
-            })}
-          >
-            <Text style={{ color: '#D1D5DB', fontSize: 12, fontWeight: '700' }}>
-              Ver Todas as Conquistas
-            </Text>
-          </Pressable>
-        </View>
-      </View>
 
       {/* MODAL DE VÍDEO DO EXERCÍCIO COM YOUTUBE */}
       <ExerciseVideoModal

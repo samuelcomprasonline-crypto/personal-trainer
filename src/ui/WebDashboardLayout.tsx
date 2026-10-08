@@ -33,12 +33,13 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
     { label: 'Financeiro', icon: '💰', route: '/financeiro' },
   ];
 
-  // Menus estritamente específicos para o Aluno
+  // Menus estritamente específicos para o Aluno (Prompt Aurora Studio)
   const studentNavItems: NavItem[] = [
-    { label: 'Treino de Hoje', icon: '🏋️‍♂️', route: '/hoje' },
-    { label: 'Dieta & Macros', icon: '🥗', route: '/dieta' },
-    { label: 'Avaliação & Fotos', icon: '📈', route: '/progresso' },
-    { label: 'Meu Treinador', icon: '👤', route: '/treinador' },
+    { label: 'Hoje', icon: '⚡', route: '/hoje' },
+    { label: 'Treino', icon: '🏋️‍♂️', route: '/treino' },
+    { label: 'Evolução', icon: '📈', route: '/progresso' },
+    { label: 'Nutrição', icon: '🥗', route: '/dieta' },
+    { label: 'Perfil', icon: '👤', route: '/treinador' },
   ];
 
   const activeNavItems = isTrainer ? trainerNavItems : studentNavItems;
@@ -177,25 +178,52 @@ export function WebDashboardLayout({ children }: { children: ReactNode }) {
           </View>
         </View>
 
-        {/* Rodapé: Encerramento Discreto */}
-        <View style={{ gap: 10, borderTopWidth: 1, borderTopColor: 'rgba(255, 255, 255, 0.06)', paddingTop: 12 }}>
-          <Pressable
-            onPress={async () => {
-              await signOut();
-              router.replace('/');
-            }}
-            style={({ pressed }) => ({
-              paddingVertical: 7,
-              paddingHorizontal: 10,
-              borderRadius: 6,
-              alignItems: 'center',
-              backgroundColor: pressed ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-            })}
-          >
-            <Text style={{ color: '#6B7280', fontSize: 11, fontWeight: '500' }}>
-              Encerramento
-            </Text>
-          </Pressable>
+        {/* Rodapé: Mini-Avatar com Status Online e Botão Sair Discreto */}
+        <View style={{ borderTopWidth: 1, borderTopColor: 'rgba(255, 255, 255, 0.06)', paddingTop: 12 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+              <View
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  backgroundColor: '#161B26',
+                  borderWidth: 1,
+                  borderColor: 'rgba(255, 255, 255, 0.08)',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ fontSize: 13 }}>{isTrainer ? '⚡' : '👤'}</Text>
+              </View>
+              <View style={{ gap: 2 }}>
+                <Text style={{ color: '#FFFFFF', fontSize: 11.5, fontWeight: '700' }} numberOfLines={1}>
+                  {isTrainer ? 'Aurora Treinador' : profile?.name?.split(' ')[0] ?? 'Samuel'}
+                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' }} />
+                  <Text style={{ color: '#10B981', fontSize: 9.5, fontWeight: '600' }}>Online</Text>
+                </View>
+              </View>
+            </View>
+
+            <Pressable
+              onPress={async () => {
+                await signOut();
+                router.replace('/');
+              }}
+              style={({ pressed }) => ({
+                paddingVertical: 4,
+                paddingHorizontal: 8,
+                borderRadius: 6,
+                backgroundColor: pressed ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+              })}
+            >
+              <Text style={{ color: '#6B7280', fontSize: 11, fontWeight: '500' }}>
+                Sair ↗
+              </Text>
+            </Pressable>
+          </View>
         </View>
       </View>
 
