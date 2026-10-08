@@ -1,4 +1,4 @@
-import { useWindowDimensions } from 'react-native';
+import { Platform, useWindowDimensions } from 'react-native';
 import { useTheme } from './theme';
 
 export function useTabOptions() {
@@ -13,17 +13,20 @@ export function useTabOptions() {
     tabBarStyle: isDesktop
       ? { display: 'none' as const }
       : {
-          backgroundColor: '#0D1117',
-          borderTopColor: '#1E2633',
+          backgroundColor: '#0D0E12',
+          borderTopColor: 'rgba(255, 255, 255, 0.08)',
           borderTopWidth: 1,
-          height: 62,
-          paddingBottom: 10,
+          height: Platform.OS === 'ios' ? 78 : 64,
+          paddingBottom: Platform.OS === 'ios' ? 20 : 8,
           paddingTop: 8,
         },
     tabBarLabelStyle: {
-      fontSize: 12,
+      fontSize: 11,
       fontWeight: '700' as const,
-      letterSpacing: 0.3,
+      letterSpacing: 0.2,
+    },
+    tabBarItemStyle: {
+      paddingVertical: 2,
     },
   };
 }

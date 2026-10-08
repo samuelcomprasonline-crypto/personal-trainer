@@ -42,16 +42,16 @@ export default function StudentTabs() {
       <Tabs.Screen
         name="hoje"
         options={{
-          title: 'Treinos & Hoje',
+          title: 'Hoje',
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 18, color }}>🏋️‍♂️</Text>
+            <Text style={{ fontSize: 18, color }}>⚡</Text>
           ),
         }}
       />
       <Tabs.Screen
         name="dieta"
         options={{
-          title: 'Dieta & Macros',
+          title: 'Nutrição',
           tabBarIcon: ({ color }) => (
             <Text style={{ fontSize: 18, color }}>🥗</Text>
           ),
@@ -60,7 +60,7 @@ export default function StudentTabs() {
       <Tabs.Screen
         name="progresso"
         options={{
-          title: 'Avaliação & 3D',
+          title: 'Evolução',
           tabBarIcon: ({ color }) => (
             <Text style={{ fontSize: 18, color }}>📈</Text>
           ),

@@ -84,20 +84,21 @@ export default function Hoje() {
 
   return (
     <Screen>
-      <View style={{ gap: 22, width: '100%' }}>
+      <View style={{ gap: isWide ? 22 : 16, width: '100%' }}>
         {/* 1. TOPO DO DASHBOARD: SAUDAÇÃO & CALENDÁRIO SEMANAL */}
         <View
           style={{
             flexDirection: isWide ? 'row' : 'column',
             justifyContent: 'space-between',
-            alignItems: isWide ? 'center' : 'flex-start',
-            gap: 16,
-            paddingBottom: 4,
+            alignItems: isWide ? 'center' : 'stretch',
+            gap: 14,
+            paddingBottom: 2,
+            width: '100%',
           }}
         >
           {/* Saudação Elegante */}
           <View style={{ gap: 2 }}>
-            <Text style={{ color: '#FFFFFF', fontSize: 26, fontWeight: '800', letterSpacing: -0.4 }}>
+            <Text style={{ color: '#FFFFFF', fontSize: isWide ? 26 : 22, fontWeight: '800', letterSpacing: -0.4 }}>
               Bem-vindo de volta, {studentName}
             </Text>
             <Text style={{ color: '#8E9AA8', fontSize: 13, fontWeight: '500' }}>
@@ -105,26 +106,27 @@ export default function Hoje() {
             </Text>
           </View>
 
-          {/* Faixa dos dias da semana (Pill Strip) */}
+          {/* Faixa dos dias da semana (Pill Strip) - Preenchendo 100% da tela de forma simétrica */}
           <View
             style={{
               flexDirection: 'row',
               backgroundColor: '#111520',
               borderRadius: 14,
-              padding: 5,
+              padding: 4,
               borderWidth: 1,
               borderColor: cardBorder,
-              gap: 4,
+              width: '100%',
+              alignItems: 'center',
             }}
           >
             {daysOfWeek.map((d, idx) => (
               <View
                 key={idx}
                 style={{
+                  flex: 1,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  paddingVertical: 5,
-                  paddingHorizontal: 10,
+                  paddingVertical: isWide ? 8 : 7,
                   borderRadius: 10,
                   backgroundColor: d.active ? neonLime : 'transparent',
                 }}
@@ -132,7 +134,7 @@ export default function Hoje() {
                 <Text
                   style={{
                     color: d.active ? '#0A0E14' : '#8E9AA8',
-                    fontSize: 9,
+                    fontSize: 9.5,
                     fontWeight: '800',
                   }}
                 >
@@ -154,30 +156,31 @@ export default function Hoje() {
         </View>
 
         {/* 2. LAYOUT PRINCIPAL: COLUNA 2 (MEIO - PROGRESSO & BIOMETRIA) vs COLUNA 3 (DIREITA - TREINO & ATIVIDADE) */}
-        <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 20 }}>
+        <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 18, width: '100%' }}>
           {/* COLUNA 2: MIDDLE - PROGRESS, BIOMETRICS & ACTIVITY (55%) */}
-          <View style={{ flex: isWide ? 1.25 : 1, gap: 18 }}>
+          <View style={{ flex: isWide ? 1.25 : 1, gap: 16, width: '100%' }}>
             {/* CARDS DE PROGRESSO: SCORE DE FORÇA + PROGRESSO SEMANAL */}
-            <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 14 }}>
+            <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 14, width: '100%' }}>
               {/* CARD: SCORE DE FORÇA & METABOLISMO (89 EXCELENTE + CURVA VERDE) */}
               <View
                 style={{
                   flex: 1,
                   backgroundColor: cardBg,
                   borderRadius: 16,
-                  padding: 18,
+                  padding: 16,
                   borderWidth: 1,
                   borderColor: cardBorder,
                   justifyContent: 'space-between',
-                  minHeight: 175,
+                  minHeight: 155,
+                  overflow: 'hidden',
                 }}
               >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <View style={{ gap: 3 }}>
-                    <Text style={{ color: '#8E9AA8', fontSize: 10.5, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
-                      SCORE DE FORÇA & METABOLISMO
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <View style={{ gap: 2, flex: 1, paddingRight: 6 }}>
+                    <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                      SCORE DE FORÇA
                     </Text>
-                    <Text style={{ color: '#FFFFFF', fontSize: 40, fontWeight: '900', lineHeight: 42 }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 36, fontWeight: '900', lineHeight: 40 }}>
                       89
                     </Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
@@ -191,8 +194,8 @@ export default function Hoje() {
                   </View>
 
                   {/* Gráfico de Curva Verde com Glow Fino */}
-                  <View style={{ width: 130, height: 80 }}>
-                    <Svg width="130" height="80" viewBox="0 0 130 80">
+                  <View style={{ width: 110, height: 70, flexShrink: 0 }}>
+                    <Svg width="110" height="70" viewBox="0 0 130 80">
                       <Defs>
                         <LinearGradient id="waveGlowMid" x1="0" y1="0" x2="0" y2="1">
                           <Stop offset="0%" stopColor={neonLime} stopOpacity="0.4" />
@@ -222,23 +225,23 @@ export default function Hoje() {
                   flex: 1,
                   backgroundColor: cardBg,
                   borderRadius: 16,
-                  padding: 18,
+                  padding: 16,
                   borderWidth: 1,
                   borderColor: cardBorder,
                   justifyContent: 'space-between',
-                  minHeight: 175,
-                  gap: 14,
+                  minHeight: 155,
+                  gap: 12,
                 }}
               >
                 <View style={{ gap: 4 }}>
-                  <Text style={{ color: '#8E9AA8', fontSize: 10.5, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                  <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
                     PROGRESSO SEMANAL
                   </Text>
                   <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-                    <Text style={{ color: '#FFFFFF', fontSize: 30, fontWeight: '900' }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 28, fontWeight: '900' }}>
                       4
                     </Text>
-                    <Text style={{ color: '#8E9AA8', fontSize: 18, fontWeight: '700' }}>
+                    <Text style={{ color: '#8E9AA8', fontSize: 16, fontWeight: '700' }}>
                       / 6
                     </Text>
                     <Text style={{ color: '#8E9AA8', fontSize: 12, marginLeft: 4 }}>
@@ -275,7 +278,7 @@ export default function Hoje() {
                 {/* Métricas: Volume Total e Tempo Ativo */}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 8, borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
                   <View style={{ gap: 1 }}>
-                    <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800' }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '800' }}>
                       12.450 kg
                     </Text>
                     <Text style={{ color: '#8E9AA8', fontSize: 10.5 }}>
@@ -284,7 +287,7 @@ export default function Hoje() {
                   </View>
 
                   <View style={{ gap: 1, alignItems: 'flex-end' }}>
-                    <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800' }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '800' }}>
                       6h 25m
                     </Text>
                     <Text style={{ color: '#8E9AA8', fontSize: 10.5 }}>
@@ -300,92 +303,101 @@ export default function Hoje() {
               style={{
                 backgroundColor: cardBg,
                 borderRadius: 16,
-                padding: 18,
+                padding: 16,
                 borderWidth: 1,
                 borderColor: 'rgba(56, 189, 248, 0.25)',
-                gap: 12,
+                gap: 14,
+                width: '100%',
               }}
             >
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <View
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 10,
-                      backgroundColor: 'rgba(56, 189, 248, 0.12)',
-                      borderWidth: 1,
-                      borderColor: '#38BDF8',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Text style={{ fontSize: 16 }}>💧</Text>
-                  </View>
-                  <View>
-                    <Text style={{ color: '#38BDF8', fontSize: 10, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
-                      CONTROLE DE HIDRATAÇÃO BIOMÉTRICA
-                    </Text>
-                    <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '900' }}>
-                      {waterMl.toLocaleString('pt-BR')} ml <Text style={{ color: '#8E9AA8', fontSize: 12, fontWeight: '500' }}>de {targetWaterMl.toLocaleString('pt-BR')} ml meta</Text>
-                    </Text>
-                  </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 12,
+                    backgroundColor: 'rgba(56, 189, 248, 0.12)',
+                    borderWidth: 1,
+                    borderColor: '#38BDF8',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 20 }}>💧</Text>
                 </View>
-
-                {/* CTAs em Pílula +250ml Copo e +500ml Garrafa */}
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <Pressable
-                    onPress={() => handleAddWater(250)}
-                    style={({ pressed }) => ({
-                      backgroundColor: 'rgba(56, 189, 248, 0.08)',
-                      paddingHorizontal: 12,
-                      paddingVertical: 6,
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      borderColor: 'rgba(56, 189, 248, 0.4)',
-                      opacity: pressed ? 0.8 : 1,
-                    })}
-                  >
-                    <Text style={{ color: '#38BDF8', fontSize: 11.5, fontWeight: '700' }}>
-                      +250ml Copo
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: '#38BDF8', fontSize: 10, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                    CONTROLE DE HIDRATAÇÃO BIOMÉTRICA
+                  </Text>
+                  <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '900' }}>
+                    {waterMl.toLocaleString('pt-BR')} ml{' '}
+                    <Text style={{ color: '#8E9AA8', fontSize: 12, fontWeight: '500' }}>
+                      de {targetWaterMl.toLocaleString('pt-BR')} ml meta
                     </Text>
-                  </Pressable>
-
-                  <Pressable
-                    onPress={() => handleAddWater(500)}
-                    style={({ pressed }) => ({
-                      backgroundColor: '#38BDF8',
-                      paddingHorizontal: 12,
-                      paddingVertical: 6,
-                      borderRadius: 8,
-                      opacity: pressed ? 0.85 : 1,
-                    })}
-                  >
-                    <Text style={{ color: '#0A0E14', fontSize: 11.5, fontWeight: '800' }}>
-                      +500ml Garrafa
-                    </Text>
-                  </Pressable>
+                  </Text>
                 </View>
               </View>
 
               {/* Barra de Progresso Azul Delicada */}
-              <View style={{ height: 7, backgroundColor: '#131D2D', borderRadius: 4, overflow: 'hidden' }}>
+              <View style={{ height: 8, backgroundColor: '#131D2D', borderRadius: 4, overflow: 'hidden' }}>
                 <View style={{ width: `${waterPercent}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: 4 }} />
+              </View>
+
+              {/* CTAs em Pílula +250ml Copo e +500ml Garrafa (Preenchendo a tela no mobile com área de toque grande) */}
+              <View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
+                <Pressable
+                  onPress={() => handleAddWater(250)}
+                  style={({ pressed }) => ({
+                    flex: 1,
+                    backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                    paddingVertical: 12,
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: 'rgba(56, 189, 248, 0.4)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: 44,
+                    opacity: pressed ? 0.8 : 1,
+                  })}
+                >
+                  <Text style={{ color: '#38BDF8', fontSize: 13, fontWeight: '700' }}>
+                    +250ml Copo
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => handleAddWater(500)}
+                  style={({ pressed }) => ({
+                    flex: 1,
+                    backgroundColor: '#38BDF8',
+                    paddingVertical: 12,
+                    borderRadius: 10,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: 44,
+                    opacity: pressed ? 0.85 : 1,
+                  })}
+                >
+                  <Text style={{ color: '#0A0E14', fontSize: 13, fontWeight: '800' }}>
+                    +500ml Garrafa
+                  </Text>
+                </Pressable>
               </View>
             </View>
           </View>
 
           {/* COLUNA 3: RIGHT SIDEBAR - WORKOUT DETAILS & ACTIVITY (45%) */}
-          <View style={{ flex: isWide ? 1.05 : 1, gap: 18 }}>
+          <View style={{ flex: isWide ? 1.05 : 1, gap: 16, width: '100%' }}>
             {/* SEÇÃO: TREINO DO DIA */}
             <View
               style={{
                 backgroundColor: cardBg,
                 borderRadius: 16,
-                padding: 18,
+                padding: 16,
                 borderWidth: 1,
                 borderColor: cardBorder,
                 gap: 14,
+                width: '100%',
               }}
             >
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -394,21 +406,21 @@ export default function Hoje() {
                     TREINO DO DIA - DIA 1
                   </Text>
                   <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }}>
-                    {session?.name ?? 'DIA 1 — Pernas'}
+                    Pernas • Membros Inferiores
                   </Text>
                 </View>
               </View>
 
               {swapSuccessNotice && (
-                <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.12)', borderWidth: 1, borderColor: neonLime, borderRadius: 8, padding: 8 }}>
-                  <Text style={{ color: neonLime, fontSize: 11.5, fontWeight: '700' }}>
+                <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.12)', borderWidth: 1, borderColor: neonLime, borderRadius: 8, padding: 10 }}>
+                  <Text style={{ color: neonLime, fontSize: 12, fontWeight: '700' }}>
                     ✓ {swapSuccessNotice}
                   </Text>
                 </View>
               )}
 
-              {/* Lista Organizada de Exercícios de Pernas com Checkmark Compacto e Botão Trocar */}
-              <View style={{ gap: 8 }}>
+              {/* Lista Organizada de Exercícios de Pernas com Checkmark Interativo e Botão Trocar */}
+              <View style={{ gap: 10, width: '100%' }}>
                 {todayExercises.map((item, idx) => (
                   <View
                     key={idx}
@@ -416,12 +428,13 @@ export default function Hoje() {
                       flexDirection: 'row',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      paddingVertical: 9,
+                      paddingVertical: 12,
                       paddingHorizontal: 12,
-                      borderRadius: 10,
-                      backgroundColor: item.done ? 'rgba(16, 185, 129, 0.04)' : '#10141F',
+                      borderRadius: 12,
+                      backgroundColor: item.done ? 'rgba(16, 185, 129, 0.05)' : '#10141F',
                       borderWidth: 1,
-                      borderColor: item.done ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                      borderColor: item.done ? 'rgba(16, 185, 129, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                      minHeight: 56,
                     }}
                   >
                     <Pressable
@@ -429,12 +442,15 @@ export default function Hoje() {
                         const ex = exerciseById(item.exId);
                         if (ex) setSelectedVideoExercise(ex);
                       }}
-                      style={{ flex: 1, gap: 2 }}
+                      style={{ flex: 1, gap: 2, paddingRight: 6 }}
                     >
-                      <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '600' }}>
-                        {item.name}
-                      </Text>
-                      <Text style={{ color: '#8E9AA8', fontSize: 10.5 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <Text style={{ color: '#FFFFFF', fontSize: 13.5, fontWeight: '600' }} numberOfLines={1}>
+                          {item.name}
+                        </Text>
+                        <Text style={{ fontSize: 11, color: neonLime }}>▶</Text>
+                      </View>
+                      <Text style={{ color: '#8E9AA8', fontSize: 11 }}>
                         {item.setsReps}
                       </Text>
                     </Pressable>
@@ -446,37 +462,48 @@ export default function Hoje() {
                           const ex = exerciseById(item.exId);
                           if (ex) setExerciseToSwap(ex);
                         }}
-                        style={{
-                          paddingHorizontal: 7,
-                          paddingVertical: 3,
-                          borderRadius: 6,
-                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        style={({ pressed }) => ({
+                          paddingHorizontal: 10,
+                          paddingVertical: 7,
+                          borderRadius: 8,
+                          backgroundColor: 'rgba(255, 255, 255, 0.06)',
                           borderWidth: 1,
-                          borderColor: 'rgba(255, 255, 255, 0.08)',
-                        }}
+                          borderColor: 'rgba(255, 255, 255, 0.1)',
+                          minHeight: 36,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          opacity: pressed ? 0.7 : 1,
+                        })}
                       >
-                        <Text style={{ color: '#9CA3AF', fontSize: 10, fontWeight: '700' }}>
+                        <Text style={{ color: '#D1D5DB', fontSize: 11, fontWeight: '700' }}>
                           Trocar
                         </Text>
                       </Pressable>
 
-                      {/* Checkmark Compacto */}
-                      <View
-                        style={{
-                          width: 18,
-                          height: 18,
-                          borderRadius: 9,
+                      {/* Checkmark Interativo (Alterna Concluído) */}
+                      <Pressable
+                        onPress={() => {
+                          setTodayExercises((prev) =>
+                            prev.map((ex, i) => (i === idx ? { ...ex, done: !ex.done } : ex))
+                          );
+                        }}
+                        hitSlop={8}
+                        style={({ pressed }) => ({
+                          width: 36,
+                          height: 36,
+                          borderRadius: 18,
                           backgroundColor: item.done ? neonLime : 'transparent',
-                          borderWidth: item.done ? 0 : 1.5,
-                          borderColor: '#4A5568',
+                          borderWidth: item.done ? 0 : 2,
+                          borderColor: item.done ? neonLime : '#4B5563',
                           alignItems: 'center',
                           justifyContent: 'center',
-                        }}
+                          opacity: pressed ? 0.8 : 1,
+                        })}
                       >
-                        {item.done && (
-                          <Text style={{ color: '#0A0E14', fontSize: 10, fontWeight: '900' }}>✓</Text>
-                        )}
-                      </View>
+                        {item.done ? (
+                          <Text style={{ color: '#0A0E14', fontSize: 13, fontWeight: '900' }}>✓</Text>
+                        ) : null}
+                      </Pressable>
                     </View>
                   </View>
                 ))}
@@ -487,19 +514,20 @@ export default function Hoje() {
                 onPress={openWorkout}
                 style={({ pressed }) => ({
                   backgroundColor: neonLime,
-                  borderRadius: 12,
-                  paddingVertical: 12,
+                  borderRadius: 14,
+                  paddingVertical: 14,
+                  minHeight: 50,
                   flexDirection: 'row',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 8,
                   opacity: pressed ? 0.9 : 1,
                   shadowColor: neonLime,
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
+                  shadowOpacity: 0.35,
+                  shadowRadius: 10,
                 })}
               >
-                <Text style={{ color: '#0A0E14', fontSize: 13.5, fontWeight: '800' }}>
+                <Text style={{ color: '#0A0E14', fontSize: 14, fontWeight: '800', letterSpacing: 0.2 }}>
                   ▶ Iniciar Treino Agora
                 </Text>
               </Pressable>
@@ -510,21 +538,22 @@ export default function Hoje() {
               style={{
                 backgroundColor: cardBg,
                 borderRadius: 16,
-                padding: 18,
+                padding: 16,
                 borderWidth: 1,
                 borderColor: cardBorder,
                 gap: 12,
+                width: '100%',
               }}
             >
               <Text style={{ color: '#8E9AA8', fontSize: 10.5, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' }}>
                 ATIVIDADE RECENTE
               </Text>
 
-              <View style={{ gap: 8 }}>
+              <View style={{ gap: 8, width: '100%' }}>
                 {[
-                  { title: 'Upper Push', date: 'Hoje', volume: '12.450 kg' },
-                  { title: 'Membros Inferiores', date: 'Ontem', volume: '15.750 kg' },
-                  { title: 'Costas & Bíceps', date: '21 Mai', volume: '11.200 kg' },
+                  { title: 'Treino de Pernas', date: 'Ontem', volume: '15.750 kg' },
+                  { title: 'Peito & Braços', date: '21 Mai', volume: '12.450 kg' },
+                  { title: 'Costas & Ombros', date: '19 Mai', volume: '13.800 kg' },
                 ].map((act, idx) => (
                   <View
                     key={idx}
@@ -532,7 +561,7 @@ export default function Hoje() {
                       flexDirection: 'row',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      paddingVertical: 8,
+                      paddingVertical: 10,
                       borderBottomWidth: idx < 2 ? 1 : 0,
                       borderColor: 'rgba(255, 255, 255, 0.04)',
                     }}
