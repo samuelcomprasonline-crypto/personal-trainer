@@ -2,7 +2,7 @@ import { Tabs, router } from 'expo-router';
 import { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import { useAuth } from '../../src/state/AuthContext';
-import { useTabOptions } from '../../src/ui/tabs';
+import { CustomBottomTabBar, useTabOptions } from '../../src/ui/tabs';
 import { Body, Button, Card, Title } from '../../src/ui/components';
 
 export default function StudentTabs() {
@@ -38,13 +38,16 @@ export default function StudentTabs() {
   }
 
   return (
-    <Tabs screenOptions={options}>
+    <Tabs
+      screenOptions={options}
+      tabBar={(props) => <CustomBottomTabBar {...props} />}
+    >
       <Tabs.Screen
         name="hoje"
         options={{
           title: 'Hoje',
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 18, color }}>⚡</Text>
+            <Text style={{ fontSize: 16, color }}>⚡</Text>
           ),
         }}
       />
@@ -53,7 +56,7 @@ export default function StudentTabs() {
         options={{
           title: 'Nutrição',
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 18, color }}>🥗</Text>
+            <Text style={{ fontSize: 16, color }}>🥗</Text>
           ),
         }}
       />
@@ -62,7 +65,7 @@ export default function StudentTabs() {
         options={{
           title: 'Evolução',
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 18, color }}>📈</Text>
+            <Text style={{ fontSize: 16, color }}>📈</Text>
           ),
         }}
       />
@@ -71,7 +74,7 @@ export default function StudentTabs() {
         options={{
           title: 'Treinador',
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 18, color }}>👤</Text>
+            <Text style={{ fontSize: 16, color }}>👤</Text>
           ),
         }}
       />

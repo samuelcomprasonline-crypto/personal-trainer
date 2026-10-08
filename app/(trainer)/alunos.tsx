@@ -154,39 +154,40 @@ export default function Alunos() {
     return (
       <>
         <Screen>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 8 }}>
             <Pressable
               accessibilityRole="button"
               onPress={() => setSelectedStudentName(null)}
               style={({ pressed }) => ({
-                paddingVertical: 8,
-                paddingHorizontal: 14,
+                paddingVertical: 7,
+                paddingHorizontal: 12,
                 backgroundColor: t.surfaceElevated,
-                borderRadius: 10,
+                borderRadius: 9,
                 borderWidth: 1,
                 borderColor: t.border,
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 6,
+                gap: 4,
                 opacity: pressed ? 0.8 : 1,
               })}
             >
-              <Text style={{ color: t.accent, fontWeight: '700', fontSize: 13 }}>← Voltar para lista de alunos</Text>
+              <Text style={{ color: t.accent, fontWeight: '700', fontSize: 12.5 }}>← Voltar</Text>
             </Pressable>
 
             <View
               style={{
                 backgroundColor: `${t.accent}20`,
-                paddingHorizontal: 12,
-                paddingVertical: 6,
+                paddingHorizontal: 10,
+                paddingVertical: 5,
                 borderRadius: 999,
                 borderWidth: 1,
                 borderColor: `${t.accent}40`,
+                flexShrink: 1,
               }}
             >
-              <Body style={{ color: t.accent, fontSize: 12.5, fontWeight: '700' } as any}>
-                Prontuário Ativo: {selectedStudentName}
-              </Body>
+              <Text style={{ color: t.accent, fontSize: 12, fontWeight: '700' }} numberOfLines={1}>
+                {selectedStudentName}
+              </Text>
             </View>
           </View>
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Line, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 import type { BioimpedanceAssessment, SkinfoldsData } from '../domain/types';
 import { Body, Card, Chip, Label, Title } from './components';
@@ -50,6 +50,7 @@ export function Body3DSegmentMap({
   onSelectArea,
 }: Body3DSegmentMapProps) {
   const t = useTheme();
+  const { width } = useWindowDimensions();
   const defaultGender: GenderMode = bio?.sexo === 'M' ? 'male' : 'female';
   const [gender, setGender] = useState<GenderMode>(defaultGender);
   const [viewMode, setViewMode] = useState<'clinical' | 'hologram'>('clinical');
@@ -230,51 +231,48 @@ export function Body3DSegmentMap({
     <View style={{ gap: 20 }}>
       {/* 1. CABEÇALHO DO LAUDO 3D */}
       <Card style={{ backgroundColor: themeColors.darkBg, borderColor: themeColors.borderDark, borderWidth: 1, padding: 20, gap: 14 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+        <View style={{ gap: 10 }}>
           <View style={{ gap: 4 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <View
                 style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: 5,
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
                   backgroundColor: themeColors.neonLime,
-                  shadowColor: themeColors.neonLime,
-                  shadowOpacity: 1,
-                  shadowRadius: 8,
                 }}
               />
-              <Text style={{ color: themeColors.neonLime, fontSize: 11, fontWeight: '800', letterSpacing: 1.2, textTransform: 'uppercase' }}>
-                TELEMETRIA ANATÔMICA 3D VIVA
+              <Text style={{ color: themeColors.neonLime, fontSize: 10.5, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
+                TELEMETRIA ANATÔMICA 3D
               </Text>
             </View>
-            <Title size={24} style={{ color: '#FFFFFF' }}>
-              Diagnóstico Biométrico & Foco de Ação
+            <Title size={20} style={{ color: '#FFFFFF' }}>
+              Diagnóstico Biométrico & 3D
             </Title>
-            <Body muted style={{ fontSize: 13 }}>
-              Mapeamento dinâmico cruzando Dobras Cutâneas + Bioimpedância + Dieta + Objetivo.
+            <Body muted style={{ fontSize: 12.5 }}>
+              Mapeamento de Dobras Cutâneas + Bioimpedância + Dieta.
             </Body>
           </View>
 
-          {/* SELETOR DE SEXO ANATÔMICO */}
+          {/* SELETOR DE SEXO ANATÔMICO (50% CADA, SEM FUGIR DA TELA) */}
           <View
             style={{
               flexDirection: 'row',
               backgroundColor: themeColors.cardDark,
               borderRadius: 12,
-              padding: 4,
+              padding: 3,
               borderWidth: 1,
               borderColor: 'rgba(255, 255, 255, 0.1)',
               gap: 4,
+              width: '100%',
             }}
           >
             <Pressable
               onPress={() => setGender('male')}
               style={{
-                flexDirection: 'row',
+                flex: 1,
                 alignItems: 'center',
-                gap: 6,
-                paddingHorizontal: 14,
+                justifyContent: 'center',
                 paddingVertical: 7,
                 borderRadius: 9,
                 backgroundColor: gender === 'male' ? 'rgba(0, 240, 255, 0.2)' : 'transparent',
@@ -282,18 +280,17 @@ export function Body3DSegmentMap({
                 borderColor: gender === 'male' ? themeColors.cyan : 'transparent',
               }}
             >
-              <Text style={{ color: gender === 'male' ? themeColors.cyan : '#94A3B8', fontSize: 13, fontWeight: '800' }}>
-                ♂ Masculino (Vitality 3D)
+              <Text style={{ color: gender === 'male' ? themeColors.cyan : '#94A3B8', fontSize: 12, fontWeight: '800' }}>
+                ♂ Masculino
               </Text>
             </Pressable>
 
             <Pressable
               onPress={() => setGender('female')}
               style={{
-                flexDirection: 'row',
+                flex: 1,
                 alignItems: 'center',
-                gap: 6,
-                paddingHorizontal: 14,
+                justifyContent: 'center',
                 paddingVertical: 7,
                 borderRadius: 9,
                 backgroundColor: gender === 'female' ? 'rgba(255, 77, 109, 0.25)' : 'transparent',
@@ -301,8 +298,8 @@ export function Body3DSegmentMap({
                 borderColor: gender === 'female' ? themeColors.coralRed : 'transparent',
               }}
             >
-              <Text style={{ color: gender === 'female' ? themeColors.coralRed : '#94A3B8', fontSize: 13, fontWeight: '800' }}>
-                ♀ Feminino (Belat 3D)
+              <Text style={{ color: gender === 'female' ? themeColors.coralRed : '#94A3B8', fontSize: 12, fontWeight: '800' }}>
+                ♀ Feminino
               </Text>
             </Pressable>
           </View>
@@ -358,11 +355,11 @@ export function Body3DSegmentMap({
           borderColor: themeColors.borderDark,
           alignItems: 'center',
           justifyContent: 'center',
-          paddingVertical: 24,
-          paddingHorizontal: 16,
+          paddingVertical: 18,
+          paddingHorizontal: 6,
           position: 'relative',
           overflow: 'hidden',
-          minHeight: 560,
+          minHeight: 520,
         }}
       >
         {/* Efeito de Scanner de Laser Biométrico Animado percorrendo o fundo */}
@@ -385,12 +382,14 @@ export function Body3DSegmentMap({
         <View
           style={{
             position: 'absolute',
-            top: 12,
-            left: 12,
-            right: 12,
+            top: 10,
+            left: 10,
+            right: 10,
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 6,
             zIndex: 10,
           }}
         >
@@ -458,8 +457,9 @@ export function Body3DSegmentMap({
         {/* CONTAINER DO CORPO TOTALMENTE CENTRALIZADO COM OS MARCADORES */}
         <View
           style={{
-            width: 320,
-            height: 520,
+            maxWidth: '100%',
+            width: Math.min(300, width - 40),
+            height: 500,
             position: 'relative',
             alignItems: 'center',
             justifyContent: 'center',
@@ -482,10 +482,11 @@ export function Body3DSegmentMap({
               position: 'absolute',
               top: 0,
               left: 0,
-              width: 320,
-              height: 520,
+              width: '100%',
+              height: '100%',
               pointerEvents: 'none',
             }}
+            viewBox="0 0 320 520"
           >
             {focusPoints.map((point) => {
               const cx = (point.leftPercent / 100) * 320;
@@ -556,7 +557,7 @@ export function Body3DSegmentMap({
                     }}
                   >
                     <Text style={{ color: '#000000', fontSize: 10, fontWeight: '900' }}>
-                      {point.name.split(' ')[0]}
+                      {point.id === 'abdomen' ? 'Abdômen' : point.name.split(' ')[0]}
                     </Text>
                   </View>
                 )}
@@ -610,7 +611,7 @@ export function Body3DSegmentMap({
                 {activeFocus.category === 'prioridade_maxima' ? '⚡ FOCO DE AÇÃO IMEDIATA' : '⚖️ AJUSTE DE SIMETRIA'}
               </Text>
             </View>
-            <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '600' }} numberOfLines={1}>
+            <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '600', flexShrink: 1 }} numberOfLines={1}>
               {activeFocus.anatomicalRegion}
             </Text>
           </View>

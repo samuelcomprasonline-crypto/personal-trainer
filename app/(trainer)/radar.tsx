@@ -210,12 +210,12 @@ export default function Radar() {
                 >
                   <Text style={{ fontSize: 16 }}>⚡</Text>
                 </View>
-                <View>
-                  <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '800' }}>
-                    Central de Prescrição & Dieta Rápida
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: '#FFFFFF', fontSize: 14.5, fontWeight: '800' }}>
+                    Prescrição de Treino & Dieta
                   </Text>
-                  <Text style={{ color: '#8E9AA8', fontSize: 11.5 }}>
-                    Prescreva periodizações completas ou dietas com cálculo automático de macros
+                  <Text style={{ color: '#8E9AA8', fontSize: 11.5 }} numberOfLines={1}>
+                    Prescreva periodizações completas ou dietas com cálculo de macros
                   </Text>
                 </View>
               </View>
@@ -284,8 +284,8 @@ export default function Radar() {
                   gap: 12,
                 }}
               >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, minWidth: 200 }}>
                     {/* Avatar Redondo */}
                     <View
                       style={{
@@ -301,7 +301,7 @@ export default function Radar() {
                     >
                       <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '800' }}>SF</Text>
                     </View>
-                    <View>
+                    <View style={{ flex: 1 }}>
                       <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '700' }}>
                         Samuel Ferreira
                       </Text>
@@ -409,7 +409,7 @@ export default function Radar() {
                       opacity: pressed ? 0.8 : 1,
                     })}
                   >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
                       {/* Avatar Circular */}
                       <View
                         style={{
@@ -427,11 +427,11 @@ export default function Radar() {
                           {st.initial}
                         </Text>
                       </View>
-                      <View style={{ gap: 1 }}>
+                      <View style={{ gap: 1, flex: 1 }}>
                         <Text style={{ color: '#FFFFFF', fontSize: 12.5, fontWeight: '700' }}>
                           {st.name}
                         </Text>
-                        <Text style={{ color: '#6B7280', fontSize: 10.5 }}>
+                        <Text style={{ color: '#6B7280', fontSize: 10.5 }} numberOfLines={1}>
                           {st.status}
                         </Text>
                       </View>

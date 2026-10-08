@@ -2,7 +2,7 @@ import { Tabs, router } from 'expo-router';
 import { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import { useAuth } from '../../src/state/AuthContext';
-import { useTabOptions } from '../../src/ui/tabs';
+import { CustomBottomTabBar, useTabOptions } from '../../src/ui/tabs';
 import { Body, Button, Card, Title } from '../../src/ui/components';
 
 export default function TrainerTabs() {
@@ -38,13 +38,16 @@ export default function TrainerTabs() {
   }
 
   return (
-    <Tabs screenOptions={options}>
+    <Tabs
+      screenOptions={options}
+      tabBar={(props) => <CustomBottomTabBar {...props} />}
+    >
       <Tabs.Screen
         name="radar"
         options={{
           title: 'Radar',
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 18, color }}>📡</Text>
+            <Text style={{ fontSize: 16, color }}>📡</Text>
           ),
         }}
       />
@@ -53,25 +56,25 @@ export default function TrainerTabs() {
         options={{
           title: 'Alunos',
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 18, color }}>👥</Text>
+            <Text style={{ fontSize: 16, color }}>👥</Text>
           ),
         }}
       />
       <Tabs.Screen
         name="biblioteca"
         options={{
-          title: 'Biblioteca',
+          title: 'Treinos',
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 18, color }}>📚</Text>
+            <Text style={{ fontSize: 16, color }}>📚</Text>
           ),
         }}
       />
       <Tabs.Screen
         name="financeiro"
         options={{
-          title: 'Financeiro',
+          title: 'Finanças',
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 18, color }}>💰</Text>
+            <Text style={{ fontSize: 16, color }}>💰</Text>
           ),
         }}
       />
@@ -80,7 +83,7 @@ export default function TrainerTabs() {
         options={{
           title: 'Prescrever',
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 18, color }}>⚡</Text>
+            <Text style={{ fontSize: 16, color }}>⚡</Text>
           ),
         }}
       />

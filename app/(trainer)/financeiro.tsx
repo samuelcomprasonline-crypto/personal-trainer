@@ -297,19 +297,19 @@ export default function Financeiro() {
                 <View
                   key={item.productId}
                   style={{
-                    paddingVertical: 8,
+                    paddingVertical: 10,
                     borderBottomWidth: 1,
                     borderBottomColor: 'rgba(255, 255, 255, 0.05)',
                     gap: 6,
                   }}
                 >
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                    <Text style={{ color: '#FFFFFF', fontSize: 13.5, fontWeight: '700', flex: 1 }} numberOfLines={1}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700', flex: 1, minWidth: 160 }}>
                       {item.productName}
                     </Text>
-                    <Text style={{ color: t.accent, fontSize: 14, fontWeight: '800' }}>
+                    <Text style={{ color: t.accent, fontSize: 13.5, fontWeight: '800' }}>
                       R$ {item.totalAmount.toLocaleString('pt-BR')},00{' '}
-                      <Text style={{ color: '#8E9AA8', fontSize: 12, fontWeight: '600' }}>({item.percentage}%)</Text>
+                      <Text style={{ color: '#8E9AA8', fontSize: 11.5, fontWeight: '600' }}>({item.percentage}%)</Text>
                     </Text>
                   </View>
 

@@ -15,6 +15,26 @@ console.log('✓ Created dist/.nojekyll');
 // 2. Criar dist/vercel.json para roteamento SPA na Vercel
 const vercelConfig = {
   cleanUrls: true,
+  headers: [
+    {
+      source: '/index.html',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'no-cache, no-store, must-revalidate',
+        },
+      ],
+    },
+    {
+      source: '/(.*)',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=0, must-revalidate',
+        },
+      ],
+    },
+  ],
   rewrites: [
     {
       source: '/(.*)',
@@ -46,21 +66,49 @@ if (fs.existsSync(indexPath)) {
     html = html.replace('<head>', `<head>${redirectScript}`);
   }
 
+  // Viewport com viewport-fit=cover para suporte nativo a safe areas do Safari / iOS
+  html = html.replace(
+    /name="viewport" content="[^"]*"/,
+    'name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"'
+  );
+
   // Garantir que scripts usem caminhos relativos
   html = html.replace(/src="\/_expo\//g, 'src="./_expo/');
   html = html.replace(/href="\/favicon\.ico"/g, 'href="./favicon.ico"');
 
-  // Adicionar estilo escuro padrão no reset para evitar qualquer flash branco
-  const darkStyle = `
-      html, body, #root {
+  // Substituir height 100% por 100dvh e -webkit-fill-available para Safari iOS
+  html = html.replace(
+    /html,\s*body\s*\{\s*height:\s*100%;?\s*\}/g,
+    'html, body { height: 100%; height: 100dvh !important; min-height: -webkit-fill-available; }'
+  );
+  html = html.replace(
+    /#root\s*\{\s*display:\s*flex;\s*height:\s*100%;\s*flex:\s*1;\s*\}/g,
+    '#root { display: flex; height: 100%; height: 100dvh !important; min-height: -webkit-fill-available; flex: 1; }'
+  );
+
+  const extraStyles = `
+    <style>
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+      html, body {
         background-color: #050811 !important;
         color: #FFFFFF !important;
+        height: 100dvh !important;
+        overflow: hidden;
       }
+      #root {
+        background-color: #050811 !important;
+        color: #FFFFFF !important;
+        height: 100dvh !important;
+        overflow: hidden;
+      }
+    </style>
   `;
-  html = html.replace('/* These styles make the body full-height */', `${darkStyle}\n      /* These styles make the body full-height */`);
+  html = html.replace('</head>', `${extraStyles}\n  </head>`);
 
   fs.writeFileSync(indexPath, html);
-  console.log('✓ Patched dist/index.html with relative paths and dark background');
+  console.log('✓ Patched dist/index.html with relative paths, viewport-fit=cover and 100dvh');
 
   // 4. Copiar index.html para 404.html (para suporte SPA no GitHub Pages)
   fs.writeFileSync(path.join(distDir, '404.html'), html);
