@@ -65,112 +65,117 @@ export default function Radar() {
         </View>
 
         {/* 4 CARDS HORIZONTAIS DE MÉTRICAS KPI ULTRA-MINIMALISTAS */}
-        <View style={{ flexDirection: isWide ? 'row' : 'column', gap: 12 }}>
+        {/* 4 CARDS DE MÉTRICAS KPI (2x2 NO MOBILE, 1x4 NO DESKTOP) */}
+        <View style={{ flexDirection: 'row', flexWrap: isWide ? 'nowrap' : 'wrap', gap: 10 }}>
           {/* Alertas Ativos */}
           <View
             style={{
-              flex: 1,
+              flex: isWide ? 1 : undefined,
+              width: isWide ? undefined : '48%',
               backgroundColor: cardBg,
               borderRadius: 14,
-              padding: 16,
+              padding: 14,
               borderWidth: 1,
               borderColor: 'rgba(239, 68, 68, 0.25)',
               justifyContent: 'space-between',
-              minHeight: 92,
+              minHeight: 84,
             }}
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ color: '#EF4444', fontSize: 10.5, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' }}>
-                ALERTAS ATIVOS
+              <Text style={{ color: '#EF4444', fontSize: 10, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                ALERTAS
               </Text>
               <Sparkline color="#EF4444" />
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '800' }}>
-                1 Casos
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4, marginTop: 4 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '800' }}>
+                1 Caso
               </Text>
-              <Text style={{ color: '#6B7280', fontSize: 11 }}>urgência hoje</Text>
+              <Text style={{ color: '#6B7280', fontSize: 10.5 }}>urgente</Text>
             </View>
           </View>
 
           {/* Alunos Ativos */}
           <View
             style={{
-              flex: 1,
+              flex: isWide ? 1 : undefined,
+              width: isWide ? undefined : '48%',
               backgroundColor: cardBg,
               borderRadius: 14,
-              padding: 16,
+              padding: 14,
               borderWidth: 1,
               borderColor: cardBorder,
               justifyContent: 'space-between',
-              minHeight: 92,
+              minHeight: 84,
             }}
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ color: '#8E9AA8', fontSize: 10.5, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' }}>
-                ALUNOS ATIVOS
+              <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                ALUNOS
               </Text>
               <Sparkline color="#8E9AA8" />
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '800' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4, marginTop: 4 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '800' }}>
                 4 Alunos
               </Text>
-              <Text style={{ color: '#6B7280', fontSize: 11 }}>base total</Text>
+              <Text style={{ color: '#6B7280', fontSize: 10.5 }}>base</Text>
             </View>
           </View>
 
           {/* Faturamento Mês */}
           <View
             style={{
-              flex: 1,
+              flex: isWide ? 1 : undefined,
+              width: isWide ? undefined : '48%',
               backgroundColor: cardBg,
               borderRadius: 14,
-              padding: 16,
+              padding: 14,
               borderWidth: 1,
               borderColor: 'rgba(16, 185, 129, 0.25)',
               justifyContent: 'space-between',
-              minHeight: 92,
+              minHeight: 84,
             }}
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ color: '#10B981', fontSize: 10.5, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' }}>
-                FATURAMENTO MÊS
+              <Text style={{ color: '#10B981', fontSize: 10, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                FATURAMENTO
               </Text>
               <Sparkline color="#10B981" />
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '800' }}>
-                R$ 1.000,00
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4, marginTop: 4 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }}>
+                R$ 1.000
               </Text>
-              <Text style={{ color: '#10B981', fontSize: 11, fontWeight: '600' }}>100% em dia</Text>
+              <Text style={{ color: '#10B981', fontSize: 10.5, fontWeight: '600' }}>100%</Text>
             </View>
           </View>
 
           {/* Retenção Média */}
           <View
             style={{
-              flex: 1,
+              flex: isWide ? 1 : undefined,
+              width: isWide ? undefined : '48%',
               backgroundColor: cardBg,
               borderRadius: 14,
-              padding: 16,
+              padding: 14,
               borderWidth: 1,
               borderColor: cardBorder,
               justifyContent: 'space-between',
-              minHeight: 92,
+              minHeight: 84,
             }}
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ color: '#38BDF8', fontSize: 10.5, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' }}>
-                RETENÇÃO MÉDIA
+              <Text style={{ color: '#38BDF8', fontSize: 10, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                RETENÇÃO
               </Text>
               <Sparkline color="#38BDF8" />
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '800' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4, marginTop: 4 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '800' }}>
                 94%
               </Text>
-              <Text style={{ color: '#6B7280', fontSize: 11 }}>engajamento</Text>
+              <Text style={{ color: '#6B7280', fontSize: 10.5 }}>engajado</Text>
             </View>
           </View>
         </View>

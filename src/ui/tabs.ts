@@ -16,14 +16,15 @@ export function useTabOptions() {
           backgroundColor: '#0D0E12',
           borderTopColor: 'rgba(255, 255, 255, 0.08)',
           borderTopWidth: 1,
-          height: Platform.OS === 'ios' ? 78 : 64,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 8,
+          height: 84,
+          paddingBottom: 26,
           paddingTop: 8,
         },
     tabBarLabelStyle: {
       fontSize: 11,
       fontWeight: '700' as const,
       letterSpacing: 0.2,
+      marginBottom: 2,
     },
     tabBarItemStyle: {
       paddingVertical: 2,

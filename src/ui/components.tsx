@@ -20,9 +20,9 @@ export function Screen({
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top', 'left', 'right']}>
       <ScrollView
         contentContainerStyle={{
-          padding: isDesktop ? (hideNav ? 40 : 32) : 18,
-          paddingBottom: 80,
-          gap: 18,
+          padding: isDesktop ? (hideNav ? 40 : 32) : 16,
+          paddingBottom: isDesktop ? (hideNav ? 40 : 32) : 110,
+          gap: isDesktop ? 18 : 14,
           maxWidth: isDesktop ? (hideNav ? 560 : 1320) : 640,
           width: '100%',
           alignSelf: 'center',

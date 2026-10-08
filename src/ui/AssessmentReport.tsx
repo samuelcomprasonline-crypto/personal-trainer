@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getAssessmentsForStudent, saveOrUpdateAssessment, updateAssessmentPhotos, updateBioimpedanceData } from '../data/assessmentStore';
 import { assessmentHistory, samuelAssessment } from '../data/seed';
 import type { AssessmentPhotos, BioimpedanceAssessment, PhysicalAssessment, SkinfoldsData } from '../domain/types';
@@ -262,37 +262,40 @@ export function AssessmentReport({
   return (
     <View style={{ gap: 16 }}>
       {/* CABEÇALHO DO LAUDO CONECTADO AO ALUNO */}
-      <Card>
+      <Card style={{ gap: 12 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
           <View>
-            <Label style={{ color: t.accent }}>Prontuário de Avaliação Biomecânica</Label>
-            <Title size={26}>{studentName}</Title>
+            <Label style={{ color: t.accent, fontSize: 11 }}>Prontuário de Avaliação Biomecânica</Label>
+            <Title size={22}>{studentName}</Title>
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <View
-              style={{
-                paddingHorizontal: 12,
-                paddingVertical: 6,
-                borderRadius: 999,
-                backgroundColor: `${t.accent}20`,
-                borderWidth: 1,
-                borderColor: `${t.accent}50`,
-              }}
-            >
-              <Body style={{ color: t.accent, fontWeight: '700', fontSize: 13 } as any}>
-                Avaliação: {activeDateFormatted}
-              </Body>
-            </View>
+          <View
+            style={{
+              paddingHorizontal: 10,
+              paddingVertical: 5,
+              borderRadius: 999,
+              backgroundColor: `${t.accent}20`,
+              borderWidth: 1,
+              borderColor: `${t.accent}50`,
+            }}
+          >
+            <Body style={{ color: t.accent, fontWeight: '700', fontSize: 12 } as any}>
+              Avaliação: {activeDateFormatted}
+            </Body>
+          </View>
+        </View>
 
+        <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+          <View style={{ flex: 1 }}>
             <Button
-              title="📄 Balança (PDF/Foto)"
+              title="📄 Balança (PDF)"
               onPress={() => setShowUploadModal(true)}
               variant="neonOutline"
             />
-
+          </View>
+          <View style={{ flex: 1 }}>
             <Button
-              title="📥 Laudo em PDF 🖨️"
+              title="📥 Laudo PDF 🖨️"
               onPress={() => setShowPrintModal(true)}
               variant="primary"
             />
@@ -366,8 +369,13 @@ export function AssessmentReport({
         onClose={() => setShowPrintModal(false)}
       />
 
-      {/* SELETOR DE ABAS PRINCIPAIS DO LAUDO */}
-      <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+      {/* SELETOR DE ABAS PRINCIPAIS DO LAUDO (CAROUSEL DE ABAS HORIZONTAL LIMPO) */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: 8, paddingVertical: 4, paddingHorizontal: 2 }}
+        style={{ marginBottom: 4 }}
+      >
         <Chip
           label="🧬 Holograma 3D por Sexo"
           selected={tab === 'mapa3d'}
@@ -398,7 +406,7 @@ export function AssessmentReport({
           selected={tab === 'evolucao'}
           onPress={() => setTab('evolucao')}
         />
-      </View>
+      </ScrollView>
 
       {/* ABA 1: TOPOGRAFIA 3D VIVA E FOCOS DE AÇÃO */}
       {tab === 'mapa3d' && bio && (

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Linking, Modal, Pressable, Text, TextInput, View } from 'react-native';
+import { Linking, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { assessmentHistory, otherStudents, samuelAssessment, template, trainer } from '../../src/data/seed';
 import { getLatestAssessmentForStudent, saveOrUpdateAssessment } from '../../src/data/assessmentStore';
 import { buildBillingWhatsAppMessage } from '../../src/data/financialStore';
@@ -206,7 +206,12 @@ export default function Alunos() {
           )}
 
           {/* ABAS DO PRONTUÁRIO */}
-          <View style={{ flexDirection: 'row', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 8, paddingBottom: 10 }}
+            style={{ marginBottom: 4 }}
+          >
             <Chip
               label="Laudo Clínico & 3D"
               selected={studentTab === 'laudo'}
@@ -232,7 +237,7 @@ export default function Alunos() {
               selected={studentTab === 'recuperacao'}
               onPress={() => setStudentTab('recuperacao')}
             />
-          </View>
+          </ScrollView>
 
           {/* ABA 1: LAUDO CLÍNICO & COMPARTIVO CONECTADO AO ALUNO */}
           {studentTab === 'laudo' && (

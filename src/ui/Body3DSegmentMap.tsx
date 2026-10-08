@@ -316,37 +316,33 @@ export function Body3DSegmentMap({
             borderColor: 'rgba(16, 185, 129, 0.2)',
             borderRadius: 14,
             padding: 14,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
             gap: 12,
           }}
         >
-          <View style={{ gap: 2, flex: 1, minWidth: 200 }}>
+          <View style={{ gap: 2 }}>
             <Text style={{ color: t.muted, fontSize: 10, fontWeight: '700', textTransform: 'uppercase' }}>
               OBJETIVO PRINCIPAL PRESCRITO
             </Text>
-            <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '800' }}>
+            <Text style={{ color: '#FFFFFF', fontSize: 13.5, fontWeight: '800' }}>
               🎯 {goal}
             </Text>
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-            <View style={{ alignItems: 'flex-start' }}>
-              <Text style={{ color: t.muted, fontSize: 10, fontWeight: '700' }}>META CALÓRICA</Text>
+          <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
+            <View style={{ minWidth: '45%', flex: 1, alignItems: 'flex-start' }}>
+              <Text style={{ color: t.muted, fontSize: 9.5, fontWeight: '700' }}>META CALÓRICA</Text>
               <Text style={{ color: themeColors.neonLime, fontSize: 14, fontWeight: '800' }}>{dailyCalories} kcal</Text>
             </View>
-            <View style={{ alignItems: 'flex-start' }}>
-              <Text style={{ color: t.muted, fontSize: 10, fontWeight: '700' }}>PROTEÍNA DIÁRIA</Text>
+            <View style={{ minWidth: '45%', flex: 1, alignItems: 'flex-start' }}>
+              <Text style={{ color: t.muted, fontSize: 9.5, fontWeight: '700' }}>PROTEÍNA DIÁRIA</Text>
               <Text style={{ color: '#00F0FF', fontSize: 14, fontWeight: '800' }}>{dailyProtein}g ({proteinPerKg}g/kg)</Text>
             </View>
-            <View style={{ alignItems: 'flex-start' }}>
-              <Text style={{ color: t.muted, fontSize: 10, fontWeight: '700' }}>ÁGUA DIÁRIA</Text>
+            <View style={{ minWidth: '45%', flex: 1, alignItems: 'flex-start' }}>
+              <Text style={{ color: t.muted, fontSize: 9.5, fontWeight: '700' }}>ÁGUA DIÁRIA</Text>
               <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '800' }}>{dailyWaterMl} ml</Text>
             </View>
-            <View style={{ alignItems: 'flex-start' }}>
-              <Text style={{ color: t.muted, fontSize: 10, fontWeight: '700' }}>% GORDURA ATUAL</Text>
+            <View style={{ minWidth: '45%', flex: 1, alignItems: 'flex-start' }}>
+              <Text style={{ color: t.muted, fontSize: 9.5, fontWeight: '700' }}>% GORDURA ATUAL</Text>
               <Text style={{ color: themeColors.coralRed, fontSize: 14, fontWeight: '800' }}>{currentBf}%</Text>
             </View>
           </View>
@@ -385,72 +381,78 @@ export function Body3DSegmentMap({
           }}
         />
 
-        {/* Tag Flutuante de Scanner Ativo */}
+        {/* BARRA SUPERIOR DO SCANNER: STATUS + ALTERNADOR (SEM SOBREPOSIÇÃO) */}
         <View
           style={{
             position: 'absolute',
-            top: 16,
-            left: 20,
-            backgroundColor: 'rgba(11, 18, 32, 0.85)',
-            paddingHorizontal: 12,
-            paddingVertical: 6,
-            borderRadius: 999,
-            borderWidth: 1,
-            borderColor: 'rgba(0, 240, 255, 0.3)',
+            top: 12,
+            left: 12,
+            right: 12,
             flexDirection: 'row',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            gap: 8,
-            zIndex: 2,
+            zIndex: 10,
           }}
         >
-          <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#00F0FF' }} />
-          <Text style={{ color: '#00F0FF', fontSize: 11, fontWeight: '700' }}>
-            SCANNER VIVO EM TEMPO REAL: 100% CALIBRADO
-          </Text>
-        </View>
+          {/* Tag de Scanner Ativo */}
+          <View
+            style={{
+              backgroundColor: 'rgba(11, 18, 32, 0.92)',
+              paddingHorizontal: 10,
+              paddingVertical: 5,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor: 'rgba(0, 240, 255, 0.3)',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#00F0FF' }} />
+            <Text style={{ color: '#00F0FF', fontSize: 10.5, fontWeight: '700' }}>
+              SCANNER 3D ATIVO
+            </Text>
+          </View>
 
-        {/* Alternador de Modo: Fotorrealista vs Holograma Neon */}
-        <View
-          style={{
-            position: 'absolute',
-            top: 16,
-            right: 20,
-            flexDirection: 'row',
-            backgroundColor: 'rgba(11, 18, 32, 0.85)',
-            borderRadius: 10,
-            padding: 3,
-            borderWidth: 1,
-            borderColor: 'rgba(255, 255, 255, 0.1)',
-            gap: 4,
-            zIndex: 2,
-          }}
-        >
-          <Pressable
-            onPress={() => setViewMode('clinical')}
+          {/* Alternador de Modo: Fotorrealista vs Holograma Neon */}
+          <View
             style={{
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-              borderRadius: 7,
-              backgroundColor: viewMode === 'clinical' ? 'rgba(255, 255, 255, 0.15)' : 'transparent',
+              flexDirection: 'row',
+              backgroundColor: 'rgba(11, 18, 32, 0.92)',
+              borderRadius: 10,
+              padding: 2,
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              gap: 2,
             }}
           >
-            <Text style={{ color: viewMode === 'clinical' ? '#FFFFFF' : '#94A3B8', fontSize: 11, fontWeight: '700' }}>
-              Fotorrealista
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setViewMode('hologram')}
-            style={{
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-              borderRadius: 7,
-              backgroundColor: viewMode === 'hologram' ? 'rgba(0, 240, 255, 0.25)' : 'transparent',
-            }}
-          >
-            <Text style={{ color: viewMode === 'hologram' ? '#00F0FF' : '#94A3B8', fontSize: 11, fontWeight: '700' }}>
-              Holograma Neon
-            </Text>
-          </Pressable>
+            <Pressable
+              onPress={() => setViewMode('clinical')}
+              style={{
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 7,
+                backgroundColor: viewMode === 'clinical' ? 'rgba(255, 255, 255, 0.18)' : 'transparent',
+              }}
+            >
+              <Text style={{ color: viewMode === 'clinical' ? '#FFFFFF' : '#94A3B8', fontSize: 10.5, fontWeight: '700' }}>
+                Fotorrealista
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setViewMode('hologram')}
+              style={{
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 7,
+                backgroundColor: viewMode === 'hologram' ? 'rgba(0, 240, 255, 0.25)' : 'transparent',
+              }}
+            >
+              <Text style={{ color: viewMode === 'hologram' ? '#00F0FF' : '#94A3B8', fontSize: 10.5, fontWeight: '700' }}>
+                Neon 3D
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* CONTAINER DO CORPO TOTALMENTE CENTRALIZADO COM OS MARCADORES */}
@@ -591,46 +593,49 @@ export function Body3DSegmentMap({
           gap: 16,
         }}
       >
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
-          <View style={{ gap: 4 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View
-                style={{
-                  paddingHorizontal: 8,
-                  paddingVertical: 3,
-                  borderRadius: 6,
-                  backgroundColor: `${activeFocus.badgeColor}25`,
-                  borderWidth: 1,
-                  borderColor: activeFocus.badgeColor,
-                }}
-              >
-                <Text style={{ color: activeFocus.badgeColor, fontSize: 10, fontWeight: '800', textTransform: 'uppercase' }}>
-                  {activeFocus.category === 'prioridade_maxima' ? '⚡ FOCO DE AÇÃO IMEDIATA' : '⚖️ AJUSTE DE SIMETRIA'}
-                </Text>
-              </View>
-              <Text style={{ color: t.muted, fontSize: 12 }}>{activeFocus.anatomicalRegion}</Text>
+        <View style={{ gap: 10 }}>
+          {/* Badge & Região Anatômica */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <View
+              style={{
+                paddingHorizontal: 8,
+                paddingVertical: 3,
+                borderRadius: 6,
+                backgroundColor: `${activeFocus.badgeColor}25`,
+                borderWidth: 1,
+                borderColor: activeFocus.badgeColor,
+              }}
+            >
+              <Text style={{ color: activeFocus.badgeColor, fontSize: 10, fontWeight: '800', textTransform: 'uppercase' }}>
+                {activeFocus.category === 'prioridade_maxima' ? '⚡ FOCO DE AÇÃO IMEDIATA' : '⚖️ AJUSTE DE SIMETRIA'}
+              </Text>
             </View>
-
-            <Title size={22} style={{ color: '#FFFFFF', marginTop: 2 }}>
-              {activeFocus.name}
-            </Title>
+            <Text style={{ color: '#8E9AA8', fontSize: 11, fontWeight: '600' }} numberOfLines={1}>
+              {activeFocus.anatomicalRegion}
+            </Text>
           </View>
 
-          {/* Dados Numéricos Reais (Dobra Cutânea & Bioimpedância) */}
-          <View style={{ flexDirection: 'row', gap: 12 }}>
+          {/* Nome da Região */}
+          <Title size={20} style={{ color: '#FFFFFF' }}>
+            {activeFocus.name}
+          </Title>
+
+          {/* Dados Numéricos Reais (Dobra Cutânea & Bioimpedância) em 2 Colunas Limpas */}
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 2 }}>
             {activeFocus.skinfoldValueMm && (
               <View
                 style={{
+                  flex: 1,
                   backgroundColor: '#171E2D',
-                  paddingHorizontal: 14,
-                  paddingVertical: 8,
+                  paddingHorizontal: 12,
+                  paddingVertical: 10,
                   borderRadius: 12,
                   borderWidth: 1,
                   borderColor: 'rgba(255, 255, 255, 0.08)',
                 }}
               >
                 <Text style={{ color: t.muted, fontSize: 10, fontWeight: '700' }}>{activeFocus.skinfoldName}</Text>
-                <Text style={{ color: activeFocus.badgeColor, fontSize: 18, fontWeight: '900' }}>
+                <Text style={{ color: activeFocus.badgeColor, fontSize: 18, fontWeight: '900', marginTop: 2 }}>
                   {activeFocus.skinfoldValueMm} mm
                 </Text>
               </View>
@@ -638,16 +643,17 @@ export function Body3DSegmentMap({
 
             <View
               style={{
+                flex: 1,
                 backgroundColor: '#171E2D',
-                paddingHorizontal: 14,
-                paddingVertical: 8,
+                paddingHorizontal: 12,
+                paddingVertical: 10,
                 borderRadius: 12,
                 borderWidth: 1,
                 borderColor: 'rgba(255, 255, 255, 0.08)',
               }}
             >
-              <Text style={{ color: t.muted, fontSize: 10, fontWeight: '700' }}>{activeFocus.bioMetric}</Text>
-              <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '900' }}>
+              <Text style={{ color: t.muted, fontSize: 10, fontWeight: '700' }} numberOfLines={1}>Gordura Visceral</Text>
+              <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '900', marginTop: 2 }}>
                 {activeFocus.bioValue}
               </Text>
             </View>
@@ -655,38 +661,36 @@ export function Body3DSegmentMap({
         </View>
 
         {/* Diagnóstico Clínico */}
-        <View style={{ backgroundColor: '#0B0F17', padding: 14, borderRadius: 12, gap: 4 }}>
-          <Text style={{ color: activeFocus.badgeColor, fontSize: 11, fontWeight: '800', textTransform: 'uppercase' }}>
+        <View style={{ backgroundColor: '#0B0F17', padding: 12, borderRadius: 12, gap: 4 }}>
+          <Text style={{ color: activeFocus.badgeColor, fontSize: 10.5, fontWeight: '800', textTransform: 'uppercase' }}>
             🔬 Diagnóstico da Bioimpedância & Dobras
           </Text>
-          <Text style={{ color: '#D1D5DB', fontSize: 13, lineHeight: 20 }}>
+          <Text style={{ color: '#D1D5DB', fontSize: 12.5, lineHeight: 18 }}>
             {activeFocus.diagnosis}
           </Text>
         </View>
 
         {/* Grid de Prescrição: O que Fazer no Treino vs O que Fazer na Dieta */}
-        <View style={{ flexDirection: 'row', gap: 14, flexWrap: 'wrap' }}>
+        <View style={{ gap: 10 }}>
           {/* Coluna 1: Prescrição no Treino */}
           <View
             style={{
-              flex: 1,
-              minWidth: 260,
               backgroundColor: '#171E2D',
-              borderRadius: 14,
-              padding: 14,
-              gap: 8,
+              borderRadius: 12,
+              padding: 12,
+              gap: 6,
               borderLeftWidth: 3,
               borderLeftColor: themeColors.neonLime,
             }}
           >
-            <Text style={{ color: themeColors.neonLime, fontSize: 11, fontWeight: '800', textTransform: 'uppercase' }}>
+            <Text style={{ color: themeColors.neonLime, fontSize: 10.5, fontWeight: '800', textTransform: 'uppercase' }}>
               🏋️‍♂️ Intervenção no Treino
             </Text>
-            <Text style={{ color: '#FFFFFF', fontSize: 12, lineHeight: 18 }}>
+            <Text style={{ color: '#FFFFFF', fontSize: 12, lineHeight: 17 }}>
               {activeFocus.trainingPrescription}
             </Text>
-            <View style={{ gap: 4, marginTop: 4 }}>
-              <Text style={{ color: t.muted, fontSize: 10, fontWeight: '700' }}>EXERCÍCIOS-CHAVE:</Text>
+            <View style={{ gap: 3, marginTop: 4 }}>
+              <Text style={{ color: t.muted, fontSize: 9.5, fontWeight: '700' }}>EXERCÍCIOS-CHAVE:</Text>
               {activeFocus.recommendedExercises.map((ex, idx) => (
                 <Text key={idx} style={{ color: '#D1D5DB', fontSize: 11 }}>
                   • {ex}
@@ -698,25 +702,23 @@ export function Body3DSegmentMap({
           {/* Coluna 2: Prescrição na Dieta */}
           <View
             style={{
-              flex: 1,
-              minWidth: 260,
               backgroundColor: '#171E2D',
-              borderRadius: 14,
-              padding: 14,
-              gap: 8,
+              borderRadius: 12,
+              padding: 12,
+              gap: 6,
               borderLeftWidth: 3,
               borderLeftColor: themeColors.cyan,
             }}
           >
-            <Text style={{ color: themeColors.cyan, fontSize: 11, fontWeight: '800', textTransform: 'uppercase' }}>
+            <Text style={{ color: themeColors.cyan, fontSize: 10.5, fontWeight: '800', textTransform: 'uppercase' }}>
               🥗 Intervenção na Dieta & Macros
             </Text>
-            <Text style={{ color: '#FFFFFF', fontSize: 12, lineHeight: 18 }}>
+            <Text style={{ color: '#FFFFFF', fontSize: 12, lineHeight: 17 }}>
               {activeFocus.dietPrescription}
             </Text>
-            <View style={{ marginTop: 6, backgroundColor: 'rgba(0, 240, 255, 0.08)', padding: 8, borderRadius: 8 }}>
+            <View style={{ marginTop: 4, backgroundColor: 'rgba(0, 240, 255, 0.08)', padding: 7, borderRadius: 8 }}>
               <Text style={{ color: '#00F0FF', fontSize: 11, fontWeight: '700' }}>
-                🎯 Meta Numérica: {activeFocus.targetGoal}
+                🎯 Meta: {activeFocus.targetGoal}
               </Text>
             </View>
           </View>

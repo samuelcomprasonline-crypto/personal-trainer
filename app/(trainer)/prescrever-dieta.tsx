@@ -546,18 +546,23 @@ export default function PrescreverDietaScreen() {
       )}
 
       {/* 3. ABAS: TREINO vs DIETA */}
-      <View style={{ flexDirection: 'row', gap: 6 }}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: 8, paddingVertical: 2 }}
+        style={{ marginBottom: 4 }}
+      >
         <Chip
-          label="🏋️‍♂️ Prescrição de Treinamento"
+          label="🏋️‍♂️ Prescrição de Treino"
           selected={activeTab === 'treino'}
           onPress={() => setActiveTab('treino')}
         />
         <Chip
-          label="🥗 Prescrição Nutricional & Dieta"
+          label="🥗 Prescrição Nutricional"
           selected={activeTab === 'dieta'}
           onPress={() => setActiveTab('dieta')}
         />
-      </View>
+      </ScrollView>
 
       {/* ABA DE TREINO */}
       {activeTab === 'treino' && (

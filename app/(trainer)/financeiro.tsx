@@ -260,7 +260,12 @@ export default function Financeiro() {
       </Card>
 
       {/* 4. SELETOR DE ABAS */}
-      <View style={{ flexDirection: 'row', gap: 6, marginVertical: 4, flexWrap: 'wrap' }}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: 8, paddingVertical: 4, paddingHorizontal: 2 }}
+        style={{ marginVertical: 4 }}
+      >
         <Chip
           label="📊 Faturamento por Produto"
           selected={activeTab === 'resumo'}
@@ -276,42 +281,55 @@ export default function Financeiro() {
           selected={activeTab === 'produtos'}
           onPress={() => setActiveTab('produtos')}
         />
-      </View>
+      </ScrollView>
 
       {/* ABA 1: FATURAMENTO DETALHADO POR PRODUTO */}
       {activeTab === 'resumo' && (
         <View style={{ gap: 12 }}>
           <Card>
-            <Title size={19}>Quanto você ganha com cada produto:</Title>
-            <Body muted style={{ fontSize: 13, marginBottom: 8 } as any}>
+            <Title size={18}>Quanto você ganha com cada produto:</Title>
+            <Body muted style={{ fontSize: 12.5, marginBottom: 8 } as any}>
               Distribuição proporcional do seu faturamento mensal por modalidade:
             </Body>
 
-            <View style={{ gap: 14 }}>
+            <View style={{ gap: 8 }}>
               {summary.revenueByProduct.map((item) => (
-                <View key={item.productId} style={{ gap: 4 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                      <Body style={{ fontSize: 14, fontWeight: '700' } as any}>{item.productName}</Body>
-                      <View style={{ backgroundColor: t.surfaceElevated, paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 }}>
-                        <Text style={{ color: colors.textMuted, fontSize: 10 }}>{item.count} contratos</Text>
-                      </View>
-                    </View>
-                    <Title size={16} style={{ color: t.accent }}>
-                      R$ {item.totalAmount.toLocaleString('pt-BR')},00 ({item.percentage}%)
-                    </Title>
+                <View
+                  key={item.productId}
+                  style={{
+                    paddingVertical: 8,
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+                    gap: 6,
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 13.5, fontWeight: '700', flex: 1 }} numberOfLines={1}>
+                      {item.productName}
+                    </Text>
+                    <Text style={{ color: t.accent, fontSize: 14, fontWeight: '800' }}>
+                      R$ {item.totalAmount.toLocaleString('pt-BR')},00{' '}
+                      <Text style={{ color: '#8E9AA8', fontSize: 12, fontWeight: '600' }}>({item.percentage}%)</Text>
+                    </Text>
                   </View>
 
-                  {/* Barra proporcional */}
-                  <View style={{ height: 8, backgroundColor: t.surfaceElevated, borderRadius: 4, overflow: 'hidden' }}>
-                    <View
-                      style={{
-                        height: '100%',
-                        width: `${Math.max(5, item.percentage)}%`,
-                        backgroundColor: t.accent,
-                        borderRadius: 4,
-                      }}
-                    />
+                  {/* Barra proporcional + Contratos */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <View style={{ flex: 1, height: 6, backgroundColor: t.surfaceElevated, borderRadius: 3, overflow: 'hidden' }}>
+                      <View
+                        style={{
+                          height: '100%',
+                          width: `${Math.max(5, item.percentage)}%`,
+                          backgroundColor: t.accent,
+                          borderRadius: 3,
+                        }}
+                      />
+                    </View>
+                    <View style={{ backgroundColor: 'rgba(255, 255, 255, 0.06)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+                      <Text style={{ color: '#8E9AA8', fontSize: 10, fontWeight: '600' }}>
+                        {item.count} {item.count === 1 ? 'contrato' : 'contratos'}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               ))}

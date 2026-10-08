@@ -79,7 +79,12 @@ export default function Biblioteca() {
         </View>
 
         {/* ABAS MODERNAS */}
-        <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 8, paddingVertical: 4, paddingHorizontal: 2 }}
+          style={{ marginVertical: 2 }}
+        >
           <Chip
             label="Programas & Fichas Prontas"
             selected={tab === 'programas'}
@@ -100,7 +105,7 @@ export default function Biblioteca() {
             selected={tab === 'historico'}
             onPress={() => setTab('historico')}
           />
-        </View>
+        </ScrollView>
 
         {/* ABA 1: PROGRAMAS & FICHAS DO BANCO DE DADOS */}
         {tab === 'programas' && (
